@@ -178,7 +178,7 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
 <div class="auth-container">
   <div class="auth-cover">
     <div class="cover-content">
-      <div class="cover-logo"><i class="fas fa-graduation-cap"></i></div>
+      <div class="cover-logo"><img src="{{ asset('assets/logoRemove.png') }}" alt="" style="height:40px"></div>
       <h1 class="cover-title">Masa Depanmu<br>Dimulai Di Sini.</h1>
       <p class="cover-desc">Platform bimbingan belajar terlengkap. Persiapkan dirimu untuk ujian CPNS, TNI, POLRI, dan Kampus bersama pengajar ahli kami.</p>
     </div>

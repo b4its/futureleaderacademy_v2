@@ -512,6 +512,176 @@ body::before {
 .program-card.featured .program-btn:hover { background: rgba(255,255,255,0.3); }
 .program-card.featured:hover .program-btn { background: rgba(255,255,255,0.3); transform: rotate(45deg); }
 
+/* ===================== TRYOUT / TEST SECTION ===================== */
+.tryout-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+.tryout-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px;
+  text-align: center; cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative; overflow: hidden;
+}
+.tryout-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(249,115,22,0.05), rgba(251,191,36,0.05));
+  opacity: 0; transition: opacity 0.3s;
+}
+.tryout-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px var(--shadow-lg); border-color: rgba(249,115,22,0.3); }
+.tryout-card:hover::after { opacity: 1; }
+
+.tryout-icon {
+  width: 64px; height: 64px; border-radius: 20px;
+  margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; position: relative; z-index: 1;
+}
+.tryout-icon.cpns { background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(251,191,36,0.1)); color: var(--primary); }
+.tryout-icon.tni { background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.1)); color: #22C55E; }
+.tryout-icon.kampus { background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(79,70,229,0.1)); color: #818CF8; }
+.tryout-icon.polri { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.1)); color: var(--accent); }
+.tryout-icon.sbmptn { background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(8,145,178,0.1)); color: #06B6D4; }
+.tryout-icon.bumn { background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.1)); color: var(--gold); }
+.tryout-icon.pramuka { background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.1)); color: #A855F7; }
+.tryout-icon.umum { background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(239,68,68,0.1)); color: var(--primary-dark); }
+
+.tryout-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; position: relative; z-index: 1; }
+.tryout-soal { font-size: 12px; color: var(--text-muted); position: relative; z-index: 1; }
+.tryout-tag {
+  display: inline-block; margin-top: 10px;
+  background: rgba(249,115,22,0.1); color: var(--primary);
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  position: relative; z-index: 1;
+}
+
+/* ===================== ARTICLES ===================== */
+.articles-grid { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 24px; 
+}
+
+.article-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.article-card:hover { 
+  transform: translateY(-8px); 
+  box-shadow: 0 24px 48px var(--shadow-lg); 
+  border-color: rgba(249,115,22,0.3); 
+}
+
+.article-img-wrap { 
+  position: relative; 
+  height: 220px; 
+  overflow: hidden; 
+}
+
+.article-img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  transition: transform 0.5s ease; 
+}
+
+.article-card:hover .article-img { 
+  transform: scale(1.08); 
+}
+
+.article-category {
+  position: absolute; 
+  top: 16px; 
+  left: 16px;
+  background: rgba(255, 255, 255, 0.9); 
+  backdrop-filter: blur(4px);
+  color: var(--primary-dark); 
+  font-size: 11px; 
+  font-weight: 700;
+  padding: 6px 14px; 
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .article-category { 
+  background: rgba(26, 18, 8, 0.8); 
+  color: var(--gold); 
+  border: 1px solid var(--border);
+}
+
+.article-content { 
+  padding: 24px; 
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.article-meta { 
+  display: flex; 
+  gap: 16px; 
+  font-size: 13px; 
+  color: var(--text-muted); 
+  margin-bottom: 12px; 
+  font-weight: 500;
+}
+
+.article-meta i {
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+.article-title { 
+  font-size: 18px; 
+  font-weight: 700; 
+  margin-bottom: 12px; 
+  line-height: 1.4; 
+  font-family: 'DM Sans', sans-serif; 
+}
+
+.article-title a { 
+  transition: color 0.2s; 
+}
+
+.article-title a:hover { 
+  color: var(--primary); 
+}
+
+.article-excerpt { 
+  font-size: 14px; 
+  color: var(--text-muted); 
+  line-height: 1.6; 
+  margin-bottom: 24px; 
+  display: -webkit-box; 
+  -webkit-line-clamp: 3; 
+  -webkit-box-orient: vertical; 
+  overflow: hidden; 
+  flex-grow: 1;
+}
+
+.article-link { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-size: 14px; 
+  font-weight: 700; 
+  color: var(--primary); 
+  transition: gap 0.3s ease; 
+  margin-top: auto;
+}
+
+.article-link:hover { 
+  gap: 12px; 
+}
+
 /* ===================== WHY US ===================== */
 .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
 
@@ -578,50 +748,6 @@ body::before {
   display: block; line-height: 1;
 }
 .mosaic-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
-
-/* ===================== TRYOUT / TEST SECTION ===================== */
-.tryout-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-
-.tryout-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 20px; padding: 24px;
-  text-align: center; cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative; overflow: hidden;
-}
-.tryout-card::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(249,115,22,0.05), rgba(251,191,36,0.05));
-  opacity: 0; transition: opacity 0.3s;
-}
-.tryout-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px var(--shadow-lg); border-color: rgba(249,115,22,0.3); }
-.tryout-card:hover::after { opacity: 1; }
-
-.tryout-icon {
-  width: 64px; height: 64px; border-radius: 20px;
-  margin: 0 auto 16px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; position: relative; z-index: 1;
-}
-.tryout-icon.cpns { background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(251,191,36,0.1)); color: var(--primary); }
-.tryout-icon.tni { background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.1)); color: #22C55E; }
-.tryout-icon.kampus { background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(79,70,229,0.1)); color: #818CF8; }
-.tryout-icon.polri { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.1)); color: var(--accent); }
-.tryout-icon.sbmptn { background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(8,145,178,0.1)); color: #06B6D4; }
-.tryout-icon.bumn { background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.1)); color: var(--gold); }
-.tryout-icon.pramuka { background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(139,92,246,0.1)); color: #A855F7; }
-.tryout-icon.umum { background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(239,68,68,0.1)); color: var(--primary-dark); }
-
-.tryout-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; position: relative; z-index: 1; }
-.tryout-soal { font-size: 12px; color: var(--text-muted); position: relative; z-index: 1; }
-.tryout-tag {
-  display: inline-block; margin-top: 10px;
-  background: rgba(249,115,22,0.1); color: var(--primary);
-  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
-  position: relative; z-index: 1;
-}
 
 /* ===================== TESTIMONIALS ===================== */
 .testimonials-wrapper { position: relative; overflow: hidden; }
@@ -904,6 +1030,7 @@ footer {
   .why-grid { grid-template-columns: 1fr; gap: 48px; }
   .programs-grid { grid-template-columns: 1fr 1fr; }
   .tryout-grid { grid-template-columns: repeat(2, 1fr); }
+  .articles-grid { grid-template-columns: repeat(2, 1fr); }
   .mentors-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .testimonial-card { min-width: calc(50% - 12px); }
@@ -922,6 +1049,7 @@ footer {
   .section { padding: 64px 0; }
   .programs-grid { grid-template-columns: 1fr; }
   .tryout-grid { grid-template-columns: repeat(2, 1fr); }
+  .articles-grid { grid-template-columns: 1fr; }
   .mentors-grid { grid-template-columns: 1fr 1fr; }
   .hero-stats { flex-direction: column; gap: 16px; }
   .stat-divider { width: 80px; height: 1px; }
@@ -954,7 +1082,6 @@ footer {
 </head>
 <body>
 
-<!-- ===================== NAVBAR ===================== -->
 <nav id="navbar">
   <div class="container">
     <div class="nav-inner">
@@ -969,6 +1096,7 @@ footer {
       <ul class="nav-links">
         <li><a href="#programs">Program</a></li>
         <li><a href="#tryout">Tryout</a></li>
+        <li><a href="#articles">Artikel</a></li>
         <li><a href="#why-us">Tentang</a></li>
         <li><a href="#testimonials">Alumni</a></li>
         <li><a href="#faq">FAQ</a></li>
@@ -986,18 +1114,17 @@ footer {
   </div>
 </nav>
 
-<!-- Mobile Nav -->
 <div class="mobile-nav" id="mobileNav">
   <a href="#login" onclick="closeMobileNav()">Masuk</a> 
   <a href="#programs" onclick="closeMobileNav()">Program</a>
   <a href="#tryout" onclick="closeMobileNav()">Tryout</a>
+  <a href="#articles" onclick="closeMobileNav()">Artikel</a>
   <a href="#why-us" onclick="closeMobileNav()">Tentang Kami</a>
   <a href="#testimonials" onclick="closeMobileNav()">Alumni</a>
   <a href="#faq" onclick="closeMobileNav()">FAQ</a>
   <a href="#cta" onclick="closeMobileNav()">Daftar Gratis</a>
 </div>
 
-<!-- ===================== HERO ===================== -->
 <section id="hero">
   <div class="hero-bg"></div>
   <div class="hero-orb hero-orb-1"></div>
@@ -1062,7 +1189,6 @@ footer {
 </section>
 
 
-<!-- ===================== PROGRAMS ===================== -->
 <section class="section" id="programs">
   <div class="container">
     <div class="section-header reveal">
@@ -1144,7 +1270,6 @@ footer {
   </div>
 </section>
 
-<!-- ===================== TRYOUT ===================== -->
 <section class="section section-alt" id="tryout">
   <div class="container">
     <div class="section-header reveal">
@@ -1194,7 +1319,70 @@ footer {
   </div>
 </section>
 
-<!-- ===================== WHY US ===================== -->
+<section class="section" id="articles">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="badge"><i class="fas fa-newspaper"></i> Artikel & Tips</div>
+      <h2>Kabar Terbaru &<br>Strategi Belajar</h2>
+      <p>Dapatkan insight, tips lulus tes, dan pembaruan informasi terkini seputar seleksi nasional.</p>
+    </div>
+
+    <div class="articles-grid stagger">
+      <div class="article-card">
+        <div class="article-img-wrap">
+          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Tips Belajar" class="article-img">
+          <div class="article-category">CPNS</div>
+        </div>
+        <div class="article-content">
+          <div class="article-meta">
+            <span><i class="far fa-calendar-alt"></i> 12 Okt 2026</span>
+            <span><i class="far fa-clock"></i> 5 Min read</span>
+          </div>
+          <h3 class="article-title"><a href="#">Strategi Lolos SKD CPNS 2026: Fokus di Materi TWK!</a></h3>
+          <p class="article-excerpt">Pelajari poin-poin penting yang sering keluar pada Tes Wawasan Kebangsaan (TWK) tahun ini dan temukan metode efektif untuk mengingat pasal-pasal konstitusi.</p>
+          <a href="#" class="article-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="article-card">
+        <div class="article-img-wrap">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Persiapan Tes" class="article-img">
+          <div class="article-category">Kampus</div>
+        </div>
+        <div class="article-content">
+          <div class="article-meta">
+            <span><i class="far fa-calendar-alt"></i> 08 Okt 2026</span>
+            <span><i class="far fa-clock"></i> 4 Min read</span>
+          </div>
+          <h3 class="article-title"><a href="#">Rahasia Menembus Passing Grade UTBK SNBT</a></h3>
+          <p class="article-excerpt">Memahami sistem penilaian IRT (Item Response Theory) pada UTBK sangat krusial. Simak bagaimana cara mengoptimalkan jawabanmu agar mendapat skor maksimal.</p>
+          <a href="#" class="article-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="article-card">
+        <div class="article-img-wrap">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mentoring" class="article-img">
+          <div class="article-category">TNI/POLRI</div>
+        </div>
+        <div class="article-content">
+          <div class="article-meta">
+            <span><i class="far fa-calendar-alt"></i> 05 Okt 2026</span>
+            <span><i class="far fa-clock"></i> 6 Min read</span>
+          </div>
+          <h3 class="article-title"><a href="#">Persiapan Fisik Maksimal untuk Tes Kesamaptaan</a></h3>
+          <p class="article-excerpt">Bukan hanya soal akademik, tes fisik seringkali menjadi batu sandungan. Berikut adalah rutinitas latihan harian yang bisa kamu persiapkan dari rumah.</p>
+          <a href="#" class="article-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="reveal" style="text-align: center; margin-top: 56px;">
+      <a href="{{ route('artikel.index') }}" class="btn btn-ghost">Lihat Semua Artikel</a>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="why-us">
   <div class="container">
     <div class="why-grid">
@@ -1282,7 +1470,6 @@ footer {
   </div>
 </section>
 
-<!-- ===================== TESTIMONIALS ===================== -->
 <section class="section" id="testimonials">
   <div class="container">
     <div class="section-header reveal">
@@ -1380,7 +1567,6 @@ footer {
   </div>
 </section>
 
-<!-- ===================== FAQ ===================== -->
 <section class="section section-alt" id="faq">
   <div class="container">
     <div class="section-header reveal">
@@ -1416,7 +1602,6 @@ footer {
   </div>
 </section>
 
-<!-- ===================== CTA ===================== -->
 <section id="cta">
   <div class="container">
     <div class="cta-content">
@@ -1439,7 +1624,6 @@ footer {
   </div>
 </section>
 
-<!-- ===================== FOOTER ===================== -->
 <footer>
   <div class="container">
     <div class="footer-grid">
@@ -1495,12 +1679,10 @@ footer {
   </div>
 </footer>
 
-<!-- Back to top -->
 <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
   <i class="fas fa-arrow-up"></i>
 </button>
 
-<!-- ===================== JAVASCRIPT ===================== -->
 <script>
 // ==================== THEME TOGGLE ====================
 const html = document.documentElement;

@@ -21,4 +21,8 @@ Route::prefix('pembelajaran')->group(function () {
         Route::view('tryout', 'pembelajaran.tryoutku_pembelajaran')->name('pembelajaran.tryout.index');
         Route::view('cat', 'pembelajaran.cat_pembelajaran')->name('pembelajaran.cat.index');
 });
+Route::prefix('artikel')->group(function () {
+        Route::view('/', 'artikel.index_artikel')->name('artikel.index');
+        Route::view('view', 'artikel.view_artikel')->name('artikel.view.index');
+});
 
