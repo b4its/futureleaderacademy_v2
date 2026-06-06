@@ -26,6 +26,7 @@ class MemberPanelProvider extends PanelProvider
         return $panel
             ->id('member')
             ->path('member')
+            ->brandName('Member Panel')
             ->colors([
                 'primary' => Color::Amber,
             ])

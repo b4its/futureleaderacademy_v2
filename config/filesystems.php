@@ -46,6 +46,13 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        // custom langsung ke public/
+        'public_folder' => [
+            'driver' => 'local',
+            'root' => public_path(),  
+            'url' => rtrim(env('APP_URL'), '/') . '/', // Memastikan ada satu slash di akhir
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',

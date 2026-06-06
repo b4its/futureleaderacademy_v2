@@ -1,0 +1,459 @@
+@extends('components.base_pembelajaran')
+@section('title', 'Eksplor - Future Leader Academy')
+
+@php
+// Simulasi Data dari Database (Bisa diganti dengan passing variable dari Controller nanti)
+$asn_quizzes = [
+    [
+        'id' => 1,
+        'title' => 'TWK - Wawasan Kebangsaan & Pancasila',
+        'questions' => 35,
+        'duration' => 45,
+        'plays' => '12.4K',
+        'theme' => 'g-2',
+        'icon' => 'fa-flag',
+        'icon_color' => '#D97706'
+    ],
+    [
+        'id' => 2,
+        'title' => 'TIU - Analogi & Logika Formil Dasar',
+        'questions' => 30,
+        'duration' => 40,
+        'plays' => '18.2K',
+        'theme' => 'g-3',
+        'icon' => 'fa-brain',
+        'icon_color' => '#C2410C'
+    ],
+    [
+        'id' => 3,
+        'title' => 'TKP - Pelayanan Publik & Jejaring Kerja',
+        'questions' => 45,
+        'duration' => 60,
+        'plays' => '24.5K',
+        'theme' => 'g-1',
+        'icon' => 'fa-users',
+        'icon_color' => '#BE123C'
+    ],
+    [
+        'id' => 4,
+        'title' => 'Simulasi SKD Full Premium (Sistem CAT)',
+        'questions' => 110,
+        'duration' => 100,
+        'plays' => '8.9K',
+        'theme' => 'g-4',
+        'icon' => 'fa-file-signature',
+        'icon_color' => '#0369A1'
+    ],
+];
+
+$tni_polri_quizzes = [
+    [
+        'id' => 5,
+        'title' => 'Psikotes - Kecerdasan & Ketelitian',
+        'questions' => 50,
+        'duration' => 60,
+        'plays' => '15.1K',
+        'theme' => 'g-5',
+        'icon' => 'fa-puzzle-piece',
+        'icon_color' => '#7E22CE'
+    ],
+    [
+        'id' => 6,
+        'title' => 'Pengetahuan Umum & Sejarah Militer',
+        'questions' => 40,
+        'duration' => 45,
+        'plays' => '9.3K',
+        'theme' => 'g-2',
+        'icon' => 'fa-book-open',
+        'icon_color' => '#B45309'
+    ],
+];
+@endphp
+
+@push('styles')
+<style>
+/* Hero Section */
+.hero-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 48px; }
+.join-card { background: linear-gradient(135deg, var(--secondary), var(--primary)); border-radius: var(--radius-lg); padding: 48px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: var(--shadow-md); position: relative; overflow: hidden; color: white; text-align: center; }
+.join-card::before { content: ''; position: absolute; top: -50px; left: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); border-radius: 50%; }
+.join-card::after { content: ''; position: absolute; bottom: -80px; right: -20px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%); border-radius: 50%; }
+.join-card h2 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 8px; position: relative; z-index: 1; }
+.join-card p { font-size: 15px; opacity: 0.9; margin-bottom: 24px; position: relative; z-index: 1; font-weight: 500; }
+.join-input-group { display: flex; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); border-radius: 100px; padding: 6px; width: 100%; max-width: 480px; border: 1px solid rgba(255,255,255,0.4); transition: all 0.3s; position: relative; z-index: 1; }
+.join-input-group:focus-within { background: white; border-color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+.join-input-group input { flex: 1; background: transparent; padding: 12px 24px; font-size: 18px; font-weight: 700; color: var(--primary-dark); text-align: center; text-transform: uppercase; letter-spacing: 2px;}
+.join-input-group input::placeholder { color: rgba(255,255,255,0.8); font-weight: 600; text-transform: none; letter-spacing: normal; }
+.btn-join { background: white; color: var(--primary); font-weight: 800; padding: 12px 36px; border-radius: 100px; transition: all 0.2s; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+/* Profile Card */
+.profile-card { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 32px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); position: relative; }
+.css-avatar { position: relative; width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(249,115,22,0.2); border: 4px solid white; margin-bottom: 16px; z-index: 1; }
+.css-avatar-inner { width: 100%; height: 100%; background: linear-gradient(135deg, var(--secondary-light) 0%, var(--primary) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.css-avatar-inner::before { content: '\f007'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 36px; color: white; position: relative; top: 4px; }
+.css-avatar-status { position: absolute; bottom: 2px; right: 2px; background: #10B981; width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; z-index: 2; }
+.profile-greeting { font-size: 14px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+.profile-name { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 16px; }
+.stats-row { display: flex; gap: 12px; width: 100%; justify-content: center; }
+.stat-badge { display: flex; align-items: center; gap: 6px; background: rgba(249,115,22,0.08); padding: 8px 16px; border-radius: 100px; font-weight: 700; font-size: 14px; color: var(--primary-dark); }
+.stat-badge.gold { background: rgba(251,191,36,0.15); color: #B45309; }
+
+/* Category Sections & Cards */
+.category-section { margin-bottom: 48px; }
+.category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.category-title { display: flex; align-items: center; gap: 12px; font-size: 22px; font-family: 'Playfair Display', serif; font-weight: 800; color: var(--text-main); }
+.category-title i { color: var(--primary); font-size: 20px; background: rgba(249,115,22,0.1); padding: 8px; border-radius: 10px; }
+.btn-see-more { color: var(--primary); font-weight: 700; font-size: 14px; background: transparent; border: 1.5px solid var(--primary); padding: 6px 16px; border-radius: 100px; transition: all 0.2s; }
+.btn-see-more:hover { background: var(--primary); color: white; }
+.card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.quiz-card { background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border-color); overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; }
+.quiz-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+.card-graphic { height: 140px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: all 0.4s; }
+.g-1 { background: linear-gradient(135deg, #FFE4E6 0%, #FECDD3 100%); }
+.g-2 { background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); }
+.g-3 { background: linear-gradient(135deg, #FFEDD5 0%, #FED7AA 100%); }
+.g-4 { background: linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 100%); }
+.g-5 { background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%); }
+.card-graphic::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px); background-size: 20px 20px; }
+.card-icon { font-size: 56px; position: relative; z-index: 1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1)); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.quiz-card:hover .card-icon { transform: scale(1.2) rotate(8deg); }
+.blob { position: absolute; background: rgba(255,255,255,0.4); border-radius: 50%; z-index: 0; }
+.blob-1 { width: 80px; height: 80px; top: 10px; left: 20px; }
+.blob-2 { width: 60px; height: 60px; bottom: 10px; right: 20px; }
+.play-badge { position: absolute; bottom: 12px; right: 12px; background: rgba(255,255,255,0.95); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 800; color: var(--primary-dark); z-index: 2; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.card-content { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.card-content h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; line-height: 1.4; }
+.card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 16px; border-top: 1px dashed var(--border-color); }
+.meta-item { font-size: 13px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.meta-item i { color: var(--primary); }
+
+/* ===================== MODAL STYLES ===================== */
+.custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(28, 18, 7, 0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 20px; }
+.custom-modal-overlay.active { opacity: 1; visibility: visible; }
+.custom-modal { background: var(--bg-surface); border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: var(--shadow-md); transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; overflow: hidden; position: relative;}
+.custom-modal-overlay.active .custom-modal { transform: scale(1) translateY(0); opacity: 1; }
+.btn-close-modal { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 18px; cursor: pointer; transition: all 0.2s; z-index: 10; }
+.btn-close-modal:hover { background: var(--danger); color: white; transform: rotate(90deg); }
+
+/* Modal Header Decoration */
+.modal-top-graphic { height: 100px; display: flex; align-items: center; justify-content: center; position: relative; }
+.modal-icon-wrap { width: 70px; height: 70px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: absolute; bottom: -35px; border: 4px solid white; z-index: 2; }
+
+.modal-content-body { padding: 48px 32px 32px; text-align: center; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; }
+.modal-stats { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px dashed var(--border-color); }
+.modal-stats .meta-item { background: rgba(249,115,22,0.05); padding: 8px 16px; border-radius: 100px; color: var(--primary-dark); }
+.modal-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+
+/* Modal Input overrides */
+/* Modal Input overrides */
+.modal-content-body .join-input-group { background: rgba(0,0,0,0.03); border: 1px solid var(--border-color); max-width: 100%; padding: 6px; }
+.modal-content-body .join-input-group input { color: var(--text-main); }
+
+/* TAMBAHKAN BARIS INI: Agar placeholder di dalam modal warnanya gelap */
+.modal-content-body .join-input-group input::placeholder { color: var(--text-muted); text-transform: none; font-weight: 500; }
+
+.modal-content-body .btn-join { background: var(--primary); color: white; }
+.modal-content-body .btn-join:hover { background: var(--primary-dark); }
+.modal-content-body .join-input-group { background: rgba(0,0,0,0.03); border: 1px solid var(--border-color); max-width: 100%; padding: 6px; }
+.modal-content-body .join-input-group input { color: var(--text-main); }
+.modal-content-body .btn-join { background: var(--primary); color: white; }
+.modal-content-body .btn-join:hover { background: var(--primary-dark); }
+
+
+/* RESPONSIVE BREAKPOINTS */
+@media (max-width: 1024px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .profile-card { flex-direction: row; text-align: left; justify-content: flex-start; gap: 24px; }
+    .stats-row { justify-content: flex-start; }
+    .card-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+    .card-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 24px; margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
+    .card-grid::-webkit-scrollbar { height: 0; display: none; }
+    .quiz-card { min-width: 85%; scroll-snap-align: center; }
+    
+    .join-card { padding: 32px 20px; }
+    .join-input-group { flex-direction: column; border-radius: var(--radius-md); background: transparent; gap: 12px; border: none; padding: 0; }
+    .join-input-group input { background: rgba(255,255,255,0.9); border-radius: 100px; width: 100%; color: var(--text-main); }
+    
+    /* TAMBAHKAN BARIS INI: Mengubah warna placeholder menjadi abu-abu (text-muted) di mode mobile */
+    .join-input-group input::placeholder { color: var(--text-muted); }
+    
+    .btn-join { width: 100%; }
+    
+    .modal-content-body .join-input-group { border-radius: var(--radius-md); background: transparent; border: none; }
+    .modal-content-body .join-input-group input { border: 1px solid var(--border-color); }
+}
+@media (max-width: 480px) {
+    .hero-grid { gap: 16px; margin-bottom: 32px; }
+    .profile-card { flex-direction: column; text-align: center; }
+    .stats-row { justify-content: center; }
+    .category-title { font-size: 18px; }
+    .btn-see-more { font-size: 12px; padding: 6px 12px; }
+    .custom-modal { padding: 0; }
+    .modal-content-body { padding: 40px 20px 24px; }
+}
+</style>
+@endpush
+@section('navbar_pembelajaran')
+    @include('components.pembelajaran_navbar')
+@endsection
+
+@section('content_pembelajaran')
+<main class="container">
+    <section class="hero-grid">
+        <div class="join-card">
+            <h2>Mulai Ujian Sekarang</h2>
+            <p>Masukkan kode tryout atau kuis live dari pengajar Anda.</p>
+            <div class="join-input-group">
+                <input type="text" placeholder="Ketik Kode Tryout..." autocomplete="off">
+                <button class="btn-join">Masuk</button>
+            </div>
+        </div>
+        
+        <div class="profile-card">
+            <div class="css-avatar">
+                <div class="css-avatar-inner"></div>
+                <div class="css-avatar-status"></div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-greeting">Siap Belajar Hari Ini?</div>
+                <div class="profile-name">Budi Santoso</div>
+                <div class="stats-row">
+                    <div class="stat-badge"><i class="fas fa-fire"></i> 12 Hari</div>
+                    <div class="stat-badge gold"><i class="fas fa-coins"></i> 2.450 Poin</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="category-section">
+        <div class="category-header">
+            <h2 class="category-title"><i class="fas fa-landmark"></i> Persiapan ASN / CPNS</h2>
+            <a href="{{ route('pembelajaran.tryout.index') }}" class="btn-see-more">Lihat Semua</a>
+        </div>
+        
+        <div class="card-grid">
+            @foreach($asn_quizzes as $quiz)
+            <article class="quiz-card trigger-modal" 
+                data-id="{{ $quiz['id'] }}"
+                data-title="{{ $quiz['title'] }}"
+                data-questions="{{ $quiz['questions'] }}"
+                data-duration="{{ $quiz['duration'] }}"
+                data-theme="{{ $quiz['theme'] }}"
+                data-icon="{{ $quiz['icon'] }}"
+                data-color="{{ $quiz['icon_color'] }}">
+                <div class="card-graphic {{ $quiz['theme'] }}">
+                    <div class="blob blob-1"></div><div class="blob blob-2"></div>
+                    <i class="fas {{ $quiz['icon'] }} card-icon" style="color: {{ $quiz['icon_color'] }};"></i>
+                    <span class="play-badge">{{ $quiz['plays'] }} plays</span>
+                </div>
+                <div class="card-content">
+                    <h3>{{ $quiz['title'] }}</h3>
+                    <div class="card-meta">
+                        <span class="meta-item"><i class="fas fa-list-ol"></i> {{ $quiz['questions'] }} Soal</span>
+                        <span class="meta-item"><i class="fas fa-clock"></i> {{ $quiz['duration'] }} Menit</span>
+                    </div>
+                </div>
+            </article>
+            @endforeach
+        </div>
+    </section>
+
+    <section class="category-section">
+        <div class="category-header">
+            <h2 class="category-title"><i class="fas fa-shield-halved" style="color: #059669; background: rgba(5,150,105,0.1);"></i> Seleksi TNI & POLRI</h2>
+            <a href="#" class="btn-see-more">Lihat Semua</a>
+        </div>
+        
+        <div class="card-grid">
+            @foreach($tni_polri_quizzes as $quiz)
+            <article class="quiz-card trigger-modal" 
+                data-id="{{ $quiz['id'] }}"
+                data-title="{{ $quiz['title'] }}"
+                data-questions="{{ $quiz['questions'] }}"
+                data-duration="{{ $quiz['duration'] }}"
+                data-theme="{{ $quiz['theme'] }}"
+                data-icon="{{ $quiz['icon'] }}"
+                data-color="{{ $quiz['icon_color'] }}">
+                <div class="card-graphic {{ $quiz['theme'] }}">
+                    <div class="blob blob-1"></div><div class="blob blob-2"></div>
+                    <i class="fas {{ $quiz['icon'] }} card-icon" style="color: {{ $quiz['icon_color'] }};"></i>
+                    <span class="play-badge">{{ $quiz['plays'] }} plays</span>
+                </div>
+                <div class="card-content">
+                    <h3>{{ $quiz['title'] }}</h3>
+                    <div class="card-meta">
+                        <span class="meta-item"><i class="fas fa-list-ol"></i> {{ $quiz['questions'] }} Soal</span>
+                        <span class="meta-item"><i class="fas fa-clock"></i> {{ $quiz['duration'] }} Menit</span>
+                    </div>
+                </div>
+            </article>
+            @endforeach
+        </div>
+    </section>
+
+    <div id="tryoutModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <button class="btn-close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button>
+            
+            <div id="modalThemeBg" class="modal-top-graphic g-1">
+                <div class="modal-icon-wrap">
+                    <i id="modalIcon" class="fas fa-book" style="color: var(--primary);"></i>
+                </div>
+            </div>
+            
+            <div class="modal-content-body">
+                <h3 id="modalTitle" class="modal-title">Judul Tryout Placeholder</h3>
+                
+                <div class="modal-stats">
+                    <span class="meta-item"><i class="fas fa-list-ol"></i> <span id="modalQuestions">0</span> Soal</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> <span id="modalDuration">0</span> Menit</span>
+                </div>
+                
+                <p class="modal-desc">Sesi tryout ini memerlukan verifikasi. Silakan masukkan kode akses yang diberikan oleh mentor Anda.</p>
+                
+                <div class="join-input-group">
+                    <input type="text" id="modalInputCode" placeholder="Masukkan Kode..." autocomplete="off">
+                    <button class="btn-join" id="btnModalSubmit">Mulai Tryout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+@endsection
+
+@push('scripts')
+<script>
+// Interaktivitas Efek Klik pada Card & Inject Data ke Modal
+const modalOverlay = document.getElementById('tryoutModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const modalThemeBg = document.getElementById('modalThemeBg');
+const modalIcon = document.getElementById('modalIcon');
+const modalTitle = document.getElementById('modalTitle');
+const modalQuestions = document.getElementById('modalQuestions');
+const modalDuration = document.getElementById('modalDuration');
+const modalInputCode = document.getElementById('modalInputCode');
+
+document.querySelectorAll('.quiz-card').forEach(card => {
+    // Animasi klik
+    card.addEventListener('mousedown', () => { card.style.transform = 'translateY(-2px) scale(0.98)'; });
+    card.addEventListener('mouseup', () => { card.style.transform = 'translateY(-8px) scale(1)'; });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+
+    // Membuka Modal
+    card.addEventListener('click', () => {
+        // Ambil data dari atribut dataset
+        const title = card.dataset.title;
+        const questions = card.dataset.questions;
+        const duration = card.dataset.duration;
+        const theme = card.dataset.theme;
+        const icon = card.dataset.icon;
+        const color = card.dataset.color;
+
+        // Reset state input form
+        modalInputCode.value = '';
+        const btnModalSubmit = document.getElementById('btnModalSubmit');
+        btnModalSubmit.innerHTML = 'Mulai Tryout';
+        btnModalSubmit.style.background = 'var(--primary)';
+        btnModalSubmit.style.color = 'white';
+
+        // Update DOM Modal
+        modalTitle.textContent = title;
+        modalQuestions.textContent = questions;
+        modalDuration.textContent = duration;
+        
+        // Reset kelas background lama dan tambah yang baru
+        modalThemeBg.className = 'modal-top-graphic ' + theme;
+        
+        // Reset kelas icon lama dan tambah yang baru
+        modalIcon.className = 'fas ' + icon;
+        modalIcon.style.color = color;
+
+        // Tampilkan Modal
+        modalOverlay.classList.add('active');
+        
+        // Fokuskan ke input secara otomatis
+        setTimeout(() => { modalInputCode.focus(); }, 300);
+    });
+});
+
+// Fungsi Menutup Modal
+function closeModal() {
+    modalOverlay.classList.remove('active');
+}
+
+closeModalBtn.addEventListener('click', closeModal);
+
+// Tutup modal jika klik di area luar modal (overlay)
+modalOverlay.addEventListener('click', (e) => {
+    if(e.target === modalOverlay) {
+        closeModal();
+    }
+});
+
+// Logika Validasi Tombol Gabung Global (Hero Section)
+const joinInputHero = document.querySelector('.hero-grid .join-input-group input');
+const joinBtnHero = document.querySelector('.hero-grid .btn-join');
+
+if(joinBtnHero && joinInputHero) {
+    joinBtnHero.addEventListener('click', () => validateJoinCode(joinInputHero, joinBtnHero));
+}
+
+// Logika Validasi Tombol Gabung Dalam Modal
+const btnModalSubmit = document.getElementById('btnModalSubmit');
+if(btnModalSubmit && modalInputCode) {
+    btnModalSubmit.addEventListener('click', () => validateJoinCode(modalInputCode, btnModalSubmit));
+}
+
+// Fungsi Reusable untuk Pengecekan Kode
+function validateJoinCode(inputEl, btnEl) {
+    const code = inputEl.value.trim();
+    
+    if(code !== '') {
+        const originalText = btnEl.innerHTML;
+        btnEl.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses';
+        
+        setTimeout(() => {
+            if(code.length >= 4) {
+                btnEl.innerHTML = '<i class="fas fa-check"></i> Berhasil!';
+                btnEl.style.background = '#10B981';
+                btnEl.style.color = 'white';
+                
+                // Disini logika jika berhasil: window.location.href = '/tryout/' + code;
+            } else {
+                btnEl.innerHTML = 'Kode Salah';
+                btnEl.style.background = '#EF4444';
+                btnEl.style.color = 'white';
+                setTimeout(() => {
+                    btnEl.innerHTML = originalText;
+                    // Kembalikan styling bergantung asal tombol
+                    if(btnEl.id === 'btnModalSubmit') {
+                        btnEl.style.background = 'var(--primary)';
+                    } else {
+                        btnEl.style.background = 'white';
+                        btnEl.style.color = 'var(--primary)';
+                    }
+                }, 2000);
+            }
+        }, 800);
+    } else {
+        inputEl.focus();
+        inputEl.parentElement.style.animation = 'shake 0.4s ease';
+        setTimeout(() => inputEl.parentElement.style.animation = '', 400);
+    }
+}
+
+// Inject Animasi Error ke Head
+const styleAnim = document.createElement('style');
+styleAnim.innerHTML = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+    }
+`;
+document.head.appendChild(styleAnim);
+</script>
+@endpush
