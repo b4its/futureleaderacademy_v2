@@ -29,12 +29,12 @@ class MemberPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Member/Resources'), for: 'App\Filament\Member\Resources')
-            ->discoverPages(in: app_path('Filament/Member/Pages'), for: 'App\Filament\Member\Pages')
+            ->discoverResources(in: app_path('Filament/Member/Resources/Member'), for: 'App\Filament\Member\Resources\Member')
+            ->discoverPages(in: app_path('Filament/Member/Pages/Member'), for: 'App\Filament\Member\Pages\Member')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Member/Widgets'), for: 'App\Filament\Member\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Member/Widgets/Member'), for: 'App\Filament\Member\Widgets\Member')
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
