@@ -30,12 +30,12 @@ class PengajarPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Pengajar/Resources/Pengajar'), for: 'App\Filament\Pengajar\Resources\Pengajar')
-            ->discoverPages(in: app_path('Filament/Pengajar/Pages/Pengajar'), for: 'App\Filament\Pengajar\Pages\Pengajar')
+            ->discoverResources(in: app_path('Filament/Resources/Pengajar'), for: 'App\Filament\Resources\Pengajar')
+            ->discoverPages(in: app_path('Filament/Pages/Pengajar'), for: 'App\Filament\Pages\Pengajar')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Pengajar/Widgets/Pengajar'), for: 'App\Filament\Pengajar\Widgets\Pengajar')
+            ->discoverWidgets(in: app_path('Filament/Widgets/Pengajar'), for: 'App\Filament\Widgets\Pengajar')
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,

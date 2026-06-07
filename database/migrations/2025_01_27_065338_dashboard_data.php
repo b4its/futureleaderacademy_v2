@@ -23,8 +23,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('nama_pengguna') -> nullable();
             $table->string('pesan') -> nullable();
-            $table->string('kelas') -> nullable();
-            $table->string('gambar') -> nullable();
+            $table->string('kota_asal') -> nullable();
+            $table->string('pencapaian') -> nullable();
             $table->boolean('status' ) -> default(0);
             
             $table->timestamps();
@@ -33,9 +33,9 @@ return new class extends Migration
         Schema::create('kelas', function (Blueprint $table) {
             $table->id();                                                                            
             $table->string('name') -> nullable();
-            $table->string('gambar') -> nullable();
             $table->string('deskripsi') -> nullable();
             $table->json('benefit') -> nullable(); // Menyimpan array dalam kolom JSON
+            $table->decimal('harga', 25, 2)->default(0); 
             
             $table->timestamps();
         });

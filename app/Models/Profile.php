@@ -11,14 +11,18 @@ class Profile extends Model
     
     protected $fillable = [
         'user_id',
+        'kelas_id',
         'first_name',
         'last_name',
-        'kelas',
         'gambar',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    public function kelas(): BelongsTo
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 }

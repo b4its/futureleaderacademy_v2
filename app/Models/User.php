@@ -40,9 +40,9 @@ class User extends Authenticatable
     {
         static::created(function ($user) {
             $user->profile()->create([
+                'kelas_id' => null,
                 'first_name' => null,
                 'last_name' => null,
-                'kelas' => null,
                 'gambar' => null,
             ]);
         });

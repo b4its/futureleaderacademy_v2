@@ -5,9 +5,7 @@ use App\Http\Controllers\Pembelajaran\PembelajaranControllers;
 use App\Http\Controllers\Pembelajaran\StatistikPembelajaranControllers;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::view('/', 'welcome')->name('welcome');
 
 
 Route::prefix('accounts')->group(function () {

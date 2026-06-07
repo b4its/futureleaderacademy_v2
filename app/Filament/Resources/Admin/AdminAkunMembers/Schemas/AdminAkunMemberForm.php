@@ -12,12 +12,25 @@ class AdminAkunMemberForm
     {
         return $schema
             ->components([
+                TextInput::make('first_name')
+                    ->label('Nama Depan')
+                    ->required(),
+                TextInput::make('last_name')
+                    ->label('Nama Belakang')
+                    ->required(),
                 TextInput::make('name')
-                    ->label('Nama')
+                    ->label('Nama Lengkap')
                     ->required(),
                 TextInput::make('email')
                     ->label('Email')
                     ->email()
+                    ->required(),
+                Select::make('profile.kelas_id')
+                    ->label('Paket')
+                    // Gunakan nama fungsi relasi di Model Pesanan yang baru saja kita ubah
+                    ->relationship('profile.kelas', 'name') 
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 TextInput::make('password')
                     ->label('Password')

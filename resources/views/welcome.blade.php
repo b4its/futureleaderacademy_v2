@@ -245,8 +245,19 @@ body::before {
 
 .hero-bg {
   position: absolute; inset: 0;
-  background: var(--hero-overlay);
+  /* Gambar background yang responsif */
+  background-image: url('{{ asset("assets/banner1.jpg") }}');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 1;
+}
+
+/* OVERLAY GELAP KHUSUS HERO agar kontras teks selalu aman di Light/Dark mode */
+.hero-bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(15, 10, 4, 0.88) 0%, rgba(21, 14, 5, 0.75) 100%);
 }
 
 .hero-orb {
@@ -280,27 +291,44 @@ body::before {
 @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:0.6} }
 .eyebrow-text { font-size: 13px; font-weight: 600; color: var(--primary); letter-spacing: 0.1em; text-transform: uppercase; }
 
-.hero-title {
+/* KUNCI WARNA TEKS HERO MENJADI TERANG AGAR KONTRAS DENGAN BG GELAP */
+#hero .hero-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
   line-height: 1.1;
   margin-bottom: 24px;
+  color: #FFFFFF; 
 }
 
-.hero-desc {
-  font-size: 17px; color: var(--text-muted);
+#hero .hero-desc {
+  font-size: 17px; 
+  color: rgba(255, 255, 255, 0.85); 
   margin-bottom: 40px; max-width: 480px; line-height: 1.7;
 }
 
 .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 56px; }
 
+/* Penyesuaian tombol ghost di hero section */
+#hero .btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+#hero .btn-ghost:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Glassmorphism tipis pada box statistik */
 .hero-stats {
   display: flex; align-items: center; gap: 32px;
   padding: 24px 32px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: rgba(20, 14, 7, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  box-shadow: 0 8px 32px var(--shadow);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .stat-item { text-align: center; }
@@ -311,8 +339,8 @@ body::before {
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   display: block;
 }
-.stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
-.stat-divider { width: 1px; height: 40px; background: var(--border); }
+#hero .stat-label { font-size: 12px; color: rgba(255, 255, 255, 0.7); font-weight: 500; margin-top: 2px; }
+#hero .stat-divider { width: 1px; height: 40px; background: rgba(255, 255, 255, 0.15); }
 
 /* Hero Right — Visual Card */
 .hero-right { position: relative; }
@@ -980,23 +1008,18 @@ footer {
 .stagger.visible > *:nth-child(8) { opacity:1; transform:none; transition-delay: 0.75s; }
 
 /* ===================== MOBILE NAV ===================== */
-/* Menggunakan visibility dan opacity agar animasi transform berjalan mulus */
 .mobile-nav {
   position: fixed; 
   top: 0; right: 0; bottom: 0; left: 0; 
   background: var(--bg);
-  z-index: 990; /* Harus di bawah z-index #navbar (1000) agar hamburger tetap bisa diklik */
+  z-index: 990; 
   padding: 100px 32px 40px; 
-  display: flex; /* Tetap flex, jangan gunakan display: none */
+  display: flex; 
   flex-direction: column; 
   gap: 8px;
-  
-  /* State awal tertutup */
   transform: translateX(100%); 
   visibility: hidden;
   opacity: 0;
-  
-  /* Gunakan bezier curve standar sebagai pengganti var(--ease-spring) yang hilang */
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
               visibility 0.4s;
@@ -1035,7 +1058,6 @@ footer {
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .testimonial-card { min-width: calc(50% - 12px); }
   
-  /* Sembunyikan menu dan tombol CTA desktop agar tidak menumpuk */
   .nav-links,
   .nav-cta { 
     display: none; 
@@ -1056,8 +1078,6 @@ footer {
   .footer-grid { grid-template-columns: 1fr; }
   .testimonial-card { min-width: 100%; }
   .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
-  
-  /* Penyesuaian padding navbar untuk layar HP */
   .nav-inner { padding: 12px 0; }
 }
 /* Animated counter */
@@ -1198,11 +1218,51 @@ footer {
     </div>
 
     <div class="programs-grid stagger">
+    
       <div class="program-card">
         <div class="program-name">Starter</div>
         <div class="program-meta">
           <span><i class="fas fa-clock"></i> 1 Bulan</span>
-          <span><i class="fas fa-book"></i> 50+ Materi</span>
+        </div>
+        <div class="program-desc">Cocok untuk kamu yang baru mulai mempersiapkan ujian. Fondasi kuat dengan materi dasar yang terstruktur.</div>
+        <ul class="program-features">
+          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 500 latihan soal</li>
+          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 2x tryout bulanan</li>
+          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Forum diskusi komunitas</li>
+        </ul>
+        <div class="program-footer">
+          <div class="program-price">
+            <div class="price-label">Mulai dari</div>
+            <div class="price-amount">Rp 149K</div>
+            <div class="price-period">/bulan</div>
+          </div>
+          <button class="program-btn"><i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+      <div class="program-card">
+        <div class="program-name">Starter</div>
+        <div class="program-meta">
+          <span><i class="fas fa-clock"></i> 1 Bulan</span>
+        </div>
+        <div class="program-desc">Cocok untuk kamu yang baru mulai mempersiapkan ujian. Fondasi kuat dengan materi dasar yang terstruktur.</div>
+        <ul class="program-features">
+          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 500 latihan soal</li>
+          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 2x tryout bulanan</li>
+          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Forum diskusi komunitas</li>
+        </ul>
+        <div class="program-footer">
+          <div class="program-price">
+            <div class="price-label">Mulai dari</div>
+            <div class="price-amount">Rp 149K</div>
+            <div class="price-period">/bulan</div>
+          </div>
+          <button class="program-btn"><i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+      <div class="program-card">
+        <div class="program-name">Starter</div>
+        <div class="program-meta">
+          <span><i class="fas fa-clock"></i> 1 Bulan</span>
         </div>
         <div class="program-desc">Cocok untuk kamu yang baru mulai mempersiapkan ujian. Fondasi kuat dengan materi dasar yang terstruktur.</div>
         <ul class="program-features">
@@ -1220,50 +1280,7 @@ footer {
         </div>
       </div>
       
-    <div class="program-card">
-        <div class="program-name">Premium Elite</div>
-        <div class="program-meta">
-          <span><i class="fas fa-clock"></i> 6 Bulan</span>
-          <span><i class="fas fa-book"></i> Unlimited</span>
-        </div>
-        <div class="program-desc">Akses penuh tak terbatas dengan garansi kelulusan dan pendampingan intensif dari pengajar terbaik kami.</div>
-        <ul class="program-features">
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Akses semua program</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Bank soal unlimited</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Tryout harian</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Garansi lulus atau uang kembali</li>
-        </ul>
-        <div class="program-footer">
-          <div class="program-price">
-            <div class="price-label">Mulai dari</div>
-            <div class="price-amount">Rp 699K</div>
-            <div class="price-period">/bulan</div>
-          </div>
-          <button class="program-btn"><i class="fas fa-arrow-right"></i></button>
-        </div>
-      </div>
-    <div class="program-card">
-        <div class="program-name">Premium Elite</div>
-        <div class="program-meta">
-          <span><i class="fas fa-clock"></i> 6 Bulan</span>
-          <span><i class="fas fa-book"></i> Unlimited</span>
-        </div>
-        <div class="program-desc">Akses penuh tak terbatas dengan garansi kelulusan dan pendampingan intensif dari pengajar terbaik kami.</div>
-        <ul class="program-features">
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Akses semua program</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Bank soal unlimited</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Tryout harian</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Garansi lulus atau uang kembali</li>
-        </ul>
-        <div class="program-footer">
-          <div class="program-price">
-            <div class="price-label">Mulai dari</div>
-            <div class="price-amount">Rp 699K</div>
-            <div class="price-period">/bulan</div>
-          </div>
-          <button class="program-btn"><i class="fas fa-arrow-right"></i></button>
-        </div>
-      </div>
+
 
 
     </div>

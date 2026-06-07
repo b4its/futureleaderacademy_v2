@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kelas extends Model
 {
@@ -21,4 +22,9 @@ class Kelas extends Model
             'benefit' => 'array',
         ];
     }
+    public function profile(): HasMany
+    {
+        return $this->hasMany(Profile::class);
+    }
+    
 }

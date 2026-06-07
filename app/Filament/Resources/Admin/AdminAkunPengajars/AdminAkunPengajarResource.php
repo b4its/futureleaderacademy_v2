@@ -39,6 +39,10 @@ class AdminAkunPengajarResource extends Resource
             //
         ];
     }
+    public static function getNavigationGroup(): string
+    {
+        return 'Akun';
+    }
 
     public static function getNavigationLabel(): string
     {

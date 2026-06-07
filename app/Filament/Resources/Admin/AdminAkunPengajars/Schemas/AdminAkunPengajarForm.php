@@ -11,12 +11,21 @@ class AdminAkunPengajarForm
     {
         return $schema
             ->components([
+                TextInput::make('first_name')
+                    ->label('Nama Depan')
+                    ->required(),
+                TextInput::make('last_name')
+                    ->label('Nama Belakang')
+                    ->required(),
                 TextInput::make('name')
-                    ->label('Nama')
+                    ->label('Nama Lengkap')
                     ->required(),
                 TextInput::make('email')
                     ->label('Email')
                     ->email()
+                    ->required(),
+                TextInput::make('bidang_ilmu')
+                    ->label('Bidang Ilmu')
                     ->required(),
                 TextInput::make('password')
                     ->label('Password')
