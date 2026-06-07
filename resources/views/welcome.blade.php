@@ -1142,7 +1142,7 @@ footer {
   <a href="#why-us" onclick="closeMobileNav()">Tentang Kami</a>
   <a href="#testimonials" onclick="closeMobileNav()">Alumni</a>
   <a href="#faq" onclick="closeMobileNav()">FAQ</a>
-  <a href="#cta" onclick="closeMobileNav()">Daftar Gratis</a>
+  <a href="{{ route('auth.index') }}" onclick="closeMobileNav()">Daftar Gratis</a>
 </div>
 
 <section id="hero">

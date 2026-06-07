@@ -13,6 +13,7 @@ class Soal extends Model
         'user_id',
         'pengajar_id',
         'tipe_soal_id',
+        'kategori_tes_id',
         'pertanyaan',
         'visual_pertanyaan',
         'jawaban_a',
@@ -42,5 +43,10 @@ class Soal extends Model
     public function tipeSoal(): BelongsTo
     {
         return $this->belongsTo(TipeSoal::class);
+    }
+
+    public function kategoriTes(): BelongsTo
+    {
+        return $this->belongsTo(KategoriTes::class);
     }
 }

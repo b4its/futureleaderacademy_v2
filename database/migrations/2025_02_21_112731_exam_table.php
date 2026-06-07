@@ -23,8 +23,8 @@ return new class extends Migration
             Schema::create('tes_pengetahuan', function (Blueprint $table) {
                 $table->id();  
                 $table->foreignId('kategori_tes_id')->nullable()->constrained('kategori_tes')->onDelete('cascade');
-                $table->foreignId('tes_pengetahuan_id')->nullable()->constrained('tipe_soal')->onDelete('cascade');
-                $table->foreignId('soal_id')->nullable()->constrained('soal')->onDelete('cascade');
+                $table->foreignId('tipe_soal_id')->nullable()->constrained('tipe_soal')->onDelete('cascade');
+                $table->string('kode_tes')->nullable();
                 $table->string('pelajaran')->nullable();
                 $table->bigInteger('total_soal')->nullable();
                 $table->string('batas_waktu')->nullable();
@@ -36,6 +36,7 @@ return new class extends Migration
             Schema::create('hasil_tes', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');  
+                $table->foreignId('kategori_tes_id')->nullable()->constrained('kategori_tes')->onDelete('cascade');
                 $table->foreignId('tes_pengetahuan_id')->nullable()->constrained('tes_pengetahuan')->onDelete('cascade');
                 $table->bigInteger('jumlah_benar') -> nullable();
                 $table->bigInteger('jumlah_salah') -> nullable();

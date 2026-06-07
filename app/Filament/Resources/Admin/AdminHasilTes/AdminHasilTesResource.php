@@ -21,6 +21,7 @@ class AdminHasilTesResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'hasil_tes';
+    protected static ?string $slug = 'hasil-tes';
 
     public static function form(Schema $schema): Schema
     {
@@ -38,13 +39,26 @@ class AdminHasilTesResource extends Resource
             //
         ];
     }
+    public static function getNavigationGroup(): string
+    {
+        return 'Ujian';
+    }
+    public static function getNavigationLabel(): string
+    {
+        return 'Hasil Tes';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-user-group'; // bisa diganti icon lain
+    }
 
     public static function getPages(): array
     {
         return [
             'index' => ListAdminHasilTes::route('/'),
-            'create' => CreateAdminHasilTes::route('/create'),
-            'edit' => EditAdminHasilTes::route('/{record}/edit'),
+            // 'create' => CreateAdminHasilTes::route('/create'),
+            // 'edit' => EditAdminHasilTes::route('/{record}/edit'),
         ];
     }
 }

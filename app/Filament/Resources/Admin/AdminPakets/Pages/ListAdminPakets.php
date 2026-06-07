@@ -9,11 +9,13 @@ use Filament\Resources\Pages\ListRecords;
 class ListAdminPakets extends ListRecords
 {
     protected static string $resource = AdminPaketResource::class;
+    protected static ?string $title = "Daftar Paket";
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->label('Tambahkan Paket')
+            ->modalHeading('Tambahkan Paket'),
         ];
     }
 }

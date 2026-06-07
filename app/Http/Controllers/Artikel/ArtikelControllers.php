@@ -13,6 +13,7 @@ class ArtikelControllers extends Controller
     public function index()
     {
         //
+        return view('artikel.index_artikel');
     }
 
     /**

@@ -10,7 +10,6 @@ class Testimoni extends Model
     protected $table = 'testimoni';
     
     protected $fillable = [
-        'user_id',
         'nama_pengguna',
         'pesan',
         'kelas',

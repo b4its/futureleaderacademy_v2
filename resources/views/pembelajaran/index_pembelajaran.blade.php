@@ -2,71 +2,14 @@
 @section('title', 'Eksplor - Future Leader Academy')
 
 @php
-// Simulasi Data dari Database (Bisa diganti dengan passing variable dari Controller nanti)
-$asn_quizzes = [
-    [
-        'id' => 1,
-        'title' => 'TWK - Wawasan Kebangsaan & Pancasila',
-        'questions' => 35,
-        'duration' => 45,
-        'plays' => '12.4K',
-        'theme' => 'g-2',
-        'icon' => 'fa-flag',
-        'icon_color' => '#D97706'
-    ],
-    [
-        'id' => 2,
-        'title' => 'TIU - Analogi & Logika Formil Dasar',
-        'questions' => 30,
-        'duration' => 40,
-        'plays' => '18.2K',
-        'theme' => 'g-3',
-        'icon' => 'fa-brain',
-        'icon_color' => '#C2410C'
-    ],
-    [
-        'id' => 3,
-        'title' => 'TKP - Pelayanan Publik & Jejaring Kerja',
-        'questions' => 45,
-        'duration' => 60,
-        'plays' => '24.5K',
-        'theme' => 'g-1',
-        'icon' => 'fa-users',
-        'icon_color' => '#BE123C'
-    ],
-    [
-        'id' => 4,
-        'title' => 'Simulasi SKD Full Premium (Sistem CAT)',
-        'questions' => 110,
-        'duration' => 100,
-        'plays' => '8.9K',
-        'theme' => 'g-4',
-        'icon' => 'fa-file-signature',
-        'icon_color' => '#0369A1'
-    ],
-];
-
-$tni_polri_quizzes = [
-    [
-        'id' => 5,
-        'title' => 'Psikotes - Kecerdasan & Ketelitian',
-        'questions' => 50,
-        'duration' => 60,
-        'plays' => '15.1K',
-        'theme' => 'g-5',
-        'icon' => 'fa-puzzle-piece',
-        'icon_color' => '#7E22CE'
-    ],
-    [
-        'id' => 6,
-        'title' => 'Pengetahuan Umum & Sejarah Militer',
-        'questions' => 40,
-        'duration' => 45,
-        'plays' => '9.3K',
-        'theme' => 'g-2',
-        'icon' => 'fa-book-open',
-        'icon_color' => '#B45309'
-    ],
+// Helper array untuk rotasi gaya visual card (karena tidak disimpan di database)
+$visuals = [
+    ['theme' => 'g-2', 'icon' => 'fa-flag', 'color' => '#D97706'],
+    ['theme' => 'g-3', 'icon' => 'fa-brain', 'color' => '#C2410C'],
+    ['theme' => 'g-1', 'icon' => 'fa-users', 'color' => '#BE123C'],
+    ['theme' => 'g-4', 'icon' => 'fa-file-signature', 'color' => '#0369A1'],
+    ['theme' => 'g-5', 'icon' => 'fa-puzzle-piece', 'color' => '#7E22CE'],
+    ['theme' => 'g-2', 'icon' => 'fa-book-open', 'color' => '#B45309']
 ];
 @endphp
 
@@ -127,7 +70,7 @@ $tni_polri_quizzes = [
 .meta-item { font-size: 13px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
 .meta-item i { color: var(--primary); }
 
-/* ===================== MODAL STYLES ===================== */
+/* Modal Styles */
 .custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(28, 18, 7, 0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 20px; }
 .custom-modal-overlay.active { opacity: 1; visibility: visible; }
 .custom-modal { background: var(--bg-surface); border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: var(--shadow-md); transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; overflow: hidden; position: relative;}
@@ -138,7 +81,6 @@ $tni_polri_quizzes = [
 /* Modal Header Decoration */
 .modal-top-graphic { height: 100px; display: flex; align-items: center; justify-content: center; position: relative; }
 .modal-icon-wrap { width: 70px; height: 70px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: absolute; bottom: -35px; border: 4px solid white; z-index: 2; }
-
 .modal-content-body { padding: 48px 32px 32px; text-align: center; }
 .modal-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; }
 .modal-stats { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px dashed var(--border-color); }
@@ -146,20 +88,11 @@ $tni_polri_quizzes = [
 .modal-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
 
 /* Modal Input overrides */
-/* Modal Input overrides */
 .modal-content-body .join-input-group { background: rgba(0,0,0,0.03); border: 1px solid var(--border-color); max-width: 100%; padding: 6px; }
 .modal-content-body .join-input-group input { color: var(--text-main); }
-
-/* TAMBAHKAN BARIS INI: Agar placeholder di dalam modal warnanya gelap */
 .modal-content-body .join-input-group input::placeholder { color: var(--text-muted); text-transform: none; font-weight: 500; }
-
 .modal-content-body .btn-join { background: var(--primary); color: white; }
 .modal-content-body .btn-join:hover { background: var(--primary-dark); }
-.modal-content-body .join-input-group { background: rgba(0,0,0,0.03); border: 1px solid var(--border-color); max-width: 100%; padding: 6px; }
-.modal-content-body .join-input-group input { color: var(--text-main); }
-.modal-content-body .btn-join { background: var(--primary); color: white; }
-.modal-content-body .btn-join:hover { background: var(--primary-dark); }
-
 
 /* RESPONSIVE BREAKPOINTS */
 @media (max-width: 1024px) {
@@ -172,16 +105,11 @@ $tni_polri_quizzes = [
     .card-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 24px; margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
     .card-grid::-webkit-scrollbar { height: 0; display: none; }
     .quiz-card { min-width: 85%; scroll-snap-align: center; }
-    
     .join-card { padding: 32px 20px; }
     .join-input-group { flex-direction: column; border-radius: var(--radius-md); background: transparent; gap: 12px; border: none; padding: 0; }
     .join-input-group input { background: rgba(255,255,255,0.9); border-radius: 100px; width: 100%; color: var(--text-main); }
-    
-    /* TAMBAHKAN BARIS INI: Mengubah warna placeholder menjadi abu-abu (text-muted) di mode mobile */
     .join-input-group input::placeholder { color: var(--text-muted); }
-    
     .btn-join { width: 100%; }
-    
     .modal-content-body .join-input-group { border-radius: var(--radius-md); background: transparent; border: none; }
     .modal-content-body .join-input-group input { border: 1px solid var(--border-color); }
 }
@@ -196,6 +124,7 @@ $tni_polri_quizzes = [
 }
 </style>
 @endpush
+
 @section('navbar_pembelajaran')
     @include('components.pembelajaran_navbar')
 @endsection
@@ -219,80 +148,54 @@ $tni_polri_quizzes = [
             </div>
             <div class="profile-info">
                 <div class="profile-greeting">Siap Belajar Hari Ini?</div>
-                <div class="profile-name">Budi Santoso</div>
-                <div class="stats-row">
-                    <div class="stat-badge"><i class="fas fa-fire"></i> 12 Hari</div>
-                    <div class="stat-badge gold"><i class="fas fa-coins"></i> 2.450 Poin</div>
-                </div>
+                <div class="profile-name">{{ auth()->check() ? auth()->user()->name : 'Guest' }}</div>
+
             </div>
         </div>
     </section>
 
+    @foreach($kategoriTes as $kategori)
     <section class="category-section">
         <div class="category-header">
-            <h2 class="category-title"><i class="fas fa-landmark"></i> Persiapan ASN / CPNS</h2>
-            <a href="{{ route('pembelajaran.tryout.index') }}" class="btn-see-more">Lihat Semua</a>
-        </div>
-        
-        <div class="card-grid">
-            @foreach($asn_quizzes as $quiz)
-            <article class="quiz-card trigger-modal" 
-                data-id="{{ $quiz['id'] }}"
-                data-title="{{ $quiz['title'] }}"
-                data-questions="{{ $quiz['questions'] }}"
-                data-duration="{{ $quiz['duration'] }}"
-                data-theme="{{ $quiz['theme'] }}"
-                data-icon="{{ $quiz['icon'] }}"
-                data-color="{{ $quiz['icon_color'] }}">
-                <div class="card-graphic {{ $quiz['theme'] }}">
-                    <div class="blob blob-1"></div><div class="blob blob-2"></div>
-                    <i class="fas {{ $quiz['icon'] }} card-icon" style="color: {{ $quiz['icon_color'] }};"></i>
-                    <span class="play-badge">{{ $quiz['plays'] }} plays</span>
-                </div>
-                <div class="card-content">
-                    <h3>{{ $quiz['title'] }}</h3>
-                    <div class="card-meta">
-                        <span class="meta-item"><i class="fas fa-list-ol"></i> {{ $quiz['questions'] }} Soal</span>
-                        <span class="meta-item"><i class="fas fa-clock"></i> {{ $quiz['duration'] }} Menit</span>
-                    </div>
-                </div>
-            </article>
-            @endforeach
-        </div>
-    </section>
-
-    <section class="category-section">
-        <div class="category-header">
-            <h2 class="category-title"><i class="fas fa-shield-halved" style="color: #059669; background: rgba(5,150,105,0.1);"></i> Seleksi TNI & POLRI</h2>
+            <h2 class="category-title"><i class="fas fa-landmark"></i> {{ $kategori->title }}</h2>
             <a href="#" class="btn-see-more">Lihat Semua</a>
         </div>
         
         <div class="card-grid">
-            @foreach($tni_polri_quizzes as $quiz)
-            <article class="quiz-card trigger-modal" 
-                data-id="{{ $quiz['id'] }}"
-                data-title="{{ $quiz['title'] }}"
-                data-questions="{{ $quiz['questions'] }}"
-                data-duration="{{ $quiz['duration'] }}"
-                data-theme="{{ $quiz['theme'] }}"
-                data-icon="{{ $quiz['icon'] }}"
-                data-color="{{ $quiz['icon_color'] }}">
-                <div class="card-graphic {{ $quiz['theme'] }}">
-                    <div class="blob blob-1"></div><div class="blob blob-2"></div>
-                    <i class="fas {{ $quiz['icon'] }} card-icon" style="color: {{ $quiz['icon_color'] }};"></i>
-                    <span class="play-badge">{{ $quiz['plays'] }} plays</span>
-                </div>
-                <div class="card-content">
-                    <h3>{{ $quiz['title'] }}</h3>
-                    <div class="card-meta">
-                        <span class="meta-item"><i class="fas fa-list-ol"></i> {{ $quiz['questions'] }} Soal</span>
-                        <span class="meta-item"><i class="fas fa-clock"></i> {{ $quiz['duration'] }} Menit</span>
+            @forelse($kategori->tesPengetahuan as $index => $tes)
+                @php
+                    // Ambil styling dari array visuals secara melingkar berdasarkan index
+                    $style = $visuals[$index % count($visuals)];
+                    // Hasil dengan withCount akan membuat properti otomatis: {relation}_count
+                    $plays = $tes->hasil_tes_count ?? 0;
+                @endphp
+                <article class="quiz-card trigger-modal" 
+                    data-id="{{ $tes->id }}"
+                    data-title="{{ $tes->pelajaran }}"
+                    data-questions="{{ $tes->total_soal }}"
+                    data-duration="{{ $tes->batas_waktu }}"
+                    data-theme="{{ $style['theme'] }}"
+                    data-icon="{{ $style['icon'] }}"
+                    data-color="{{ $style['color'] }}">
+                    <div class="card-graphic {{ $style['theme'] }}">
+                        <div class="blob blob-1"></div><div class="blob blob-2"></div>
+                        <i class="fas {{ $style['icon'] }} card-icon" style="color: {{ $style['color'] }};"></i>
+                        <span class="play-badge">{{ number_format($plays) }} plays</span>
                     </div>
-                </div>
-            </article>
-            @endforeach
+                    <div class="card-content">
+                        <h3>{{ $tes->pelajaran }}</h3>
+                        <div class="card-meta">
+                            <span class="meta-item"><i class="fas fa-list-ol"></i> {{ $tes->total_soal }} Soal</span>
+                            <span class="meta-item"><i class="fas fa-clock"></i> {{ $tes->batas_waktu }} Menit</span>
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <p style="color: var(--text-muted); font-size: 14px; grid-column: 1 / -1;">Belum ada tes yang tersedia untuk kategori ini.</p>
+            @endforelse
         </div>
     </section>
+    @endforeach
 
     <div id="tryoutModal" class="custom-modal-overlay">
         <div class="custom-modal">
@@ -344,7 +247,6 @@ document.querySelectorAll('.quiz-card').forEach(card => {
 
     // Membuka Modal
     card.addEventListener('click', () => {
-        // Ambil data dari atribut dataset
         const title = card.dataset.title;
         const questions = card.dataset.questions;
         const duration = card.dataset.duration;
@@ -364,17 +266,13 @@ document.querySelectorAll('.quiz-card').forEach(card => {
         modalQuestions.textContent = questions;
         modalDuration.textContent = duration;
         
-        // Reset kelas background lama dan tambah yang baru
         modalThemeBg.className = 'modal-top-graphic ' + theme;
-        
-        // Reset kelas icon lama dan tambah yang baru
         modalIcon.className = 'fas ' + icon;
         modalIcon.style.color = color;
 
         // Tampilkan Modal
         modalOverlay.classList.add('active');
         
-        // Fokuskan ke input secara otomatis
         setTimeout(() => { modalInputCode.focus(); }, 300);
     });
 });
@@ -386,7 +284,6 @@ function closeModal() {
 
 closeModalBtn.addEventListener('click', closeModal);
 
-// Tutup modal jika klik di area luar modal (overlay)
 modalOverlay.addEventListener('click', (e) => {
     if(e.target === modalOverlay) {
         closeModal();
@@ -421,14 +318,14 @@ function validateJoinCode(inputEl, btnEl) {
                 btnEl.style.background = '#10B981';
                 btnEl.style.color = 'white';
                 
-                // Disini logika jika berhasil: window.location.href = '/tryout/' + code;
+                // Jika ingin redirect berdasarkan kode, uncomment ini:
+                // window.location.href = '/tryout/' + code;
             } else {
                 btnEl.innerHTML = 'Kode Salah';
                 btnEl.style.background = '#EF4444';
                 btnEl.style.color = 'white';
                 setTimeout(() => {
                     btnEl.innerHTML = originalText;
-                    // Kembalikan styling bergantung asal tombol
                     if(btnEl.id === 'btnModalSubmit') {
                         btnEl.style.background = 'var(--primary)';
                     } else {
@@ -445,7 +342,6 @@ function validateJoinCode(inputEl, btnEl) {
     }
 }
 
-// Inject Animasi Error ke Head
 const styleAnim = document.createElement('style');
 styleAnim.innerHTML = `
     @keyframes shake {

@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Filament\Resources\Admin\AdminHasilTes\Tables;
+namespace App\Filament\Resources\Admin\AdminTesPengetahuans\Tables;
 
-use App\Models\HasilTes;
+use App\Models\TesPengetahuan;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class AdminHasilTesTable
+class AdminTesPengetahuansTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->query(
-                HasilTes::query()
+                TesPengetahuan::query()
                     // Pastikan nama tabel 'users' sesuai migrasi
-                    ->selectRaw('hasil_tes.*, ROW_NUMBER() OVER (ORDER BY created_at desc) as row_num')
+                    ->selectRaw('tes_pengetahuan.*, ROW_NUMBER() OVER (ORDER BY created_at desc) as row_num')
                     ->orderBy('created_at', 'desc')
             )
             ->columns([
@@ -26,8 +26,8 @@ class AdminHasilTesTable
                     ->label('No')
                     ->sortable(),
 
-                TextColumn::make('tesPengetahuan.pelajaran')->label("Pelajaran"),
-                TextColumn::make('total_nilai')->label("Total Nilai"),
+                TextColumn::make('kategoriTes.title')->label("Jenis Tes"),
+                TextColumn::make('pelajaran')->label("Pelajaran"),
 
             ])
             ->filters([

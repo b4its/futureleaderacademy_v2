@@ -11,9 +11,9 @@ class Kelas extends Model
     
     protected $fillable = [
         'name',
-        'gambar',
         'deskripsi',
         'benefit',
+        'harga',
     ];
 
     protected function casts(): array

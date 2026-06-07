@@ -9,11 +9,13 @@ use Filament\Resources\Pages\ListRecords;
 class ListAdminTestimonis extends ListRecords
 {
     protected static string $resource = AdminTestimoniResource::class;
+    protected static ?string $title = "Daftar Testimoni";
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->label("Tambahkan Testimoni")
+                ->modalHeading("Tambahkan Testimoni"),
         ];
     }
 }

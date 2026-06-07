@@ -298,10 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <h3 class="article-title"><a href="/blog/${article.slug}">${article.title}</a></h3>
           <p class="article-excerpt">${article.excerpt}</p>
-          <div class="article-author">
-            <div class="author-avatar" ${avatarStyle}>${author.avatarInitial}</div>
-            <div class="author-name">${author.name}</div>
-          </div>
+
         </div>
       </article>
     `;

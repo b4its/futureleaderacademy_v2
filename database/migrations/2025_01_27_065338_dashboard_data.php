@@ -20,7 +20,6 @@ return new class extends Migration
 
         Schema::create('testimoni', function (Blueprint $table) {
             $table->id();  
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('nama_pengguna') -> nullable();
             $table->string('pesan') -> nullable();
             $table->string('kota_asal') -> nullable();

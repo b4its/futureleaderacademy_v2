@@ -9,6 +9,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class AdminAkunPengajarsTable
 {
@@ -47,7 +49,41 @@ class AdminAkunPengajarsTable
                 //
             ])
             ->recordActions([
-                EditAction::make()->modalHeading('Edit Pengajar'),
+                EditAction::make()
+                ->modalHeading('Edit Pengajar')
+                    
+                    // 1. Tarik data dari relasi profile saat modal EDIT dibuka
+                    ->mutateRecordDataUsing(function (array $data, Model $record): array {
+                        if ($record->profile) {
+                            $data['first_name'] = $record->profile->first_name;
+                            $data['last_name'] = $record->profile->last_name;
+                            $data['bidang_ilmu'] = $record->profile->bidang_ilmu;
+                        }
+                        return $data;
+                    })
+                    
+                    // 2. Simpan data ke tabel yang benar saat tombol Save ditekan
+                    ->using(function (Model $record, array $data): Model {
+                        return DB::transaction(function () use ($record, $data) {
+                            // Tangkap data profil
+                            $profileData = [
+                                'first_name'  => $data['first_name'] ?? null,
+                                'last_name'   => $data['last_name'] ?? null,
+                                'bidang_ilmu' => $data['bidang_ilmu'] ?? null,
+                            ];
+
+                            // Buang dari $data utama agar tidak error "column not found" di tabel users
+                            unset($data['first_name'], $data['last_name'], $data['bidang_ilmu']);
+
+                            // Update data user (name, email, password jika diisi)
+                            $record->update($data);
+
+                            // Update data relasi profil
+                            $record->profile()->update($profileData);
+
+                            return $record;
+                        });
+                    }),
                 DeleteAction::make()
                     ->button()
                     ->color('danger') // default abu-abu (tidak merah)

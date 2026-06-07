@@ -12,8 +12,8 @@ class TesPengetahuan extends Model
     
     protected $fillable = [
         'kategori_tes_id',
-        'tes_pengetahuan_id',
-        'soal_id',
+        'tipe_soal_id',
+        'kode_tes',
         'pelajaran',
         'total_soal',
         'batas_waktu',
@@ -34,7 +34,7 @@ class TesPengetahuan extends Model
 
     public function tipeSoal(): BelongsTo
     {
-        return $this->belongsTo(TipeSoal::class, 'tes_pengetahuan_id');
+        return $this->belongsTo(TipeSoal::class, 'tipe_soal_id');
     }
 
     public function soal(): BelongsTo

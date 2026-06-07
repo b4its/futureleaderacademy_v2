@@ -26,6 +26,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('pengajar_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('tipe_soal_id')->nullable()->constrained('tipe_soal')->onDelete('cascade');
+            $table->unsignedBigInteger('kategori_tes_id')->nullable()->constrained('kategori_tes')->onDelete('cascade');
             
             // Informasi Soal
             $table->text('pertanyaan')->nullable(); // Diubah ke TEXT agar muat teks panjang
@@ -47,7 +48,6 @@ return new class extends Migration
 
             // Kunci & Nilai
             $table->char('jawaban_benar', 2)->nullable(); // Cukup panjang 2 (misal: 'A', 'B')
-            $table->integer('bobot_nilai')->nullable(); // Mengikuti snake_case standar Laravel & diubah ke integer
             $table->timestamps();
         });
 

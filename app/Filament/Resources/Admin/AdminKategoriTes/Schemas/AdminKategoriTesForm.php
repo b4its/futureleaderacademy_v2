@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Admin\AdminKategoriTes\Schemas;
 
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class AdminKategoriTesForm
@@ -11,6 +12,10 @@ class AdminKategoriTesForm
         return $schema
             ->components([
                 //
+                TextInput::make('title')
+                    ->label('Kategori Tes')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
 }

@@ -1,76 +1,5 @@
 @extends('components.base_pembelajaran')
-@section('title', 'Ujian CAT - Future Leader Academy')
-
-@php
-// DUMMY DATA FLEKSIBEL: Struktur ini sangat mudah di-map dari Eloquent Collection nantinya.
-$exam_data = [
-    'id' => 101,
-    'title' => 'Simulasi SKD Full Premium (Sistem CAT) - Batch 4',
-    'duration_minutes' => 90,
-    'questions' => [
-        [
-            'id' => 1,
-            'kategori' => 'TWK',
-            'text' => 'Pancasila sebagai dasar negara memiliki makna bahwa segala peraturan perundang-undangan yang berlaku di Indonesia harus bersumberkan pada Pancasila. Hal ini menunjukkan kedudukan Pancasila sebagai...',
-            'options' => [
-                'A' => 'Perjanjian luhur bangsa Indonesia',
-                'B' => 'Sumber dari segala sumber hukum',
-                'C' => 'Pandangan hidup bangsa',
-                'D' => 'Ideologi terbuka dan dinamis',
-                'E' => 'Kepribadian bangsa Indonesia'
-            ]
-        ],
-        [
-            'id' => 2,
-            'kategori' => 'TIU',
-            'text' => 'Jika semua burung memiliki sayap dan beberapa burung tidak dapat terbang, maka kesimpulan yang paling tepat adalah...',
-            'options' => [
-                'A' => 'Semua burung dapat terbang karena memiliki sayap',
-                'B' => 'Beberapa hewan bersayap bukan burung',
-                'C' => 'Beberapa makhluk yang memiliki sayap tidak dapat terbang',
-                'D' => 'Burung yang tidak dapat terbang tidak memiliki sayap',
-                'E' => 'Semua burung yang tidak dapat terbang bukan unggas'
-            ]
-        ],
-        [
-            'id' => 3,
-            'kategori' => 'TKP',
-            'text' => 'Saat Anda ditugaskan ke sebuah proyek mendesak, rekan satu tim Anda mendadak sakit dan tidak bisa hadir. Padahal tenggat waktu tinggal 2 hari lagi. Sikap Anda adalah...',
-            'options' => [
-                'A' => 'Melaporkan kepada atasan agar tenggat waktu diperpanjang',
-                'B' => 'Mengerjakan bagian saya saja, bagian rekan saya biarkan saja',
-                'C' => 'Mengerjakan seluruh proyek sebatas kemampuan saya sambil mengeluh',
-                'D' => 'Mengambil alih tugas rekan saya dan berusaha menyelesaikannya sebaik mungkin',
-                'E' => 'Mencari rekan kerja lain untuk menggantikan posisinya tanpa izin atasan'
-            ]
-        ],
-        [
-            'id' => 4,
-            'kategori' => 'TWK',
-            'text' => 'Lembaga yang berwenang untuk menguji undang-undang terhadap Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 adalah...',
-            'options' => [
-                'A' => 'Mahkamah Agung',
-                'B' => 'Dewan Perwakilan Rakyat',
-                'C' => 'Mahkamah Konstitusi',
-                'D' => 'Komisi Yudisial',
-                'E' => 'Majelis Permusyawaratan Rakyat'
-            ]
-        ],
-        [
-            'id' => 5,
-            'kategori' => 'TIU',
-            'text' => 'Seri angka: 2, 4, 8, 14, 22, ... Angka selanjutnya dalam seri tersebut adalah...',
-            'options' => [
-                'A' => '30',
-                'B' => '32',
-                'C' => '34',
-                'D' => '36',
-                'E' => '40'
-            ]
-        ]
-    ]
-];
-@endphp
+@section('title', 'Ujian CAT - ' . ($tesPengetahuan->pelajaran ?? ''))
 
 @push('styles')
 <style>
@@ -88,7 +17,6 @@ $exam_data = [
     --state-doubt: #F59E0B;
 }
 
-/* Override default container for full width layout specific to CAT */
 .cat-wrapper { max-width: 1440px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr var(--cat-nav-width); gap: 24px; min-height: calc(100vh - 76px - 48px); }
 
 /* ===================== HEADER & TIMER ===================== */
@@ -108,20 +36,35 @@ $exam_data = [
 .btn-font { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-main); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-muted); transition: all 0.2s; }
 .btn-font:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-.question-body { padding: 32px 24px; flex: 1; }
-.question-text { font-size: 16px; color: var(--text-main); line-height: 1.8; margin-bottom: 32px; font-weight: 500; transition: font-size 0.3s; }
+.question-body { padding: 32px 24px; flex: 1; overflow-x: auto; }
 
-/* Options Styling (Custom Radio Buttons) */
+/* STYLING KHUSUS THUMBNAIL & GAMBAR */
+.img-thumbnail-wrapper { position: relative; display: inline-block; cursor: pointer; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); transition: transform 0.2s; background: white; }
+.img-thumbnail-wrapper:hover { transform: scale(1.02); border-color: var(--primary); }
+.img-thumbnail-wrapper::after { content: '\f00e'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; inset: 0; background: rgba(0,0,0,0.4); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; opacity: 0; transition: opacity 0.2s; }
+.img-thumbnail-wrapper:hover::after { opacity: 1; }
+
+.question-image-wrap { margin-bottom: 20px; text-align: left; }
+.question-image-wrap img { max-width: 100%; height: 120px; object-fit: contain; display: block; }
+.option-image-wrap img { max-width: 100%; height: 100px; object-fit: contain; display: block; }
+
+.question-text { font-size: 16px; color: var(--text-main); line-height: 1.8; margin-bottom: 32px; font-weight: 500; transition: font-size 0.3s; }
+.question-text p, .option-text p { margin-top: 0; margin-bottom: 0.8rem; }
+.question-text p:last-child, .option-text p:last-child { margin-bottom: 0; }
+.question-text img, .option-text img { max-width: 100%; height: auto; border-radius: 4px; }
+
+/* Options Styling */
 .options-list { display: flex; flex-direction: column; gap: 16px; }
 .option-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: var(--state-empty); }
 .option-item:hover { border-color: var(--secondary); background: rgba(251,191,36,0.05); transform: translateX(4px); }
 .option-item.selected { border-color: var(--ans-selected-border); background: var(--ans-selected); box-shadow: 0 4px 12px rgba(249,115,22,0.1); }
 
-.option-letter { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: var(--ans-default); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--text-muted); font-size: 14px; transition: all 0.2s; }
+.option-letter { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: var(--ans-default); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--text-muted); font-size: 14px; transition: all 0.2s; margin-top: 2px; }
 .option-item:hover .option-letter { background: white; border-color: var(--secondary); color: var(--secondary); }
 .option-item.selected .option-letter { background: var(--primary); border-color: var(--primary); color: white; }
 
-.option-text { font-size: 15px; color: var(--text-main); line-height: 1.6; font-weight: 500; padding-top: 6px; }
+.option-content { flex: 1; display: flex; flex-direction: column; gap: 10px; padding-top: 6px; }
+.option-text { font-size: 15px; color: var(--text-main); line-height: 1.6; font-weight: 500; }
 
 /* Action Buttons */
 .cat-actions { padding: 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #FAFAFA; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
@@ -141,7 +84,6 @@ $exam_data = [
 .panel-title { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; font-family: 'Playfair Display', serif; display: flex; justify-content: space-between; align-items: center; }
 
 .grid-numbers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 4px; align-content: start; }
-/* Custom Scrollbar for Grid */
 .grid-numbers::-webkit-scrollbar { width: 6px; }
 .grid-numbers::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 10px; }
 
@@ -150,10 +92,8 @@ $exam_data = [
 .grid-btn.current { border: 2px solid var(--primary); color: var(--primary); font-weight: 800; transform: scale(1.05); }
 .grid-btn.answered { background: var(--state-answered); border-color: var(--state-answered); color: white; }
 .grid-btn.doubt { background: var(--state-doubt); border-color: var(--state-doubt); color: white; }
-/* Current item inside answered/doubt */
 .grid-btn.answered.current, .grid-btn.doubt.current { box-shadow: 0 0 0 3px rgba(255,255,255,1), 0 0 0 5px var(--primary); border: 2px solid white; }
 
-/* Legend */
 .nav-legend { margin-top: auto; padding-top: 24px; border-top: 1px dashed var(--border-color); display: flex; flex-direction: column; gap: 12px; }
 .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
 .legend-box { width: 16px; height: 16px; border-radius: 4px; }
@@ -164,28 +104,24 @@ $exam_data = [
 .btn-submit-exam { width: 100%; padding: 14px; border-radius: 100px; background: var(--success); color: white; font-weight: 800; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16,185,129,0.2); margin-top: 16px; border: none; cursor: pointer; }
 .btn-submit-exam:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16,185,129,0.3); }
 
-/* ===================== CUSTOM ALERT MODAL (NEW) ===================== */
-.ui-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(28, 18, 7, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 20px; }
+/* ===================== CUSTOM MODALS ===================== */
+.ui-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(28, 18, 7, 0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 20px; }
 .ui-modal-overlay.active { opacity: 1; visibility: visible; }
 .ui-modal { background: var(--bg-surface); border-radius: var(--radius-lg); width: 100%; max-width: 420px; box-shadow: var(--shadow-md); transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; overflow: hidden; position: relative; border: 1px solid var(--border-color); }
 .ui-modal-overlay.active .ui-modal { transform: scale(1) translateY(0); opacity: 1; }
-
-.ui-modal-header { height: 8px; width: 100%; } /* Color top bar */
+.ui-modal-header { height: 8px; width: 100%; }
 .ui-modal-header.warning { background: var(--state-doubt); }
 .ui-modal-header.danger { background: var(--danger); }
 .ui-modal-header.success { background: var(--state-answered); }
 .ui-modal-header.info { background: var(--primary); }
-
 .ui-modal-body { padding: 32px 24px 24px; text-align: center; }
 .ui-modal-icon { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
 .ui-modal-icon.warning { background: rgba(245,158,11,0.1); color: var(--state-doubt); }
 .ui-modal-icon.danger { background: rgba(239,68,68,0.1); color: var(--danger); }
 .ui-modal-icon.success { background: rgba(16,185,129,0.1); color: var(--state-answered); }
 .ui-modal-icon.info { background: rgba(249,115,22,0.1); color: var(--primary); }
-
 .ui-modal-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; }
 .ui-modal-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 32px; font-weight: 500;}
-
 .ui-modal-actions { display: flex; gap: 12px; justify-content: center; }
 .ui-modal-btn { flex: 1; padding: 12px 24px; border-radius: 100px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; border: none; }
 .ui-modal-btn-cancel { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); }
@@ -200,10 +136,16 @@ $exam_data = [
 .ui-modal-btn-confirm.info { background: var(--primary); }
 .ui-modal-btn-confirm.info:hover { background: var(--primary-dark); }
 
+/* IMAGE VIEWER KHUSUS */
+.viewer-modal-container { background: transparent; border: none; box-shadow: none; max-width: 900px; display: flex; flex-direction: column; align-items: center; position: relative; }
+.viewer-img { max-width: 100%; max-height: 80vh; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); cursor: pointer; border: 4px solid white; transition: transform 0.2s; }
+.viewer-img:hover { transform: scale(1.02); }
+.viewer-instruction { color: rgba(255,255,255,0.8); margin-top: 16px; font-size: 14px; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 100px; backdrop-filter: blur(4px); }
+.btn-close-viewer { position: absolute; top: -16px; right: -16px; width: 40px; height: 40px; border-radius: 50%; background: white; color: var(--text-main); border: none; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.2s; z-index: 10; }
+.btn-close-viewer:hover { background: var(--danger); color: white; transform: rotate(90deg); }
+
 /* RESPONSIVE CAT */
-@media (max-width: 1024px) {
-    .cat-wrapper { grid-template-columns: 1fr 280px; }
-}
+@media (max-width: 1024px) { .cat-wrapper { grid-template-columns: 1fr 280px; } }
 @media (max-width: 768px) {
     .cat-wrapper { grid-template-columns: 1fr; display: flex; flex-direction: column; }
     .cat-sidebar { order: -1; } 
@@ -213,6 +155,7 @@ $exam_data = [
     .btn-cat { padding: 10px 16px; font-size: 13px; }
     .btn-cat span { display: none; } 
     .btn-doubt span { display: inline; }
+    .btn-close-viewer { top: -48px; right: 0; } /* Sesuaikan letak tombol silang di mobile */
 }
 @media (max-width: 480px) {
     .grid-numbers { grid-template-columns: repeat(6, 1fr); }
@@ -224,6 +167,12 @@ $exam_data = [
 @endpush
 
 @section('content_pembelajaran')
+<form id="formSubmitUjian" method="POST" action="{{ route('pembelajaran.cat.store', $tesPengetahuan->id) }}" style="display: none;">
+    @csrf
+    <input type="hidden" name="tes_pengetahuan_id" value="{{ $tesPengetahuan->id ?? 0 }}">
+    <input type="hidden" name="jawaban_user" id="jawabanUserPayload">
+</form>
+
 <div class="container" style="padding-bottom: 0;">
     <div class="cat-topbar">
         <div class="cat-title-area">
@@ -247,9 +196,11 @@ $exam_data = [
         </div>
         
         <div class="question-body">
+            <div id="qVisualContainer"></div>
             <div class="question-text" id="qText">Memuat soal...</div>
+            
             <div class="options-list" id="optionsContainer">
-                </div>
+            </div>
         </div>
         
         <div class="cat-actions">
@@ -271,7 +222,7 @@ $exam_data = [
         <div class="nav-panel">
             <div class="panel-title">Navigasi Soal</div>
             <div class="grid-numbers" id="gridNumbers">
-                </div>
+            </div>
             
             <div class="nav-legend">
                 <div class="legend-item"><div class="legend-box box-empty"></div> Belum Dijawab</div>
@@ -296,8 +247,16 @@ $exam_data = [
             <h3 id="uiModalTitle" class="ui-modal-title">Konfirmasi</h3>
             <div id="uiModalDesc" class="ui-modal-desc">Message goes here.</div>
             <div class="ui-modal-actions" id="uiModalActions">
-                </div>
+            </div>
         </div>
+    </div>
+</div>
+
+<div id="imageViewerModal" class="ui-modal-overlay" onclick="closeImageViewer()">
+    <div class="viewer-modal-container" onclick="event.stopPropagation()">
+        <button class="btn-close-viewer" onclick="closeImageViewer()"><i class="fas fa-times"></i></button>
+        <img id="viewerImage" class="viewer-img" src="" alt="Full Image View" onclick="window.open(this.src, '_blank')">
+        <div class="viewer-instruction"><i class="fas fa-external-link-alt"></i> Klik gambar untuk melihat resolusi penuh di tab baru</div>
     </div>
 </div>
 
@@ -306,7 +265,7 @@ $exam_data = [
 @push('scripts')
 <script>
 // ==========================================
-// STATE MANAGEMENT & DUMMY DATA INJECTION
+// INJEKSI DATA DINAMIS DARI CONTROLLER
 // ==========================================
 const examData = @json($exam_data);
 const questions = examData.questions;
@@ -317,9 +276,13 @@ let baseFontSize = 16;
 let timeLeft = examData.duration_minutes * 60; 
 let timerInterval;
 
-questions.forEach(q => {
-    userAnswers[q.id] = { answer: null, is_doubt: false };
-});
+if (!questions || questions.length === 0) {
+    uiModal('warning', 'Data Kosong', 'Tidak ada soal yang ditemukan untuk tes ini. Hubungi administrator.', false);
+} else {
+    questions.forEach(q => {
+        userAnswers[q.id] = { answer: null, is_doubt: false };
+    });
+}
 
 // ==========================================
 // DOM ELEMENTS
@@ -328,6 +291,7 @@ const elExamTitle = document.getElementById('examTitle');
 const elExamCatBadge = document.getElementById('examCategoryBadge');
 const elQNumber = document.getElementById('qNumber');
 const elQText = document.getElementById('qText');
+const elQVisualContainer = document.getElementById('qVisualContainer');
 const elOptionsContainer = document.getElementById('optionsContainer');
 const elGridNumbers = document.getElementById('gridNumbers');
 
@@ -340,13 +304,12 @@ const timerDisplay = document.getElementById('timerDisplay');
 // INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    elExamTitle.textContent = examData.title;
-    renderGrid();
-    renderQuestion(currentIndex);
-    startTimer();
-    
-    // Matikan default behavior klik kanan untuk keamanan ujian (uncomment jika perlu)
-    // document.addEventListener('contextmenu', event => event.preventDefault());
+    if (questions.length > 0) {
+        elExamTitle.textContent = examData.title;
+        renderGrid();
+        renderQuestion(currentIndex);
+        startTimer();
+    }
 });
 
 // ==========================================
@@ -357,8 +320,22 @@ function renderQuestion(index) {
     const currentAnsState = userAnswers[q.id];
     
     elQNumber.textContent = index + 1;
-    elQText.textContent = q.text;
     elExamCatBadge.textContent = q.kategori;
+    
+    // Render Gambar Pertanyaan (Jika Ada) dibungkus dengan img-thumbnail-wrapper
+    if (q.visual) {
+        elQVisualContainer.innerHTML = `
+            <div class="question-image-wrap">
+                <div class="img-thumbnail-wrapper" onclick="openImageViewer('${q.visual}')">
+                    <img src="${q.visual}" alt="Visual Pertanyaan">
+                </div>
+            </div>`;
+    } else {
+        elQVisualContainer.innerHTML = '';
+    }
+
+    // Render HTML Text Pertanyaan
+    elQText.innerHTML = q.text || '';
     
     if(currentAnsState.is_doubt) {
         btnDoubt.classList.add('active');
@@ -368,12 +345,35 @@ function renderQuestion(index) {
 
     elOptionsContainer.innerHTML = '';
     
-    for (const [key, value] of Object.entries(q.options)) {
+    // Looping Options
+    for (const [key, data] of Object.entries(q.options)) {
         const isSelected = currentAnsState.answer === key;
+        
+        let visualHtml = '';
+        let textHtml = '';
+
+        // Jika opsi punya gambar, bungkus dengan pembuka Image Viewer
+        // Penting: Gunakan event.stopPropagation() agar klik gambar tidak men-trigger selectAnswer(opsi)
+        if (data.visual) {
+            visualHtml = `
+                <div class="option-image-wrap" style="margin-bottom: 8px;">
+                    <div class="img-thumbnail-wrapper" onclick="event.stopPropagation(); openImageViewer('${data.visual}')">
+                        <img src="${data.visual}" alt="Visual Opsi ${key}">
+                    </div>
+                </div>`;
+        }
+        
+        if (data.text) {
+            textHtml = `<div class="option-text">${data.text}</div>`;
+        }
+
         const optionHTML = `
             <div class="option-item ${isSelected ? 'selected' : ''}" onclick="selectAnswer('${q.id}', '${key}')">
                 <div class="option-letter">${key}</div>
-                <div class="option-text">${value}</div>
+                <div class="option-content">
+                    ${visualHtml}
+                    ${textHtml}
+                </div>
             </div>
         `;
         elOptionsContainer.insertAdjacentHTML('beforeend', optionHTML);
@@ -425,6 +425,22 @@ function updateGridUI() {
 }
 
 // ==========================================
+// IMAGE VIEWER LOGIC (BARU)
+// ==========================================
+function openImageViewer(url) {
+    document.getElementById('viewerImage').src = url;
+    document.getElementById('imageViewerModal').classList.add('active');
+}
+
+function closeImageViewer() {
+    document.getElementById('imageViewerModal').classList.remove('active');
+    // Kosongkan src agar saat dibuka lagi animasi pemuatannya bersih
+    setTimeout(() => {
+        document.getElementById('viewerImage').src = '';
+    }, 300);
+}
+
+// ==========================================
 // INTERACTION LOGIC
 // ==========================================
 function selectAnswer(questionId, answerKey) {
@@ -462,7 +478,6 @@ function startTimer() {
             clearInterval(timerInterval);
             timerDisplay.innerHTML = "WAKTU HABIS";
             
-            // Tampilkan Modal Peringatan (Hanya 1 Tombol OK)
             uiModal('danger', 'Waktu Habis!', 'Waktu ujian telah berakhir. Jawaban Anda akan dikumpulkan secara otomatis.', false, () => {
                 executeSubmit();
             });
@@ -492,7 +507,7 @@ function changeFontSize(step) {
 }
 
 // ==========================================
-// CUSTOM UI MODAL (REPLACES ALERT & CONFIRM)
+// CUSTOM UI MODAL
 // ==========================================
 function uiModal(type, title, message, isConfirm = false, onConfirmCallback = null) {
     const overlay = document.getElementById('uiCustomModal');
@@ -503,7 +518,6 @@ function uiModal(type, title, message, isConfirm = false, onConfirmCallback = nu
     const descEl = document.getElementById('uiModalDesc');
     const actions = document.getElementById('uiModalActions');
 
-    // Setup Styling based on type ('info', 'success', 'warning', 'danger')
     header.className = `ui-modal-header ${type}`;
     iconWrap.className = `ui-modal-icon ${type}`;
     
@@ -517,7 +531,6 @@ function uiModal(type, title, message, isConfirm = false, onConfirmCallback = nu
     descEl.innerHTML = message;
     actions.innerHTML = '';
 
-    // If it's a confirmation dialog (Yes/No)
     if(isConfirm) {
         const btnCancel = document.createElement('button');
         btnCancel.className = 'ui-modal-btn ui-modal-btn-cancel';
@@ -535,7 +548,6 @@ function uiModal(type, title, message, isConfirm = false, onConfirmCallback = nu
         actions.appendChild(btnCancel);
         actions.appendChild(btnConfirm);
     } else {
-        // If it's just an alert (OK only)
         const btnOk = document.createElement('button');
         btnOk.className = `ui-modal-btn ui-modal-btn-confirm ${type}`;
         btnOk.innerText = 'Mengerti';
@@ -550,7 +562,7 @@ function uiModal(type, title, message, isConfirm = false, onConfirmCallback = nu
 }
 
 // ==========================================
-// SUBMIT LOGIC WITH CUSTOM MODALS
+// SUBMIT LOGIC KEMBALI KE LARAVEL
 // ==========================================
 function confirmSubmit() {
     let unanswered = 0;
@@ -564,7 +576,6 @@ function confirmSubmit() {
         ? `Terdapat <b>${unanswered} soal</b> yang belum dijawab. Apakah Anda yakin ingin mengakhiri ujian sekarang?`
         : `Anda telah mengisi semua soal. Apakah Anda yakin ingin mengirim jawaban dan mengakhiri ujian?`;
         
-    // Panggil custom modal confirm
     uiModal(type, title, msg, true, () => {
         executeSubmit();
     });
@@ -573,14 +584,11 @@ function confirmSubmit() {
 function executeSubmit() {
     clearInterval(timerInterval);
     
-    // Simulasi Log Payload ke Console untuk integrasi backend
-    console.log("PAYLOAD SUBMIT KE CONTROLLER:", JSON.stringify(userAnswers));
+    document.getElementById('jawabanUserPayload').value = JSON.stringify(userAnswers);
     
-    // Tampilkan Alert Sukses menggunakan custom modal
-    uiModal('success', 'Ujian Selesai!', 'Data jawaban Anda berhasil direkam sistem.', false, () => {
-        // Redirect ke halaman hasil ujian
-        // window.location.href = '/pembelajaran/hasil'; 
-    });
+    uiModal('success', 'Ujian Selesai!', 'Sedang mengirim jawaban Anda ke server...', false, null);
+    
+    document.getElementById('formSubmitUjian').submit();
 }
 </script>
 @endpush

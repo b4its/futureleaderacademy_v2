@@ -7,7 +7,7 @@ use App\Filament\Resources\Admin\AdminPakets\Pages\EditAdminPaket;
 use App\Filament\Resources\Admin\AdminPakets\Pages\ListAdminPakets;
 use App\Filament\Resources\Admin\AdminPakets\Schemas\AdminPaketForm;
 use App\Filament\Resources\Admin\AdminPakets\Tables\AdminPaketsTable;
-use App\Models\AdminPaket;
+use App\Models\Kelas;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +16,12 @@ use Filament\Tables\Table;
 
 class AdminPaketResource extends Resource
 {
-    protected static ?string $model = AdminPaket::class;
+    protected static ?string $model = Kelas::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'kelas';
+    protected static ?string $slug = 'paket';
 
     public static function form(Schema $schema): Schema
     {
@@ -39,12 +40,22 @@ class AdminPaketResource extends Resource
         ];
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Paket';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-user-group'; // bisa diganti icon lain
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => ListAdminPakets::route('/'),
-            'create' => CreateAdminPaket::route('/create'),
-            'edit' => EditAdminPaket::route('/{record}/edit'),
+            // 'create' => CreateAdminPaket::route('/create'),
+            // 'edit' => EditAdminPaket::route('/{record}/edit'),
         ];
     }
 }

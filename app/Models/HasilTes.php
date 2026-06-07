@@ -11,6 +11,7 @@ class HasilTes extends Model
     
     protected $fillable = [
         'user_id',
+        'kategori_tes_id',
         'tes_pengetahuan_id',
         'jumlah_benar',
         'jumlah_salah',

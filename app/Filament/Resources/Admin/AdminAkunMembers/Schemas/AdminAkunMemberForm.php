@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Admin\AdminAkunMembers\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class AdminAkunMemberForm
@@ -14,24 +16,40 @@ class AdminAkunMemberForm
             ->components([
                 TextInput::make('first_name')
                     ->label('Nama Depan')
-                    ->required(),
+                    ->required()
+                    ->live(debounce: 500) // Re-render setelah user berhenti ngetik 0.5 detik
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        // Gabungkan first_name dan last_name
+                        $set('name', trim($get('first_name') . ' ' . $get('last_name')));
+                    }),
+
                 TextInput::make('last_name')
                     ->label('Nama Belakang')
-                    ->required(),
+                    ->required()
+                    ->live(debounce: 500)
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        // Gabungkan first_name dan last_name
+                        $set('name', trim($get('first_name') . ' ' . $get('last_name')));
+                    }),
+
                 TextInput::make('name')
                     ->label('Nama Lengkap')
-                    ->required(),
+                    ->required()
+                    ->readOnly() // Buat read-only agar user tidak mengedit manual (opsional)
+                    ->helperText('Diisi otomatis berdasarkan Nama Depan dan Nama Belakang.'),
+
                 TextInput::make('email')
                     ->label('Email')
                     ->email()
                     ->required(),
+
                 Select::make('profile.kelas_id')
                     ->label('Paket')
-                    // Gunakan nama fungsi relasi di Model Pesanan yang baru saja kita ubah
                     ->relationship('profile.kelas', 'name') 
                     ->searchable()
                     ->preload()
                     ->required(),
+
                 TextInput::make('password')
                     ->label('Password')
                     ->password()

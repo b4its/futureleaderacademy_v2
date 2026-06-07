@@ -7,7 +7,7 @@ use App\Filament\Resources\Admin\AdminTestimonis\Pages\EditAdminTestimoni;
 use App\Filament\Resources\Admin\AdminTestimonis\Pages\ListAdminTestimonis;
 use App\Filament\Resources\Admin\AdminTestimonis\Schemas\AdminTestimoniForm;
 use App\Filament\Resources\Admin\AdminTestimonis\Tables\AdminTestimonisTable;
-use App\Models\AdminTestimoni;
+use App\Models\Testimoni;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +16,12 @@ use Filament\Tables\Table;
 
 class AdminTestimoniResource extends Resource
 {
-    protected static ?string $model = AdminTestimoni::class;
+    protected static ?string $model = Testimoni::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'testimoni';
+    protected static ?string $slug = 'testimoni';
 
     public static function form(Schema $schema): Schema
     {
@@ -39,12 +40,22 @@ class AdminTestimoniResource extends Resource
         ];
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Testimoni';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-user-group'; // bisa diganti icon lain
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => ListAdminTestimonis::route('/'),
-            'create' => CreateAdminTestimoni::route('/create'),
-            'edit' => EditAdminTestimoni::route('/{record}/edit'),
+            // 'create' => CreateAdminTestimoni::route('/create'),
+            // 'edit' => EditAdminTestimoni::route('/{record}/edit'),
         ];
     }
 }

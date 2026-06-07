@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Admin\AdminAkunPengajars\Pages;
 
 use App\Filament\Resources\Admin\AdminAkunPengajars\AdminAkunPengajarResource;
-use App\Models\Profile;
+use App\Models\User;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Model;
@@ -24,23 +24,27 @@ class ListAdminAkunPengajars extends ListRecords
                     return $data;
                 })
             ->using(function (array $data, string $model): Model {
-                    return DB::transaction(function () use ($data) {
+                    return DB::transaction(function () use ($data, $model) {
 
-                        // LANGKAH 1: Buat Keranjang sebagai wadah
-                        $profile = Profile::updateOrCreate(
-                            ['user_id' => $data['user_id']], // Kondisi pencarian
-                            [                                // Data yang di-update atau di-create
-                                'first_name' => $data['first_name'] ?? null,
-                                'last_name' => $data['last_name'] ?? null,
-                            ]
-                        );
+                        // 1. Tangkap SEMUA data profil dari form
+                        $firstName = $data['first_name'] ?? null;
+                        $lastName = $data['last_name'] ?? null;
+                        $bidangIlmu = $data['bidang_ilmu'] ?? null; // <- Tangkap field baru
 
+                        // 2. Buang dari array $data agar tidak error saat create User
+                        unset($data['first_name'], $data['last_name'], $data['bidang_ilmu']);
 
-                    
+                        // 3. Buat record User
+                        $user = $model::create($data);
 
-                        
+                        // 4. Update data Profile yang otomatis terbuat dari method booted()
+                        $user->profile->update([
+                            'first_name'  => $firstName,
+                            'last_name'   => $lastName,
+                            'bidang_ilmu' => $bidangIlmu, // <- Masukkan ke database profile
+                        ]);
 
-                        return $profile;
+                        return $user;
                     });
                 }),
         ];

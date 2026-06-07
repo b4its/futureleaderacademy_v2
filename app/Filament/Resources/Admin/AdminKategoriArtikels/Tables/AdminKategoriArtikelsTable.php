@@ -37,7 +37,7 @@ class AdminKategoriArtikelsTable
                 //
             ])
             ->recordActions([
-                EditAction::make()->modalHeading('Edit Pengajar'),
+                EditAction::make()->modalHeading('Edit Kategori Artikel'),
                 DeleteAction::make()
                     ->button()
                     ->color('danger') // default abu-abu (tidak merah)

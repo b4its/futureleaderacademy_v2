@@ -7,7 +7,7 @@ use App\Filament\Resources\Admin\AdminSoals\Pages\EditAdminSoal;
 use App\Filament\Resources\Admin\AdminSoals\Pages\ListAdminSoals;
 use App\Filament\Resources\Admin\AdminSoals\Schemas\AdminSoalForm;
 use App\Filament\Resources\Admin\AdminSoals\Tables\AdminSoalsTable;
-use App\Models\AdminSoal;
+use App\Models\Soal;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +16,12 @@ use Filament\Tables\Table;
 
 class AdminSoalResource extends Resource
 {
-    protected static ?string $model = AdminSoal::class;
+    protected static ?string $model = Soal::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'soal';
+    protected static ?string $slug = 'soal';
 
     public static function form(Schema $schema): Schema
     {
@@ -38,13 +39,26 @@ class AdminSoalResource extends Resource
             //
         ];
     }
+    public static function getNavigationGroup(): string
+    {
+        return 'Pembelajaran';
+    }
+    public static function getNavigationLabel(): string
+    {
+        return 'Soal';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-user-group'; // bisa diganti icon lain
+    }
 
     public static function getPages(): array
     {
         return [
             'index' => ListAdminSoals::route('/'),
-            'create' => CreateAdminSoal::route('/create'),
-            'edit' => EditAdminSoal::route('/{record}/edit'),
+            // 'create' => CreateAdminSoal::route('/create'),
+            // 'edit' => EditAdminSoal::route('/{record}/edit'),
         ];
     }
 }
