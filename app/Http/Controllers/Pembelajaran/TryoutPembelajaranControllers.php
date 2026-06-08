@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pembelajaran;
 
 use App\Http\Controllers\Controller;
+use App\Models\KategoriTes;
 use App\Models\Soal;
 use App\Models\TesPengetahuan;
 use App\Models\HasilTes; // Jangan lupa import model HasilTes
@@ -13,7 +14,12 @@ class TryoutPembelajaranControllers extends Controller
 {
     public function index()
     {
-        return view('pembelajaran.tryoutku_pembelajaran');
+        // Ambil keseluruhan data tanpa limit untuk halaman "Tryout Ku"
+        $kategoriTes = KategoriTes::with(['tesPengetahuan' => function ($query) {
+            $query->where('status', 1)->withCount('hasilTes');
+        }])->get();
+
+        return view('pembelajaran.tryoutku_pembelajaran', compact('kategoriTes'));
     }
 
     public function show(string $id)
@@ -128,5 +134,45 @@ class TryoutPembelajaranControllers extends Controller
         // 7. Redirect ke halaman riwayat/statistik atau kembali ke index pembelajaran
         return redirect()->route('pembelajaran.index')
             ->with('success', 'Ujian berhasil diselesaikan! Skor Anda: ' . number_format($totalNilai, 2));
+    }
+
+    /**
+     * Memvalidasi kode tes dari frontend via AJAX
+     */
+public function validateCode(Request $request)
+    {
+        // Ubah tes_id menjadi nullable agar mendukung pencarian dari Hero Section
+        $request->validate([
+            'tes_id' => 'nullable|exists:tes_pengetahuan,id',
+            'kode_tes' => 'required|string',
+        ]);
+
+        if ($request->filled('tes_id')) {
+            // Skenario 1: User mengklik kartu ujian tertentu (Modal)
+            $tes = TesPengetahuan::find($request->tes_id);
+            if ($tes && $tes->kode_tes === $request->kode_tes) {
+                return response()->json([
+                    'success' => true,
+                    'redirect_url' => route('pembelajaran.cat.show', $tes->id)
+                ]);
+            }
+        } else {
+            // Skenario 2: User memasukkan kode di Hero Section (Pencarian Global)
+            $tes = TesPengetahuan::where('kode_tes', $request->kode_tes)
+                ->where('status', 1) // Pastikan tes tersebut berstatus aktif
+                ->first();
+                
+            if ($tes) {
+                return response()->json([
+                    'success' => true,
+                    'redirect_url' => route('pembelajaran.cat.show', $tes->id)
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Kode tes salah atau tidak ditemukan.'
+        ], 422);
     }
 }

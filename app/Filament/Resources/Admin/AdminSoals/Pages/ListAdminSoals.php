@@ -4,12 +4,13 @@ namespace App\Filament\Resources\Admin\AdminSoals\Pages;
 
 use App\Filament\Resources\Admin\AdminSoals\AdminSoalResource;
 use App\Models\TesPengetahuan;
-use App\Models\KategoriTes; // Pastikan model ini di-import
-use App\Models\TipeSoal;    // Pastikan model ini di-import
+use App\Models\KategoriTes; 
+use App\Models\TipeSoal;    
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str; 
 
 class ListAdminSoals extends ListRecords
 {
@@ -29,25 +30,39 @@ class ListAdminSoals extends ListRecords
                         $soal = $model::create($data);
 
                         // 2. Ambil title dari relasi untuk mengisi kolom 'pelajaran'
-                        // Menggunakan null safe operator (?->) untuk mencegah error jika ID tidak ditemukan
                         $kategoriTitle = KategoriTes::find($data['kategori_tes_id'])?->title ?? 'Tanpa Kategori';
                         $tipeTitle = TipeSoal::find($data['tipe_soal_id'])?->title ?? 'Tanpa Tipe';
                         
                         // Gabungkan title, misalnya: "Matematika - Pilihan Ganda"
                         $namaPelajaran = $kategoriTitle . ' - ' . $tipeTitle;
 
-                        // 3. Create or Update Tes Pengetahuan
-                        // Kita cari apakah Tes Pengetahuan dengan kombinasi kategori & tipe ini sudah ada
-                        $tesPengetahuan = TesPengetahuan::firstOrNew([
-                            'kategori_tes_id' => $data['kategori_tes_id'],
-                            'tipe_soal_id'    => $data['tipe_soal_id'],
-                        ]);
+                        // 3. LOGIKA GENERATE KODE TES 7 DIGIT UNIQUE
+                        // Kita cek apakah TesPengetahuan untuk kombinasi kategori & tipe ini sudah ada
+                        $tesPengetahuan = TesPengetahuan::where('kategori_tes_id', $data['kategori_tes_id'])
+                            ->where('tipe_soal_id', $data['tipe_soal_id'])
+                            ->first();
 
+                        // Jika BELUM ADA, buat baru dan generate kode_tes unik 7 digit
+                        if (!$tesPengetahuan) {
+                            $tesPengetahuan = new TesPengetahuan();
+                            $tesPengetahuan->kategori_tes_id = $data['kategori_tes_id'];
+                            $tesPengetahuan->tipe_soal_id = $data['tipe_soal_id'];
+
+                            // Looping untuk memastikan kode benar-benar unik di database
+                            do {
+                                // Str::random menghasilkan kombinasi huruf (uppercase/lowercase) dan angka
+                                // Jika ingin huruf besar semua, bisa gunakan: strtoupper(Str::random(7))
+                                $kodeRandom = strtoupper(Str::random(7)); 
+                                $isExists = TesPengetahuan::where('kode_tes', $kodeRandom)->exists();
+                            } while ($isExists);
+
+                            $tesPengetahuan->kode_tes = $kodeRandom;
+                        }
+
+                        // 4. Update data pelengkap
                         $tesPengetahuan->pelajaran = $namaPelajaran;
-                        $tesPengetahuan->soal_id = $soal->id; 
 
-                        // MENGUBAH LOGIKA TOTAL SOAL: 
-                        // Hitung langsung dari database secara real-time, bukan sekadar ditambah 1
+                        // Hitung langsung dari database secara real-time
                         $tesPengetahuan->total_soal = $model::where('kategori_tes_id', $data['kategori_tes_id'])
                             ->where('tipe_soal_id', $data['tipe_soal_id'])
                             ->count();

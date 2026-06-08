@@ -34,7 +34,7 @@ class AdminTesPengetahuansTable
                 //
             ])
             ->recordActions([
-                // EditAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

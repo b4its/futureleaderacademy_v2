@@ -17,6 +17,7 @@ class TesPengetahuan extends Model
         'pelajaran',
         'total_soal',
         'batas_waktu',
+        'is_paid',
         'status',
     ];
 

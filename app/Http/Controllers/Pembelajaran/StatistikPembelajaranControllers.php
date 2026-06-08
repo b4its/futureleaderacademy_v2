@@ -3,64 +3,102 @@
 namespace App\Http\Controllers\Pembelajaran;
 
 use App\Http\Controllers\Controller;
+use App\Models\HasilTes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StatistikPembelajaranControllers extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
-        return view('pembelajaran.statistik_pembelajaran');
-    }
+        $userId = Auth::id();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        if (!$userId) {
+            return redirect()->route('auth.index')->with('error', 'Silakan login terlebih dahulu.');
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        // 1. Ambil Riwayat Hasil Tes User
+        $riwayatTes = HasilTes::with(['tesPengetahuan.kategoriTes'])
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // 2. Kalkulasi Overview Statistik
+        $totalKuisSelesai = $riwayatTes->count();
+        
+        $rataRataNilai = $totalKuisSelesai > 0 
+            ? round($riwayatTes->avg('total_nilai'), 2) 
+            : 0;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        $totalBenarSemua = $riwayatTes->sum('jumlah_benar');
+        $totalSalahSemua = $riwayatTes->sum('jumlah_salah');
+        $totalSoalDikerjakan = $totalBenarSemua + $totalSalahSemua;
+        
+        $akurasiJawaban = $totalSoalDikerjakan > 0 
+            ? round(($totalBenarSemua / $totalSoalDikerjakan) * 100) 
+            : 0;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        $totalWaktuMenit = 0;
+        foreach ($riwayatTes as $tes) {
+            if ($tes->waktu_dimulai && $tes->waktu_berakhir) {
+                $totalWaktuMenit += $tes->waktu_berakhir->diffInMinutes($tes->waktu_dimulai);
+            }
+        }
+        $jamBelajar = floor($totalWaktuMenit / 60);
+        $menitBelajar = $totalWaktuMenit % 60;
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $grafikNilai = $riwayatTes->take(7)->reverse()->map(function ($tes, $index) {
+            return [
+                'label' => 'TO ' . ($index + 1),
+                'nilai' => $tes->total_nilai,
+                'height' => min(max($tes->total_nilai, 5), 100) . '%' 
+            ];
+        })->values();
+
+        // 3. Mengelompokkan Data Riwayat untuk Tabel & Modal
+        // Menggunakan tes_pengetahuan_id agar 1 jenis tes tergabung menjadi 1 baris
+        $groupedRiwayat = $riwayatTes->groupBy('tes_pengetahuan_id')->map(function ($attempts) {
+            $testInfo = $attempts->first()->tesPengetahuan;
+            $highestScore = $attempts->max('total_nilai');
+            $latestAttempt = $attempts->first(); 
+
+            // Urutkan attempt dari awal (terlama) sampai akhir (terbaru) untuk ditampilkan di modal
+            $history = $attempts->sortBy('created_at')->values()->map(function ($attempt, $index) {
+                $totalSoal = $attempt->jumlah_benar + $attempt->jumlah_salah;
+                $akurasi = $totalSoal > 0 ? round(($attempt->jumlah_benar / $totalSoal) * 100) : 0;
+                $isLulus = $attempt->total_nilai >= 65; 
+
+                return [
+                    'percobaan_ke' => $index + 1,
+                    'tanggal' => $attempt->created_at->format('d M Y, H:i'),
+                    'skor' => $attempt->total_nilai,
+                    'akurasi' => $akurasi,
+                    'is_lulus' => $isLulus
+                ];
+            });
+
+            return [
+                'tes_id' => $testInfo->id ?? 0,
+                'kode_tes' => $testInfo->kode_tes ?? '-',
+                'nama_tes' => $testInfo->pelajaran ?? 'Ujian CAT',
+                'kategori' => $testInfo->kategoriTes->title ?? '-',
+                'total_percobaan' => $attempts->count(),
+                'skor_tertinggi' => $highestScore,
+                'terakhir_dikerjakan' => $latestAttempt->created_at->format('d M Y'),
+                'is_lulus_terakhir' => $latestAttempt->total_nilai >= 65,
+                'history' => $history->toArray()
+            ];
+        })->values();
+
+        return view('pembelajaran.statistik_pembelajaran', compact(
+            'riwayatTes',
+            'totalKuisSelesai',
+            'rataRataNilai',
+            'akurasiJawaban',
+            'jamBelajar',
+            'menitBelajar',
+            'grafikNilai',
+            'groupedRiwayat'
+        ));
     }
 }

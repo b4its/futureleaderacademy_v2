@@ -28,7 +28,8 @@ return new class extends Migration
                 $table->string('pelajaran')->nullable();
                 $table->bigInteger('total_soal')->nullable();
                 $table->string('batas_waktu')->nullable();
-                $table->boolean('status' ) -> default(0);
+                $table->tinyInteger('is_paid' ) -> default(1);
+                $table->tinyInteger('status' ) -> default(0);
                 $table->timestamps();
             });
         // }

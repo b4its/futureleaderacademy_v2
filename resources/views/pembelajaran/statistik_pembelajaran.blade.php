@@ -32,7 +32,7 @@
 .chart-title i { color: var(--primary); }
 
 /* Pure CSS Bar Chart */
-.css-bar-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 250px; padding-bottom: 30px; position: relative; min-width: 400px; }
+.css-bar-chart { display: flex; align-items: flex-end; justify-content: space-around; height: 250px; padding-bottom: 30px; position: relative; min-width: 400px; }
 .css-bar-chart::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 30px; background-image: linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px); background-size: 100% 20%; z-index: 0; pointer-events: none; }
 .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; z-index: 1; cursor: pointer; }
 .bar { width: 40%; max-width: 40px; background: linear-gradient(to top, var(--secondary), var(--primary)); border-radius: 8px 8px 0 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; }
@@ -47,13 +47,11 @@
 .prog-val { color: var(--primary); }
 .prog-track { width: 100%; height: 12px; background: rgba(249,115,22,0.1); border-radius: 100px; overflow: hidden; }
 .prog-fill { height: 100%; border-radius: 100px; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.fill-twk { background: linear-gradient(90deg, #FCD34D, #F59E0B); }
-.fill-tiu { background: linear-gradient(90deg, #FCA5A5, #E11D48); }
 .fill-tkp { background: linear-gradient(90deg, #93C5FD, #2563EB); }
 
 /* History Table */
 .history-section { background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); padding: 32px; overflow-x: auto;}
-.history-table { width: 100%; border-collapse: collapse; min-width: 600px;}
+.history-table { width: 100%; border-collapse: collapse; min-width: 800px;}
 .history-table th { text-align: left; padding: 16px; font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--bg-main); }
 .history-table td { padding: 20px 16px; border-bottom: 1px solid var(--border-color); font-size: 15px; font-weight: 600; color: var(--text-main); }
 .history-table tr:last-child td { border-bottom: none; }
@@ -64,6 +62,23 @@
 .status-badge { padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; display: inline-block; white-space: nowrap;}
 .status-pass { background: rgba(16,185,129,0.15); color: var(--success); }
 .status-fail { background: rgba(239,68,68,0.15); color: var(--danger); }
+.btn-view-detail { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--primary); font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all 0.2s; }
+.btn-view-detail:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* CUSTOM MODAL DETAIL */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 20px; }
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-container { background: var(--bg-surface); border-radius: var(--radius-lg); width: 100%; max-width: 800px; box-shadow: var(--shadow-md); transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; }
+.modal-overlay.active .modal-container { transform: scale(1) translateY(0); opacity: 1; }
+.modal-header { padding: 24px 32px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #FAFAFA; }
+.modal-header h3 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--text-main); margin: 0; }
+.btn-close { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
+.btn-close:hover { color: var(--danger); }
+.modal-body { padding: 0; overflow-y: auto; flex: 1; }
+.detail-table { width: 100%; border-collapse: collapse; }
+.detail-table th { background: white; position: sticky; top: 0; text-align: left; padding: 16px 32px; font-size: 12px; color: var(--text-muted); text-transform: uppercase; border-bottom: 2px solid var(--bg-main); z-index: 10; }
+.detail-table td { padding: 16px 32px; border-bottom: 1px solid var(--border-color); font-size: 14px; font-weight: 600; color: var(--text-main); }
+.detail-table tbody tr:hover { background: rgba(0,0,0,0.02); }
 
 @media (max-width: 1024px) {
     .overview-grid { grid-template-columns: repeat(2, 1fr); }
@@ -72,6 +87,7 @@
 @media (max-width: 768px) {
     .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
     .history-section { padding: 24px 16px; }
+    .modal-header, .detail-table th, .detail-table td { padding-left: 16px; padding-right: 16px; }
 }
 @media (max-width: 480px) {
     .overview-grid { grid-template-columns: 1fr; }
@@ -80,9 +96,11 @@
 }
 </style>
 @endpush
+
 @section('navbar_pembelajaran')
     @include('components.pembelajaran_navbar')
 @endsection
+
 @section('content_pembelajaran')
 <main class="container">
     <div class="page-header">
@@ -91,7 +109,7 @@
             <p class="page-subtitle">Pantau terus perkembangan nilaimu untuk memastikan kelulusan.</p>
         </div>
         <button class="date-filter">
-            <i class="far fa-calendar-alt" style="color: var(--primary);"></i> 30 Hari Terakhir <i class="fas fa-chevron-down" style="font-size: 12px; margin-left:4px;"></i>
+            <i class="far fa-calendar-alt" style="color: var(--primary);"></i> Riwayat Keseluruhan
         </button>
     </div>
 
@@ -100,15 +118,15 @@
             <div class="stat-icon icon-orange"><i class="fas fa-clipboard-check"></i></div>
             <div class="stat-info">
                 <h3>Selesai Dikerjakan</h3>
-                <div class="stat-value"><span class="counter" data-target="42">0</span> <span style="font-size: 14px; font-weight:600; color:var(--text-muted); font-family: 'DM Sans', sans-serif;">Kuis</span></div>
+                <div class="stat-value"><span class="counter" data-target="{{ $totalKuisSelesai }}">0</span> <span style="font-size: 14px; font-weight:600; color:var(--text-muted); font-family: 'DM Sans', sans-serif;">Kuis</span></div>
             </div>
         </div>
         
         <div class="stat-card">
             <div class="stat-icon icon-gold"><i class="fas fa-star"></i></div>
             <div class="stat-info">
-                <h3>Rata-Rata Nilai SKD</h3>
-                <div class="stat-value"><span class="counter" data-target="415">0</span> <span class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> 5%</span></div>
+                <h3>Rata-Rata Nilai</h3>
+                <div class="stat-value"><span class="counter" data-target="{{ $rataRataNilai }}">0</span></div>
             </div>
         </div>
 
@@ -116,7 +134,7 @@
             <div class="stat-icon icon-green"><i class="fas fa-bullseye"></i></div>
             <div class="stat-info">
                 <h3>Akurasi Jawaban</h3>
-                <div class="stat-value"><span class="counter" data-target="86">0</span>% <span class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> 2%</span></div>
+                <div class="stat-value"><span class="counter" data-target="{{ $akurasiJawaban }}">0</span>%</div>
             </div>
         </div>
 
@@ -124,7 +142,10 @@
             <div class="stat-icon icon-blue"><i class="fas fa-clock"></i></div>
             <div class="stat-info">
                 <h3>Total Waktu Belajar</h3>
-                <div class="stat-value"><span class="counter" data-target="24">0</span><span style="font-size: 16px; margin-left: 2px;">J</span> <span class="counter" data-target="30">0</span><span style="font-size: 16px; margin-left: 2px;">M</span></div>
+                <div class="stat-value">
+                    <span class="counter" data-target="{{ $jamBelajar }}">0</span><span style="font-size: 16px; margin-left: 2px;">J</span> 
+                    <span class="counter" data-target="{{ $menitBelajar }}">0</span><span style="font-size: 16px; margin-left: 2px;">M</span>
+                </div>
             </div>
         </div>
     </section>
@@ -132,45 +153,21 @@
     <section class="charts-grid">
         <div class="chart-card">
             <div class="chart-header">
-                <h2 class="chart-title"><i class="fas fa-chart-column"></i> Perkembangan Nilai Tryout (SKD)</h2>
+                <h2 class="chart-title"><i class="fas fa-chart-column"></i> Perkembangan Nilai Tryout</h2>
             </div>
             
             <div class="css-bar-chart">
-                <div class="bar-wrap">
-                    <div class="bar-tooltip">Skor: 350</div>
-                    <div class="bar" style="height: 60%;"></div>
-                    <span class="bar-label">TO 1</span>
-                </div>
-                <div class="bar-wrap">
-                    <div class="bar-tooltip">Skor: 380</div>
-                    <div class="bar" style="height: 65%;"></div>
-                    <span class="bar-label">TO 2</span>
-                </div>
-                <div class="bar-wrap">
-                    <div class="bar-tooltip">Skor: 375</div>
-                    <div class="bar" style="height: 63%;"></div>
-                    <span class="bar-label">TO 3</span>
-                </div>
-                <div class="bar-wrap">
-                    <div class="bar-tooltip">Skor: 410</div>
-                    <div class="bar" style="height: 75%;"></div>
-                    <span class="bar-label">TO 4</span>
-                </div>
-                <div class="bar-wrap">
-                    <div class="bar-tooltip">Skor: 425</div>
-                    <div class="bar" style="height: 80%;"></div>
-                    <span class="bar-label">TO 5</span>
-                </div>
-                <div class="bar-wrap">
-                    <div class="bar-tooltip">Skor: 415</div>
-                    <div class="bar" style="height: 78%;"></div>
-                    <span class="bar-label">TO 6</span>
-                </div>
-                <div class="bar-wrap">
-                    <div class="bar-tooltip">Skor: 450</div>
-                    <div class="bar" style="height: 90%;"></div>
-                    <span class="bar-label">TO 7</span>
-                </div>
+                @forelse($grafikNilai as $grafik)
+                    <div class="bar-wrap">
+                        <div class="bar-tooltip">Skor: {{ $grafik['nilai'] }}</div>
+                        <div class="bar" style="height: {{ $grafik['height'] }};"></div>
+                        <span class="bar-label">{{ $grafik['label'] }}</span>
+                    </div>
+                @empty
+                    <div style="width: 100%; text-align: center; color: var(--text-muted); padding-bottom: 20px;">
+                        Belum ada riwayat tes untuk menampilkan grafik.
+                    </div>
+                @endforelse
             </div>
         </div>
 
@@ -182,110 +179,157 @@
             <div class="progress-list">
                 <div class="progress-item">
                     <div class="prog-header">
-                        <span>TWK (Wawasan Kebangsaan)</span>
-                        <span class="prog-val counter-append" data-target="92" data-append="%">0%</span>
+                        <span>Akurasi Keseluruhan</span>
+                        <span class="prog-val counter-append" data-target="{{ $akurasiJawaban }}" data-append="%">0%</span>
                     </div>
-                    <div class="prog-track"><div class="prog-fill fill-twk" style="width: 0%" data-width="92%"></div></div>
-                </div>
-                
-                <div class="progress-item">
-                    <div class="prog-header">
-                        <span>TIU (Inteligensia Umum)</span>
-                        <span class="prog-val counter-append" data-target="78" data-append="%">0%</span>
-                    </div>
-                    <div class="prog-track"><div class="prog-fill fill-tiu" style="width: 0%" data-width="78%"></div></div>
-                </div>
-
-                <div class="progress-item">
-                    <div class="prog-header">
-                        <span>TKP (Karakteristik Pribadi)</span>
-                        <span class="prog-val counter-append" data-target="88" data-append="%">0%</span>
-                    </div>
-                    <div class="prog-track"><div class="prog-fill fill-tkp" style="width: 0%" data-width="88%"></div></div>
+                    <div class="prog-track"><div class="prog-fill fill-tkp" style="width: 0%" data-width="{{ $akurasiJawaban }}%"></div></div>
                 </div>
             </div>
             
             <div style="margin-top: 32px; padding: 16px; background: rgba(16,185,129,0.05); border: 1px dashed var(--success); border-radius: 12px; text-align: center;">
                 <i class="fas fa-lightbulb" style="color: var(--success); margin-bottom: 8px; font-size: 20px;"></i>
-                <p style="font-size: 13px; font-weight: 600; color: var(--text-main);">Peluang Lulus: <span style="color: var(--success); font-weight: 800;">Sangat Tinggi</span>. Tetap pertahankan nilaimu di atas ambang batas!</p>
+                @if($akurasiJawaban >= 80)
+                    <p style="font-size: 13px; font-weight: 600; color: var(--text-main);">Peluang Lulus: <span style="color: var(--success); font-weight: 800;">Sangat Tinggi</span>. Tetap pertahankan nilaimu!</p>
+                @elseif($akurasiJawaban >= 60)
+                    <p style="font-size: 13px; font-weight: 600; color: var(--text-main);">Peluang Lulus: <span style="color: #F59E0B; font-weight: 800;">Cukup</span>. Perbanyak latihan soal lagi.</p>
+                @else
+                    <p style="font-size: 13px; font-weight: 600; color: var(--text-main);">Peluang Lulus: <span style="color: var(--danger); font-weight: 800;">Perlu Perhatian</span>. Ayo semangat kejar ketertinggalan!</p>
+                @endif
             </div>
         </div>
     </section>
 
     <section class="history-section">
         <div class="chart-header">
-            <h2 class="chart-title"><i class="fas fa-history"></i> Riwayat Tryout Terakhir</h2>
+            <h2 class="chart-title"><i class="fas fa-history"></i> Riwayat Ujian (Dikelompokkan)</h2>
         </div>
         
         <table class="history-table">
             <thead>
                 <tr>
                     <th>Nama Tryout</th>
-                    <th>Tanggal</th>
-                    <th>Skor Total</th>
-                    <th>Akurasi</th>
-                    <th>Status</th>
+                    <th>Terakhir Dikerjakan</th>
+                    <th>Total Percobaan</th>
+                    <th>Skor Tertinggi</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <div class="test-name">
-                            <div class="test-icon"><i class="fas fa-file-signature"></i></div>
-                            <div>
-                                Simulasi SKD Nasional Batch 4
-                                <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;">BKN Official Format</div>
+                @forelse($groupedRiwayat as $group)
+                    <tr>
+                        <td>
+                            <div class="test-name">
+                                <div class="test-icon"><i class="fas fa-file-signature"></i></div>
+                                <div>
+                                    {{ $group['nama_tes'] }}
+                                    <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+                                        Kategori: {{ $group['kategori'] }} | Kode: {{ $group['kode_tes'] }}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td style="color: var(--text-muted); font-weight: 500;">02 Jun 2026</td>
-                    <td>450 <span style="font-size: 12px; color: var(--text-muted);">/ 550</span></td>
-                    <td>88%</td>
-                    <td><span class="status-badge status-pass">Lulus Passing Grade</span></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="test-name">
-                            <div class="test-icon"><i class="fas fa-brain"></i></div>
-                            <div>
-                                Drill TIU (Inteligensia Umum)
-                                <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Topik: Silogisme & Analitis</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td style="color: var(--text-muted); font-weight: 500;">28 Mei 2026</td>
-                    <td>145 <span style="font-size: 12px; color: var(--text-muted);">/ 175</span></td>
-                    <td>82%</td>
-                    <td><span class="status-badge status-pass">Lulus Passing Grade</span></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="test-name">
-                            <div class="test-icon" style="background: rgba(239,68,68,0.1); color: var(--danger);"><i class="fas fa-flag"></i></div>
-                            <div>
-                                Drill TWK (Wawasan Kebangsaan)
-                                <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Topik: UUD 1945 & Sejarah</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td style="color: var(--text-muted); font-weight: 500;">25 Mei 2026</td>
-                    <td>60 <span style="font-size: 12px; color: var(--text-muted);">/ 150</span></td>
-                    <td>40%</td>
-                    <td><span class="status-badge status-fail">Tidak Lulus</span></td>
-                </tr>
+                        </td>
+                        <td style="color: var(--text-muted); font-weight: 500;">
+                            {{ $group['terakhir_dikerjakan'] }}
+                        </td>
+                        <td>{{ $group['total_percobaan'] }} Kali</td>
+                        <td>
+                            {{ $group['skor_tertinggi'] }} <span style="font-size: 12px; color: var(--text-muted);">/ 100</span>
+                        </td>
+                        <td>
+                            <button class="btn-view-detail" onclick="openDetailModal({{ $group['tes_id'] }})">
+                                <i class="fas fa-eye"></i> Lihat Detail
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted);">Belum ada riwayat tes.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </section>
 </main>
+
+<div id="detailModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalDetailTitle">Detail Riwayat: Nama Tryout</h3>
+            <button class="btn-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>Percobaan Ke</th>
+                        <th>Tanggal & Waktu</th>
+                        <th>Skor</th>
+                        <th>Akurasi</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="modalDetailBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+// Data Riwayat yang sudah dikelompokkan dari Controller
+const historyData = @json($groupedRiwayat);
+
+function openDetailModal(tesId) {
+    const group = historyData.find(g => g.tes_id === tesId);
+    if (!group) return;
+
+    // Set judul modal
+    document.getElementById('modalDetailTitle').textContent = `Riwayat: ${group.nama_tes}`;
+    
+    // Inject data ke dalam tabel modal
+    const tbody = document.getElementById('modalDetailBody');
+    tbody.innerHTML = ''; 
+    
+    group.history.forEach(attempt => {
+        // Tentukan styling badge status
+        const badgeClass = attempt.is_lulus ? 'status-pass' : 'status-fail';
+        const badgeText = attempt.is_lulus ? 'Lulus' : 'Tidak Lulus';
+
+        const rowHTML = `
+            <tr>
+                <td><span style="background: var(--bg-main); padding: 4px 10px; border-radius: 6px; color: var(--primary-dark);">#${attempt.percobaan_ke}</span></td>
+                <td style="color: var(--text-muted);">${attempt.tanggal}</td>
+                <td style="font-size: 16px;">${attempt.skor}</td>
+                <td>${attempt.akurasi}%</td>
+                <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+            </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', rowHTML);
+    });
+
+    // Tampilkan Modal
+    document.getElementById('detailModal').classList.add('active');
+}
+
+function closeDetailModal() {
+    document.getElementById('detailModal').classList.remove('active');
+}
+
+// Tutup modal jika user mengklik area luar (overlay)
+document.getElementById('detailModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDetailModal();
+    }
+});
+
+// Animasi Counter Bar
 function startCounter(el) {
     if (el.dataset.counted) return;
     el.dataset.counted = true;
     
-    const target = parseInt(el.dataset.target);
+    const target = parseFloat(el.dataset.target);
     const append = el.dataset.append || '';
     const duration = 2000; 
     const start = performance.now();
@@ -294,7 +338,14 @@ function startCounter(el) {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
         const ease = 1 - Math.pow(1 - progress, 3);
-        const current = Math.round(ease * target);
+        
+        let current = ease * target;
+        
+        if(target % 1 !== 0) {
+            current = current.toFixed(2);
+        } else {
+            current = Math.round(current);
+        }
         
         el.textContent = current + append;
         
