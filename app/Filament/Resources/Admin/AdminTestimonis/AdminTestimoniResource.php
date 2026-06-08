@@ -40,6 +40,11 @@ class AdminTestimoniResource extends Resource
         ];
     }
 
+    public static function getNavigationGroup(): string
+    {
+        return 'Program';
+    }
+
     public static function getNavigationLabel(): string
     {
         return 'Testimoni';
@@ -47,7 +52,7 @@ class AdminTestimoniResource extends Resource
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-user-group'; // bisa diganti icon lain
+        return 'heroicon-o-chat-bubble-left-right';
     }
 
     public static function getPages(): array

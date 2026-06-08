@@ -6,12 +6,12 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -26,9 +26,17 @@ class MemberPanelProvider extends PanelProvider
         return $panel
             ->id('member')
             ->path('member')
-            ->brandName('Member Panel')
+            ->viteTheme('resources/css/filament/member/theme.css')
+            ->brandName('Pembelajaran Interaktif')
+            ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Orange,
+            ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Kembali ke Pembelajaran')
+                    ->icon('heroicon-o-arrow-left')
+                    ->url('/pembelajaran'),
             ])
             ->discoverResources(in: app_path('Filament/Member/Resources/Member'), for: 'App\Filament\Member\Resources\Member')
             ->discoverPages(in: app_path('Filament/Member/Pages/Member'), for: 'App\Filament\Member\Pages\Member')
@@ -38,7 +46,6 @@ class MemberPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Member/Widgets/Member'), for: 'App\Filament\Member\Widgets\Member')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

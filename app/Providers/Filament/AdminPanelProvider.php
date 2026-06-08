@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('Admin Panel')
+            ->brandName('FLA Admin')
             ->login()
             ->userMenuItems([
                 'profile' => MenuItem::make()

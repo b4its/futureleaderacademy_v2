@@ -153,82 +153,70 @@ img { max-width: 100%; display: block; }
     <div class="articles-grid" id="gridContainer"></div>
 
     <div class="pagination">
-      <div class="page-link"><i class="fas fa-chevron-left"></i></div>
-      <div class="page-link active">1</div>
-      <div class="page-link">2</div>
-      <div class="page-link">3</div>
-      <div class="page-link"><i class="fas fa-ellipsis-h"></i></div>
-      <div class="page-link"><i class="fas fa-chevron-right"></i></div>
+      @if ($artikels->onFirstPage())
+      <div class="page-link" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-chevron-left"></i></div>
+      @else
+      <a href="{{ $artikels->previousPageUrl() }}" class="page-link"><i class="fas fa-chevron-left"></i></a>
+      @endif
+
+      @foreach ($artikels->getUrlRange(1, $artikels->lastPage()) as $page => $url)
+        @if ($page == $artikels->currentPage())
+        <div class="page-link active">{{ $page }}</div>
+        @else
+        <a href="{{ $url }}" class="page-link">{{ $page }}</a>
+        @endif
+      @endforeach
+
+      @if ($artikels->hasMorePages())
+      <a href="{{ $artikels->nextPageUrl() }}" class="page-link"><i class="fas fa-chevron-right"></i></a>
+      @else
+      <div class="page-link" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-chevron-right"></i></div>
+      @endif
     </div>
 
   </div>
 </section>
 
 <script>
-// ===================== DATA DUMMY =====================
+// ===================== DATA DARI DATABASE =====================
 const db = {
   categories: [
-    { id: "c1", slug: "semua-kategori", name: "Semua Kategori" },
-    { id: "c2", slug: "strategi-belajar", name: "Strategi Belajar" },
-    { id: "c3", slug: "info-snbt", name: "Info SNBT 2026" },
-    { id: "c4", slug: "beasiswa", name: "Beasiswa" },
-    { id: "c5", slug: "pengembangan-diri", name: "Pengembangan Diri" }
-  ],
-  authors: [
-    { id: "a1", name: "Budi Santoso", avatarInitial: "B", avatarColorHex: null },
-    { id: "a2", name: "Siti Aminah", avatarInitial: "S", avatarColorHex: "var(--accent)" },
-    { id: "a3", name: "Reza Rahardian", avatarInitial: "R", avatarColorHex: "var(--gold)" }
+    { id: "semua-kategori", name: "Semua Kategori" },
+    @foreach($kategoriList as $kategori)
+    { id: "{{ $kategori->id }}", name: "{{ $kategori->title }}", count: {{ $kategori->artikel_count }} },
+    @endforeach
   ],
   articles: [
+    @foreach($artikels as $artikel)
     {
-      id: "art-1",
-      title: "Rahasia Lolos SNBT 2026: Strategi Belajar Efektif 3 Bulan Terakhir",
-      slug: "rahasia-lolos-snbt-2026",
-      excerpt: "Persaingan SNBT semakin ketat. Dapatkan insight eksklusif mengenai materi yang sering keluar, cara mengatur jadwal belajar harian, dan tips menaklukkan soal Penalaran Umum dari mentor expert kami.",
-      thumbnailUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-      categoryId: "c3",
-      authorId: "a1",
-      publishedAt: "2026-06-05T08:00:00Z",
-      readTimeMinutes: 7,
-      isFeatured: true
+      id: "{{ $artikel->id }}",
+      title: "{{ addslashes($artikel->title) }}",
+      excerpt: "{{ addslashes(Str::limit(strip_tags($artikel->description), 150)) }}",
+      thumbnailUrl: "{{ $artikel->gambar ? asset('storage/' . $artikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}",
+      categoryId: "{{ $artikel->kategori_artikel_id }}",
+      categoryName: "{{ $artikel->kategoriArtikel->title ?? 'Uncategorized' }}",
+      publishedAt: "{{ $artikel->created_at->toIso8601String() }}",
+      readTimeMinutes: {{ max(1, ceil(str_word_count(strip_tags($artikel->description)) / 200)) }},
+      isFeatured: {{ $loop->first && !isset($featuredArtikel) ? 'true' : 'false' }},
+      url: "{{ route('artikel.show', $artikel->id) }}"
     },
-    {
-      id: "art-2",
-      title: "5 Kesalahan Umum Saat Mendaftar Beasiswa LPDP",
-      slug: "5-kesalahan-umum-beasiswa-lpdp",
-      excerpt: "Banyak kandidat gugur di seleksi administrasi. Ketahui celah dan kesalahan yang sering dilakukan agar esai dan dokumen Anda stand out di mata reviewer.",
-      thumbnailUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      categoryId: "c4",
-      authorId: "a1",
-      publishedAt: "2026-06-02T10:30:00Z",
-      readTimeMinutes: 5,
-      isFeatured: false
-    },
-    {
-      id: "art-3",
-      title: "Manajemen Waktu Ala Pomodoro untuk Fokus Belajar Maksimal",
-      slug: "manajemen-waktu-pomodoro",
-      excerpt: "Sering terdistraksi saat belajar? Teknik Pomodoro bisa menjadi jawaban untuk menjaga ritme otak tetap segar meski belajar berjam-jam.",
-      thumbnailUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      categoryId: "c2",
-      authorId: "a2",
-      publishedAt: "2026-05-28T14:15:00Z",
-      readTimeMinutes: 4,
-      isFeatured: false
-    },
-    {
-      id: "art-4",
-      title: "Membangun Growth Mindset Sejak Bangku SMA",
-      slug: "membangun-growth-mindset",
-      excerpt: "Kecerdasan bukanlah sesuatu yang statis. Temukan cara melatih Growth Mindset untuk menghadapi kegagalan try out dan bangkit dengan strategi yang lebih tajam.",
-      thumbnailUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      categoryId: "c5",
-      authorId: "a3",
-      publishedAt: "2026-05-20T09:00:00Z",
-      readTimeMinutes: 6,
-      isFeatured: false
-    }
-  ]
+    @endforeach
+  ],
+  featured: @if($featuredArtikel)
+  {
+    id: "{{ $featuredArtikel->id }}",
+    title: "{{ addslashes($featuredArtikel->title) }}",
+    excerpt: "{{ addslashes(Str::limit(strip_tags($featuredArtikel->description), 200)) }}",
+    thumbnailUrl: "{{ $featuredArtikel->gambar ? asset('storage/' . $featuredArtikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80' }}",
+    categoryId: "{{ $featuredArtikel->kategori_artikel_id }}",
+    categoryName: "{{ $featuredArtikel->kategoriArtikel->title ?? 'Uncategorized' }}",
+    publishedAt: "{{ $featuredArtikel->created_at->toIso8601String() }}",
+    readTimeMinutes: {{ max(1, ceil(str_word_count(strip_tags($featuredArtikel->description)) / 200)) }},
+    url: "{{ route('artikel.show', $featuredArtikel->id) }}"
+  }
+  @else
+  null
+  @endif
 };
 
 // ===================== HELPER FUNCTIONS =====================
@@ -237,41 +225,43 @@ const formatDate = (isoString) => {
   return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-const getCategoryName = (id) => {
-  const category = db.categories.find(c => c.id === id);
-  return category ? category.name : "Uncategorized";
-};
-
-const getAuthor = (id) => db.authors.find(a => a.id === id);
-
 // ===================== RENDER LOGIC =====================
 document.addEventListener('DOMContentLoaded', () => {
   
   // 1. Render Categories
   const categoryContainer = document.getElementById('categoryContainer');
   categoryContainer.innerHTML = db.categories.map((cat, index) => `
-    <div class="pill ${index === 0 ? 'active' : ''}">${cat.name}</div>
+    <div class="pill ${index === 0 ? 'active' : ''}" data-category="${cat.id}">${cat.name}</div>
   `).join('');
+
+  // Category filter
+  document.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      const categoryId = this.dataset.category;
+      window.location.href = `{{ route('artikel.index') }}?kategori=${categoryId}`;
+    });
+  });
 
   // 2. Render Featured Article
   const featuredContainer = document.getElementById('featuredContainer');
-  const featuredArticle = db.articles.find(a => a.isFeatured);
   
-  if (featuredArticle) {
+  if (db.featured) {
     featuredContainer.innerHTML = `
       <article class="featured-article">
         <div class="featured-img-wrap">
-          <div class="featured-category">${getCategoryName(featuredArticle.categoryId)}</div>
-          <img src="${featuredArticle.thumbnailUrl}" alt="${featuredArticle.title}">
+          <div class="featured-category">${db.featured.categoryName}</div>
+          <img src="${db.featured.thumbnailUrl}" alt="${db.featured.title}">
         </div>
         <div class="featured-content">
           <div class="article-meta">
-            <span><i class="far fa-calendar-alt"></i> ${formatDate(featuredArticle.publishedAt)}</span>
-            <span><i class="far fa-clock"></i> ${featuredArticle.readTimeMinutes} Min read</span>
+            <span><i class="far fa-calendar-alt"></i> ${formatDate(db.featured.publishedAt)}</span>
+            <span><i class="far fa-clock"></i> ${db.featured.readTimeMinutes} Min read</span>
           </div>
-          <h2 class="featured-title"><a href="/blog/${featuredArticle.slug}">${featuredArticle.title}</a></h2>
-          <p class="featured-excerpt">${featuredArticle.excerpt}</p>
-          <a href="/blog/${featuredArticle.slug}" class="btn-read">Baca Artikel Lengkap <i class="fas fa-arrow-right"></i></a>
+          <h2 class="featured-title"><a href="${db.featured.url}">${db.featured.title}</a></h2>
+          <div class="featured-excerpt">${db.featured.excerpt}</div>
+          <a href="${db.featured.url}" class="btn-read">Baca Artikel Lengkap <i class="fas fa-arrow-right"></i></a>
         </div>
       </article>
     `;
@@ -281,28 +271,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const gridContainer = document.getElementById('gridContainer');
   const regularArticles = db.articles.filter(a => !a.isFeatured);
   
-  gridContainer.innerHTML = regularArticles.map(article => {
-    const author = getAuthor(article.authorId);
-    const avatarStyle = author.avatarColorHex ? `style="background:${author.avatarColorHex}"` : '';
-    
-    return `
-      <article class="article-card">
-        <div class="article-img-wrap">
-          <div class="article-category">${getCategoryName(article.categoryId)}</div>
-          <img src="${article.thumbnailUrl}" alt="${article.title}">
-        </div>
-        <div class="article-content">
-          <div class="article-meta">
-            <span><i class="far fa-calendar-alt"></i> ${formatDate(article.publishedAt)}</span>
-            <span><i class="far fa-clock"></i> ${article.readTimeMinutes} Min read</span>
+  if (regularArticles.length > 0) {
+    gridContainer.innerHTML = regularArticles.map(article => {
+      return `
+        <article class="article-card">
+          <div class="article-img-wrap">
+            <div class="article-category">${article.categoryName}</div>
+            <img src="${article.thumbnailUrl}" alt="${article.title}">
           </div>
-          <h3 class="article-title"><a href="/blog/${article.slug}">${article.title}</a></h3>
-          <p class="article-excerpt">${article.excerpt}</p>
-
-        </div>
-      </article>
+          <div class="article-content">
+            <div class="article-meta">
+              <span><i class="far fa-calendar-alt"></i> ${formatDate(article.publishedAt)}</span>
+              <span><i class="far fa-clock"></i> ${article.readTimeMinutes} Min read</span>
+            </div>
+            <h3 class="article-title"><a href="${article.url}">${article.title}</a></h3>
+            <div class="article-excerpt">${article.excerpt}</div>
+          </div>
+        </article>
+      `;
+    }).join('');
+  } else {
+    gridContainer.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 64px 0;">
+        <i class="fas fa-inbox" style="font-size: 64px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <h3 style="color: var(--text-muted);">Belum ada artikel tersedia</h3>
+      </div>
     `;
-  }).join('');
+  }
 });
 
 // ===================== UI INTERACTIONS =====================

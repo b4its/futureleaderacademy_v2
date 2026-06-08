@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Admin\AdminArtikels\Schemas;
 
-use Dom\Text;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,10 +14,8 @@ class AdminArtikelForm
     {
         return $schema
             ->components([
-                //
                 Select::make('kategori_artikel_id')
                     ->label('Kategori Artikel')
-                    // Gunakan nama fungsi relasi di Model Pesanan yang baru saja kita ubah
                     ->relationship('kategoriArtikel', 'title') 
                     ->searchable()
                     ->preload()
@@ -27,11 +25,33 @@ class AdminArtikelForm
                     ->label('Judul Artikel')
                     ->required()
                     ->maxLength(255),
+
+                FileUpload::make('gambar')
+                    ->label('Gambar Artikel')
+                    ->image()
+                    ->directory('artikel')
+                    ->maxSize(2048)
+                    ->columnSpanFull(),
+
                 RichEditor::make('description')
                     ->label('Isi Artikel')
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'link',
+                        'orderedList',
+                        'bulletList',
+                        'h2',
+                        'h3',
+                        'blockquote',
+                        'codeBlock',
+                        'redo',
+                        'undo',
+                    ])
                     ->columnSpanFull()
                     ->required(),
-                
             ]);
     }
 }

@@ -6,12 +6,12 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -26,9 +26,16 @@ class PengajarPanelProvider extends PanelProvider
         return $panel
             ->id('pengajar')
             ->path('pengajar')
-            ->brandName('Pengajar Panel')
+            ->brandName('Panel Pengajar')
+            ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Emerald,
+            ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Pembelajaran Pengajar')
+                    ->icon('heroicon-o-academic-cap')
+                    ->url('/pembelajaran/pengajar'),
             ])
             ->discoverResources(in: app_path('Filament/Resources/Pengajar'), for: 'App\Filament\Resources\Pengajar')
             ->discoverPages(in: app_path('Filament/Pages/Pengajar'), for: 'App\Filament\Pages\Pengajar')
@@ -38,7 +45,6 @@ class PengajarPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets/Pengajar'), for: 'App\Filament\Widgets\Pengajar')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -193,18 +193,35 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
         <p id="loginDesc">Silakan masuk ke portal pembelajaran Anda.</p>
       </div>
 
+      @if($errors->any())
+      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:12px 16px;margin-bottom:20px;color:#DC2626;font-size:14px;font-weight:500;">
+        <i class="fas fa-exclamation-circle" style="margin-right:8px;"></i>
+        {{ $errors->first() }}
+      </div>
+      @endif
+
+      @if(session('success'))
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:12px 16px;margin-bottom:20px;color:#16A34A;font-size:14px;font-weight:500;">
+        <i class="fas fa-check-circle" style="margin-right:8px;"></i>
+        {{ session('success') }}
+      </div>
+      @endif
+
       <div class="role-toggle" id="roleToggle">
-        <button class="role-btn" data-role="panel" onclick="setRole('panel')">Sistem Panel</button>
-        <button class="role-btn active" data-role="learning" onclick="setRole('learning')">Pembelajaran</button>
+        <button type="button" class="role-btn" data-role="panel" onclick="setRole('panel')">Sistem Panel</button>
+        <button type="button" class="role-btn active" data-role="learning" onclick="setRole('learning')">Pembelajaran</button>
         <div class="role-indicator" id="roleIndicator" style="transform: translateX(100%);"></div>
       </div>
 
-      <form id="loginForm" onsubmit="handleLogin(event)">
+      <form id="loginForm" action="{{ route('auth.login') }}" method="POST">
+        @csrf
+        <input type="hidden" name="role_target" id="roleTargetInput" value="learning">
+
         <div class="input-group">
           <label>Email Address</label>
           <div class="input-wrapper">
             <i class="fas fa-envelope"></i>
-            <input type="email" class="input-field" placeholder="nama@email.com" required>
+            <input type="email" name="email" class="input-field" placeholder="nama@email.com" value="{{ old('email') }}" required>
           </div>
         </div>
 
@@ -212,10 +229,9 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
           <label>Password</label>
           <div class="input-wrapper">
             <i class="fas fa-lock"></i>
-            <input type="password" class="input-field" placeholder="••••••••" required>
+            <input type="password" name="password" class="input-field" placeholder="••••••••" required>
           </div>
         </div>
-
 
         <button type="submit" class="btn-submit" id="loginSubmitBtn">Masuk Kelas</button>
 
@@ -232,12 +248,13 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
         <p>Bergabunglah dengan ribuan siswa yang telah sukses.</p>
       </div>
 
-      <form id="registerForm" onsubmit="event.preventDefault();">
+      <form id="registerForm" action="{{ route('auth.register') }}" method="POST">
+        @csrf
         <div class="input-group">
           <label>Nama Lengkap</label>
           <div class="input-wrapper">
             <i class="fas fa-user"></i>
-            <input type="text" class="input-field" placeholder="Budi Santoso" required>
+            <input type="text" name="name" class="input-field" placeholder="Budi Santoso" value="{{ old('name') }}" required>
           </div>
         </div>
 
@@ -245,7 +262,7 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
           <label>Email Address</label>
           <div class="input-wrapper">
             <i class="fas fa-envelope"></i>
-            <input type="email" class="input-field" placeholder="nama@email.com" required>
+            <input type="email" name="email" class="input-field" placeholder="nama@email.com" value="{{ old('email') }}" required>
           </div>
         </div>
 
@@ -253,14 +270,14 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
           <label>Password</label>
           <div class="input-wrapper">
             <i class="fas fa-lock"></i>
-            <input type="password" class="input-field" placeholder="Minimal 8 karakter" required>
+            <input type="password" name="password" class="input-field" placeholder="Minimal 8 karakter" required>
           </div>
         </div>
         <div class="input-group">
           <label>Confirm Password</label>
           <div class="input-wrapper">
             <i class="fas fa-lock"></i>
-            <input type="password" class="input-field" placeholder="Minimal 8 karakter" required>
+            <input type="password" name="password_confirmation" class="input-field" placeholder="Minimal 8 karakter" required>
           </div>
         </div>
 
@@ -290,45 +307,30 @@ function switchView(view) {
 }
 
 // ==================== LOGIC ROLE TOGGLE (PANEL VS PEMBELAJARAN) ====================
-let currentRole = 'learning'; // Default
+let currentRole = 'learning';
 const indicator = document.getElementById('roleIndicator');
 const loginDesc = document.getElementById('loginDesc');
 const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+const roleTargetInput = document.getElementById('roleTargetInput');
 const roleBtns = document.querySelectorAll('.role-btn');
 
 function setRole(role) {
   currentRole = role;
+  roleTargetInput.value = role;
   
-  // Update Buttons UI
   roleBtns.forEach(btn => {
     if (btn.dataset.role === role) btn.classList.add('active');
     else btn.classList.remove('active');
   });
 
-  // Slide Indicator
   if (role === 'panel') {
     indicator.style.transform = 'translateX(0)';
     loginDesc.innerHTML = 'Silakan masuk ke Sistem Panel Admin / Pengajar.';
     loginSubmitBtn.innerHTML = '<i class="fas fa-server" style="margin-right: 8px;"></i> Masuk ke Panel';
-    // Di Nuxt/Vue nanti, state ini digunakan untuk mengubah form action ke rute backend Filament
   } else {
     indicator.style.transform = 'translateX(100%)';
     loginDesc.innerHTML = 'Silakan masuk ke portal pembelajaran Anda.';
     loginSubmitBtn.innerHTML = 'Masuk Kelas';
-  }
-}
-
-// ==================== FORM SUBMIT HANDLER MOCK ====================
-function handleLogin(e) {
-  e.preventDefault();
-  
-  // Konsep routing untuk struktur Nuxt.js / Laravel Filament Anda
-  if(currentRole === 'panel') {
-    console.log('Mengarahkan kredensial ke Endpoint Laravel Filament 5.x...');
-    // window.location.href = '/admin/login';
-  } else {
-    console.log('Mengarahkan kredensial ke Endpoint Nuxt.js / API Pelajar...');
-    // window.location.href = '/dashboard';
   }
 }
 </script>

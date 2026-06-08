@@ -245,7 +245,6 @@ body::before {
 
 .hero-bg {
   position: absolute; inset: 0;
-  /* Gambar background yang responsif */
   background-image: url('{{ asset("assets/banner1.jpg") }}');
   background-size: cover;
   background-position: center;
@@ -253,7 +252,6 @@ body::before {
   z-index: 1;
 }
 
-/* OVERLAY GELAP KHUSUS HERO agar kontras teks selalu aman di Light/Dark mode */
 .hero-bg::after {
   content: '';
   position: absolute; inset: 0;
@@ -281,8 +279,6 @@ body::before {
   padding: 80px 0;
 }
 
-.hero-left { }
-
 .hero-eyebrow {
   display: flex; align-items: center; gap: 12px;
   margin-bottom: 28px;
@@ -291,24 +287,22 @@ body::before {
 @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:0.6} }
 .eyebrow-text { font-size: 13px; font-weight: 600; color: var(--primary); letter-spacing: 0.1em; text-transform: uppercase; }
 
-/* KUNCI WARNA TEKS HERO MENJADI TERANG AGAR KONTRAS DENGAN BG GELAP */
 #hero .hero-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
   line-height: 1.1;
   margin-bottom: 24px;
-  color: #FFFFFF; 
+  color: #FFFFFF;
 }
 
 #hero .hero-desc {
-  font-size: 17px; 
-  color: rgba(255, 255, 255, 0.85); 
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.85);
   margin-bottom: 40px; max-width: 480px; line-height: 1.7;
 }
 
 .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 56px; }
 
-/* Penyesuaian tombol ghost di hero section */
 #hero .btn-ghost {
   background: rgba(255, 255, 255, 0.05);
   color: #FFFFFF;
@@ -319,7 +313,6 @@ body::before {
   border-color: var(--primary);
 }
 
-/* Glassmorphism tipis pada box statistik */
 .hero-stats {
   display: flex; align-items: center; gap: 32px;
   padding: 24px 32px;
@@ -397,7 +390,6 @@ body::before {
 .subject-name { font-size: 13px; font-weight: 600; }
 .subject-count { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-.progress-section { }
 .progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
 .progress-label span:first-child { font-weight: 600; }
 .progress-label span:last-child { color: var(--primary); font-weight: 700; }
@@ -408,7 +400,6 @@ body::before {
   transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Floating badges on hero */
 .float-badge {
   position: absolute;
   background: var(--bg-card);
@@ -523,7 +514,6 @@ body::before {
 .feature-icon { color: var(--primary); font-size: 12px; }
 
 .program-footer { display: flex; align-items: center; justify-content: space-between; }
-.program-price { }
 .price-label { font-size: 11px; color: var(--text-muted); }
 .price-amount { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
 .price-period { font-size: 12px; color: var(--text-muted); }
@@ -712,8 +702,6 @@ body::before {
 
 /* ===================== WHY US ===================== */
 .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
-
-.why-left { }
 
 .why-feature {
   display: flex; gap: 20px;
@@ -1202,12 +1190,9 @@ footer {
           </div>
         </div>
       </div>
-
- 
     </div>
   </div>
 </section>
-
 
 <section class="section" id="programs">
   <div class="container">
@@ -1218,71 +1203,41 @@ footer {
     </div>
 
     <div class="programs-grid stagger">
-    
-      <div class="program-card">
-        <div class="program-name">Starter</div>
-        <div class="program-meta">
-          <span><i class="fas fa-clock"></i> 1 Bulan</span>
-        </div>
-        <div class="program-desc">Cocok untuk kamu yang baru mulai mempersiapkan ujian. Fondasi kuat dengan materi dasar yang terstruktur.</div>
+      @forelse($kelasList as $kelas)
+      <div class="program-card {{ $loop->iteration === 2 ? 'featured' : '' }}" onclick="openKelasModal({{ $kelas->id }})" style="cursor:pointer;">
+        @if($loop->iteration === 2)
+        <div class="program-popular"><i class="fas fa-fire"></i> Populer</div>
+        @endif
+        <div class="program-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="program-name">{{ $kelas->name }}</div>
+        
+        <div class="program-desc">{{ Str::limit((string) $kelas->deskripsi, 100) }}</div>
+        
+        @if($kelas->benefit)
         <ul class="program-features">
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 500 latihan soal</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 2x tryout bulanan</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Forum diskusi komunitas</li>
+          @foreach(is_array($kelas->benefit) ? array_slice($kelas->benefit, 0, 3) : [] as $benefit)
+          <li class="program-feature">
+            <i class="fas fa-check feature-icon"></i> 
+            {{ is_array($benefit) ? collect($benefit)->first() : $benefit }}
+          </li>
+          @endforeach
         </ul>
+        @endif
+        
         <div class="program-footer">
           <div class="program-price">
             <div class="price-label">Mulai dari</div>
-            <div class="price-amount">Rp 149K</div>
-            <div class="price-period">/bulan</div>
+            <div class="price-amount">Rp {{ number_format((float) $kelas->harga, 0, ',', '.') }}</div>
           </div>
           <button class="program-btn"><i class="fas fa-arrow-right"></i></button>
         </div>
       </div>
-      <div class="program-card">
-        <div class="program-name">Starter</div>
-        <div class="program-meta">
-          <span><i class="fas fa-clock"></i> 1 Bulan</span>
-        </div>
-        <div class="program-desc">Cocok untuk kamu yang baru mulai mempersiapkan ujian. Fondasi kuat dengan materi dasar yang terstruktur.</div>
-        <ul class="program-features">
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 500 latihan soal</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 2x tryout bulanan</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Forum diskusi komunitas</li>
-        </ul>
-        <div class="program-footer">
-          <div class="program-price">
-            <div class="price-label">Mulai dari</div>
-            <div class="price-amount">Rp 149K</div>
-            <div class="price-period">/bulan</div>
-          </div>
-          <button class="program-btn"><i class="fas fa-arrow-right"></i></button>
-        </div>
+      @empty
+      <div style="grid-column: 1 / -1; text-align: center; padding: 64px 0;">
+        <i class="fas fa-box-open" style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <p style="color: var(--text-muted);">Belum ada program tersedia.</p>
       </div>
-      <div class="program-card">
-        <div class="program-name">Starter</div>
-        <div class="program-meta">
-          <span><i class="fas fa-clock"></i> 1 Bulan</span>
-        </div>
-        <div class="program-desc">Cocok untuk kamu yang baru mulai mempersiapkan ujian. Fondasi kuat dengan materi dasar yang terstruktur.</div>
-        <ul class="program-features">
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 500 latihan soal</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> 2x tryout bulanan</li>
-          <li class="program-feature"><i class="fas fa-check feature-icon"></i> Forum diskusi komunitas</li>
-        </ul>
-        <div class="program-footer">
-          <div class="program-price">
-            <div class="price-label">Mulai dari</div>
-            <div class="price-amount">Rp 149K</div>
-            <div class="price-period">/bulan</div>
-          </div>
-          <button class="program-btn"><i class="fas fa-arrow-right"></i></button>
-        </div>
-      </div>
-      
-
-
-
+      @endforelse
     </div>
   </div>
 </section>
@@ -1345,58 +1300,35 @@ footer {
     </div>
 
     <div class="articles-grid stagger">
+      @forelse($artikels as $artikel)
       <div class="article-card">
         <div class="article-img-wrap">
-          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Tips Belajar" class="article-img">
-          <div class="article-category">CPNS</div>
+          <img src="{{ $artikel->gambar ? asset('storage/' . $artikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="{{ $artikel->title }}" class="article-img">
+          <div class="article-category">{{ $artikel->kategoriArtikel->title ?? 'Umum' }}</div>
         </div>
         <div class="article-content">
           <div class="article-meta">
-            <span><i class="far fa-calendar-alt"></i> 12 Okt 2026</span>
-            <span><i class="far fa-clock"></i> 5 Min read</span>
+            <span><i class="far fa-calendar-alt"></i> {{ $artikel->created_at->format('d M Y') }}</span>
+            <span><i class="far fa-clock"></i> {{ max(1, ceil(str_word_count(strip_tags($artikel->description)) / 200)) }} Min</span>
           </div>
-          <h3 class="article-title"><a href="#">Strategi Lolos SKD CPNS 2026: Fokus di Materi TWK!</a></h3>
-          <p class="article-excerpt">Pelajari poin-poin penting yang sering keluar pada Tes Wawasan Kebangsaan (TWK) tahun ini dan temukan metode efektif untuk mengingat pasal-pasal konstitusi.</p>
-          <a href="#" class="article-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+          <h3 class="article-title"><a href="{{ route('artikel.show', $artikel->id) }}">{{ $artikel->title }}</a></h3>
+          <p class="article-excerpt">{{ Str::limit(strip_tags($artikel->description), 120) }}</p>
+          <a href="{{ route('artikel.show', $artikel->id) }}" class="article-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
-
-      <div class="article-card">
-        <div class="article-img-wrap">
-          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Persiapan Tes" class="article-img">
-          <div class="article-category">Kampus</div>
-        </div>
-        <div class="article-content">
-          <div class="article-meta">
-            <span><i class="far fa-calendar-alt"></i> 08 Okt 2026</span>
-            <span><i class="far fa-clock"></i> 4 Min read</span>
-          </div>
-          <h3 class="article-title"><a href="#">Rahasia Menembus Passing Grade UTBK SNBT</a></h3>
-          <p class="article-excerpt">Memahami sistem penilaian IRT (Item Response Theory) pada UTBK sangat krusial. Simak bagaimana cara mengoptimalkan jawabanmu agar mendapat skor maksimal.</p>
-          <a href="#" class="article-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
-        </div>
+      @empty
+      <div style="grid-column: 1 / -1; text-align: center; padding: 64px 0;">
+        <i class="fas fa-newspaper" style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <p style="color: var(--text-muted);">Belum ada artikel tersedia.</p>
       </div>
-
-      <div class="article-card">
-        <div class="article-img-wrap">
-          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mentoring" class="article-img">
-          <div class="article-category">TNI/POLRI</div>
-        </div>
-        <div class="article-content">
-          <div class="article-meta">
-            <span><i class="far fa-calendar-alt"></i> 05 Okt 2026</span>
-            <span><i class="far fa-clock"></i> 6 Min read</span>
-          </div>
-          <h3 class="article-title"><a href="#">Persiapan Fisik Maksimal untuk Tes Kesamaptaan</a></h3>
-          <p class="article-excerpt">Bukan hanya soal akademik, tes fisik seringkali menjadi batu sandungan. Berikut adalah rutinitas latihan harian yang bisa kamu persiapkan dari rumah.</p>
-          <a href="#" class="article-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
+      @endforelse
     </div>
     
+    @if($totalArtikels > 3)
     <div class="reveal" style="text-align: center; margin-top: 56px;">
-      <a href="{{ route('artikel.index') }}" class="btn btn-ghost">Lihat Semua Artikel</a>
+      <a href="{{ route('artikel.index') }}" class="btn btn-ghost">Lihat Semua Artikel <i class="fas fa-arrow-right" style="margin-left:8px;"></i></a>
     </div>
+    @endif
   </div>
 </section>
 
@@ -1696,11 +1628,80 @@ footer {
   </div>
 </footer>
 
+<div id="kelasModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--bg-card);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 32px 64px rgba(0,0,0,0.3);border:1px solid var(--border);">
+    <button onclick="closeKelasModal()" style="position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:var(--overlay);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:16px;transition:all 0.2s;">
+      <i class="fas fa-times"></i>
+    </button>
+    <div style="padding:40px;">
+      <div style="text-align:center;margin-bottom:28px;">
+        <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,rgba(249,115,22,0.15),rgba(251,191,36,0.1));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:var(--primary);">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h3 id="modalKelasName" style="font-family:'Playfair Display',serif;font-size:28px;margin-bottom:8px;"></h3>
+        <p id="modalKelasHarga" style="font-size:24px;font-weight:800;color:var(--primary);"></p>
+      </div>
+      <p id="modalKelasDeskripsi" style="color:var(--text-muted);line-height:1.7;margin-bottom:24px;text-align:center;"></p>
+      <div id="modalKelasBenefits" style="margin-bottom:32px;"></div>
+      <a id="modalWhatsappBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 32px;background:#25D366;color:#fff;border-radius:50px;font-weight:700;font-size:16px;transition:all 0.3s;text-decoration:none;box-shadow:0 8px 24px rgba(37,211,102,0.3);">
+        <i class="fab fa-whatsapp" style="font-size:20px;"></i>
+        Daftar via WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
 <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
   <i class="fas fa-arrow-up"></i>
 </button>
 
 <script>
+// ==================== KELAS DATA & MODAL ====================
+const kelasData = {!! json_encode($kelasList) !!};
+
+function openKelasModal(kelasId) {
+  const kelas = kelasData.find(k => k.id === kelasId);
+  if (!kelas) return;
+
+  document.getElementById('modalKelasName').textContent = kelas.name;
+  document.getElementById('modalKelasHarga').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(kelas.harga);
+  document.getElementById('modalKelasDeskripsi').textContent = kelas.deskripsi || '';
+
+  const benefitsContainer = document.getElementById('modalKelasBenefits');
+  if (kelas.benefit && Array.isArray(kelas.benefit) && kelas.benefit.length > 0) {
+    benefitsContainer.innerHTML = '<h4 style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text);">Benefit Paket:</h4>' +
+      kelas.benefit.map(b => {
+        let textBenefit = typeof b === 'object' && b !== null ? Object.values(b)[0] : b;
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--overlay);">
+          <i class="fas fa-check-circle" style="color:var(--primary);font-size:14px;"></i>
+          <span style="font-size:14px;color:var(--text-muted);">${textBenefit}</span>
+        </div>`;
+      }).join('');
+  } else {
+    benefitsContainer.innerHTML = '';
+  }
+
+  const pesan = `Halo Admin Future Leader Academy! Saya tertarik dengan paket kelas "${kelas.name}" (Rp ${new Intl.NumberFormat('id-ID').format(kelas.harga)}). Mohon informasi lebih lanjut mengenai pendaftaran dan pembayarannya. Terima kasih!`;
+  const waUrl = `https://wa.me/6289694390889?text=${encodeURIComponent(pesan)}`;
+  document.getElementById('modalWhatsappBtn').href = waUrl;
+
+  document.getElementById('kelasModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeKelasModal() {
+  document.getElementById('kelasModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.getElementById('kelasModal').addEventListener('click', function(e) {
+  if (e.target === this) closeKelasModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeKelasModal();
+});
+
 // ==================== THEME TOGGLE ====================
 const html = document.documentElement;
 const themeToggle = document.getElementById('themeToggle');

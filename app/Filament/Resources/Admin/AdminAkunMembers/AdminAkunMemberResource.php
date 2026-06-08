@@ -50,7 +50,7 @@ class AdminAkunMemberResource extends Resource
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-user-group'; // bisa diganti icon lain
+        return 'heroicon-o-users';
     }
 
     public static function getPages(): array

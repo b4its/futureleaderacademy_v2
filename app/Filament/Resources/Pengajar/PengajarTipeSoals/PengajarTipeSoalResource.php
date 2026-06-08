@@ -43,8 +43,8 @@ class PengajarTipeSoalResource extends Resource
     {
         return [
             'index' => ListPengajarTipeSoals::route('/'),
-            'create' => CreatePengajarTipeSoal::route('/create'),
-            'edit' => EditPengajarTipeSoal::route('/{record}/edit'),
+            // 'create' => CreatePengajarTipeSoal::route('/create'),
+            // 'edit' => EditPengajarTipeSoal::route('/{record}/edit'),
         ];
     }
 }

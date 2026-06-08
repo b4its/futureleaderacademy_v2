@@ -40,14 +40,19 @@ class AdminPaketResource extends Resource
         ];
     }
 
+    public static function getNavigationGroup(): string
+    {
+        return 'Program';
+    }
+
     public static function getNavigationLabel(): string
     {
-        return 'Paket';
+        return 'Paket / Kelas';
     }
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-user-group'; // bisa diganti icon lain
+        return 'heroicon-o-credit-card';
     }
 
     public static function getPages(): array

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Strategi Lolos SKD CPNS 2026 — Future Leader Academy</title>
+<title>{{ $artikel->title }} — Future Leader Academy</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -78,6 +78,14 @@ img { max-width: 100%; border-radius: 16px; }
 .prose li { margin-bottom: 12px; padding-left: 8px; }
 .prose li::marker { color: var(--primary); font-weight: bold; }
 .prose blockquote { font-family: 'Playfair Display', serif; font-size: 24px; font-style: italic; color: var(--text); margin: 48px 0; padding: 32px; border-left: 4px solid var(--primary); background: var(--overlay); border-radius: 0 16px 16px 0; line-height: 1.6; }
+.prose blockquote p { margin-bottom: 0; }
+.prose table { width: 100%; border-collapse: collapse; margin: 32px 0; border-radius: 12px; overflow: hidden; font-size: 16px; }
+.prose table th, .prose table td { padding: 14px 18px; text-align: left; border: 1px solid var(--border); }
+.prose table th { background: var(--overlay); color: var(--text); font-weight: 700; }
+.prose table tr:nth-child(even) { background: var(--overlay); }
+.prose a { color: var(--primary); text-decoration: underline; transition: opacity 0.2s; }
+.prose a:hover { opacity: 0.8; }
+.prose strong { color: var(--text); font-weight: 700; }
 .prose img { margin: 40px 0; box-shadow: 0 16px 32px var(--shadow); }
 .prose strong { color: var(--text); font-weight: 700; }
 
@@ -135,22 +143,22 @@ img { max-width: 100%; border-radius: 16px; }
 
 <!-- HEADER -->
 <header class="article-header container">
-  <div class="cat-badge">CPNS & PPPK</div>
-  <h1 class="article-title">Strategi Lolos SKD CPNS 2026: Bongkar Rahasia Materi TWK & TIU</h1>
+  <div class="cat-badge">{{ $artikel->kategoriArtikel->title ?? 'Uncategorized' }}</div>
+  <h1 class="article-title">{{ $artikel->title }}</h1>
   <div class="article-meta-header">
     <div class="meta-item">
-      <img src="https://i.pravatar.cc/100?img=11" alt="Budi" style="width:28px;height:28px;border-radius:50%;">
-      <span>Oleh Budi Santoso</span>
+      <i class="fas fa-user-circle" style="font-size: 28px;"></i>
+      <span>Future Leader Academy</span>
     </div>
-    <div class="meta-item"><i class="far fa-calendar-alt"></i> 12 Oktober 2026</div>
-    <div class="meta-item"><i class="far fa-clock"></i> 8 Menit Membaca</div>
+    <div class="meta-item"><i class="far fa-calendar-alt"></i> {{ $artikel->created_at->format('d F Y') }}</div>
+    <div class="meta-item"><i class="far fa-clock"></i> {{ max(1, ceil(str_word_count(strip_tags($artikel->description)) / 200)) }} Menit Membaca</div>
   </div>
 </header>
 
 <!-- HERO IMAGE -->
 <div class="container">
   <div class="article-hero">
-    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Belajar CPNS">
+    <img src="{{ $artikel->gambar ? asset('storage/' . $artikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80' }}" alt="{{ $artikel->title }}">
   </div>
 </div>
 
@@ -158,42 +166,10 @@ img { max-width: 100%; border-radius: 16px; }
 <main class="container">
   <div class="prose-container">
     
-    <!-- SHARE SIDEBAR (Desktop) -->
-    <div class="share-sidebar">
-      <div class="share-btn tw" title="Share to Twitter"><i class="fab fa-twitter"></i></div>
-      <div class="share-btn wa" title="Share to WhatsApp"><i class="fab fa-whatsapp"></i></div>
-      <div class="share-btn" title="Copy Link"><i class="fas fa-link"></i></div>
-    </div>
 
     <!-- ARTICLE TEXT -->
     <article class="prose">
-      <p>Seleksi Kompetensi Dasar (SKD) CPNS 2026 sudah di depan mata. Banyak peserta yang merasa siap secara materi, namun gagal karena kurangnya strategi manajemen waktu saat mengerjakan soal. Dalam artikel ini, kita akan membongkar metode yang telah terbukti membantu ribuan alumni Future Leader Academy menembus *passing grade* dengan skor di atas 450.</p>
-
-      <h2>1. Fokus pada Poin Esensial TWK</h2>
-      <p>Tes Wawasan Kebangsaan (TWK) seringkali menjadi momok karena cakupan materinya yang sangat luas. Mulai dari sejarah kemerdekaan, UUD 1945, hingga pilar negara. Kesalahan terbesar peserta adalah mencoba menghafal semuanya secara mentah.</p>
-      
-      <blockquote>
-        "Jangan menghafal pasal, tapi pahami konteks sejarah mengapa pasal tersebut dibuat. Soal TWK modern berbasis penalaran HOTS, bukan hafalan buta."
-      </blockquote>
-
-      <p>Berdasarkan analisis soal tahun lalu, berikut adalah materi yang wajib Anda kuasai dengan sistem penalaran:</p>
-      <ul>
-        <li><strong>Implementasi Sila Pancasila:</strong> Kasus nyata di masyarakat dan bagaimana mengaitkannya dengan butir pancasila.</li>
-        <li><strong>Nasionalisme vs Patriotisme:</strong> Perbedaan tipis pada skenario soal cerita.</li>
-        <li><strong>Sejarah Konstitusi:</strong> Perubahan sistem pemerintahan dari masa ke masa.</li>
-      </ul>
-
-      <h2>2. Metode 'Fast Logic' untuk TIU</h2>
-      <p>Tes Intelegensia Umum (TIU) membutuhkan kecepatan. Anda hanya memiliki waktu rata-rata 54 detik untuk satu soal. Jika Anda menggunakan rumus matematika konvensional, waktu Anda akan habis. Gunakan pendekatan logika rasio dan eliminasi jawaban.</p>
-      
-      <p>Sebagai contoh, pada soal deret angka, jangan langsung mencari selisih jika angkanya terlihat melompat jauh. Coba pisahkan menjadi dua deret berselang (deret ganjil dan genap). Teknik ini akan menghemat waktu Anda hingga 50%.</p>
-
-      <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Belajar Matematika">
-
-      <h2>3. Karakteristik TKP yang Sering Menjebak</h2>
-      <p>Tes Karakteristik Pribadi (TKP) adalah tambang poin jika Anda tahu polanya. Ingatlah bahwa dalam TKP, Anda harus memposisikan diri sebagai **ASN yang ideal**, bukan diri Anda yang sebenarnya. Pilihlah jawaban yang paling mencerminkan integritas, orientasi pada pelayanan, dan kemampuan beradaptasi dengan teknologi.</p>
-
-      <p>Semoga strategi ini membantu Anda menyusun jadwal belajar yang lebih terarah. Jangan lupa untuk terus berlatih menggunakan fitur Tryout Simulasi CAT di Future Leader Academy agar Anda terbiasa dengan tekanan waktu ujian sebenarnya.</p>
+      {!! $artikel->description !!}
     </article>
 
   </div>
@@ -201,19 +177,26 @@ img { max-width: 100%; border-radius: 16px; }
   <!-- FOOTER ARTICLE -->
   <div class="article-footer">
     <div class="tags">
-      <div class="tag">#CPNS2026</div>
-      <div class="tag">#TipsLulus</div>
-      <div class="tag">#SKD</div>
-      <div class="tag">#TWK</div>
+      <div class="tag">#{{ Str::slug($artikel->kategoriArtikel->title ?? 'artikel') }}</div>
+      <div class="tag">#FutureLeaderAcademy</div>
     </div>
 
-    <div class="author-box">
-      <img src="https://i.pravatar.cc/150?img=11" alt="Budi Santoso" class="author-box-avatar">
-      <div class="author-info">
-        <h4>Budi Santoso</h4>
-        <p>Master Mentor di Future Leader Academy dengan pengalaman 8 tahun membimbing calon ASN. Ahli dalam merumuskan strategi pengerjaan soal TIU dan TWK berbasis HOTS.</p>
+    @if($relatedArtikels->count() > 0)
+    <div style="margin-top: 64px;">
+      <h3 style="font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 32px; text-align: center;">Artikel Terkait</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        @foreach($relatedArtikels as $related)
+        <a href="{{ route('artikel.show', $related->id) }}" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; display: block;">
+          <img src="{{ $related->gambar ? asset('storage/' . $related->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="{{ $related->title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 0;">
+          <div style="padding: 20px;">
+            <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.4;">{{ $related->title }}</h4>
+            <p style="font-size: 14px; color: var(--text-muted); margin: 0;">{{ Str::limit(strip_tags($related->description), 80) }}</p>
+          </div>
+        </a>
+        @endforeach
       </div>
     </div>
+    @endif
   </div>
 </main>
 
@@ -239,6 +222,15 @@ window.addEventListener('scroll', () => {
   const scrolled = (winScroll / height) * 100;
   document.getElementById('progress-bar').style.width = scrolled + "%";
 });
+
+
+
+function copyLink() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    alert('Link berhasil disalin!');
+  });
+}
 </script>
 </body>
 </html>

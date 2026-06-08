@@ -50,7 +50,7 @@ class AdminHasilTesResource extends Resource
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-user-group'; // bisa diganti icon lain
+        return 'heroicon-o-clipboard-document-check';
     }
 
     public static function getPages(): array

@@ -1,16 +1,32 @@
 <?php
 
 use App\Http\Controllers\Accounts\LoginControllers;
+use App\Http\Controllers\Accounts\ProfileControllers;
+use App\Http\Controllers\Accounts\RegisterControllers;
+use App\Http\Controllers\Artikel\ArtikelControllers;
+use App\Http\Controllers\DashboardControllers;
 use App\Http\Controllers\Pembelajaran\PembelajaranControllers;
 use App\Http\Controllers\Pembelajaran\Pengajar\PembelajaranPengajarControllers;
 use App\Http\Controllers\Pembelajaran\StatistikPembelajaranControllers;
 use App\Http\Controllers\Pembelajaran\TryoutPembelajaranControllers;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('welcome');
+Route::get('/', [DashboardControllers::class, 'index'])->name('welcome');
 
+// Auth Routes
 Route::prefix('accounts')->group(function () {
-    Route::view('auth', 'accounts.auth')->name('auth.index');
+    Route::get('auth', [LoginControllers::class, 'index'])->name('auth.index');
+    Route::post('login', [LoginControllers::class, 'login'])->name('auth.login');
+    Route::post('register', [RegisterControllers::class, 'register'])->name('auth.register');
+});
+
+// Logout (auth required)
+Route::post('accounts/logout', [LoginControllers::class, 'logout'])->middleware('auth')->name('auth.logout');
+
+// Profile (auth required)
+Route::middleware('auth')->prefix('accounts')->group(function () {
+    Route::get('profile', [ProfileControllers::class, 'edit'])->name('profile.edit');
+    Route::post('profile', [ProfileControllers::class, 'update'])->name('profile.update');
 });
 
 Route::prefix('pembelajaran')->group(function () {
@@ -35,8 +51,7 @@ Route::prefix('pembelajaran')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('create', 'create')->name('tes.create');
             Route::post('store', 'store')->name('tes.store');
-            
-            // --- ROUTE BARU UNTUK EDIT & DELETE ---
+
             Route::get('{id}/edit', 'edit')->name('tes.edit');
             Route::post('{id}/update', 'update')->name('tes.update');
             Route::delete('{id}', 'destroy')->name('tes.destroy');
@@ -45,6 +60,6 @@ Route::prefix('pembelajaran')->group(function () {
 });
 
 Route::prefix('artikel')->group(function () {
-    Route::view('/', 'artikel.index_artikel')->name('artikel.index');
-    Route::view('view', 'artikel.view_artikel')->name('artikel.view.index');
+    Route::get('/', [ArtikelControllers::class, 'index'])->name('artikel.index');
+    Route::get('/{id}', [ArtikelControllers::class, 'show'])->name('artikel.show');
 });

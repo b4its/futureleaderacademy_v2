@@ -50,7 +50,7 @@ class AdminSoalResource extends Resource
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-user-group'; // bisa diganti icon lain
+        return 'heroicon-o-question-mark-circle';
     }
 
     public static function getPages(): array
