@@ -16,7 +16,6 @@ class TesPengetahuan extends Model
         'kode_tes',
         'pelajaran',
         'total_soal',
-        'total_bobot',
         'batas_waktu',
         'is_paid',
         'status',

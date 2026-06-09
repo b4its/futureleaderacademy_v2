@@ -27,7 +27,8 @@ class Soal extends Model
         'visual_jawaban_d',
         'visual_jawaban_e',
         'jawaban_benar',
-        'bobot_nilai',  
+        'bobot_nilai',
+        'total_bobot'  
     ];
 
     /**
