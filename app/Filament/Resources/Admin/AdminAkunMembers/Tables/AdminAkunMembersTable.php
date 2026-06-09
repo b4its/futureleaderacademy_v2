@@ -17,16 +17,14 @@ class AdminAkunMembersTable
         return $table
             ->query(
                 User::query()
-                    // Pastikan nama tabel 'users' sesuai migrasi
-                    ->selectRaw('users.*, ROW_NUMBER() OVER (ORDER BY created_at desc) as row_num')
-                    ->where('role', '=', 'member') // Exclude admin from the list
+                    ->with(['profile.kelas']) // Eager load untuk performa dan menghindari N+1
+                    ->where('role', 'member')
                     ->orderBy('created_at', 'desc')
             )
             ->columns([
-                //
-                TextColumn::make('row_num')
-                    ->label('No')
-                    ->sortable(),
+                // Gunakan fitur bawaan Filament untuk penomoran baris
+                TextColumn::make('No')
+                    ->rowIndex(),
 
                 TextColumn::make('name')
                     ->label('Nama')
@@ -38,8 +36,8 @@ class AdminAkunMembersTable
                     ->sortable()
                     ->searchable(),
 
-                TextColumn::make('role')
-                    ->label('Role')
+                TextColumn::make('profile.kelas.name')
+                    ->label('Paket Kelas')
                     ->sortable()
                     ->searchable(),
             ])
@@ -50,10 +48,10 @@ class AdminAkunMembersTable
                 EditAction::make()->modalHeading('Edit Member'),
                 DeleteAction::make()
                     ->button()
-                    ->color('danger') // default abu-abu (tidak merah)
-                    ->requiresConfirmation() // pastikan tampil popup konfirmasi
+                    ->color('danger')
+                    ->requiresConfirmation()
                     ->modalHeading('Konfirmasi Hapus')
-                    ->modalDescription('apakah yakin ingin menghapus data ini?')
+                    ->modalDescription('Apakah yakin ingin menghapus data ini?')
                     ->modalSubmitActionLabel('Ya, Hapus'),
             ])
             ->toolbarActions([

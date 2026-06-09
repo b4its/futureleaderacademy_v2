@@ -11,10 +11,11 @@ use App\Http\Controllers\Pembelajaran\StatistikPembelajaranControllers;
 use App\Http\Controllers\Pembelajaran\TryoutPembelajaranControllers;
 use Illuminate\Support\Facades\Route;
 
+// ==================== PUBLIC ROUTES ====================
 Route::get('/', [DashboardControllers::class, 'index'])->name('welcome');
 
-// Auth Routes
-Route::prefix('accounts')->group(function () {
+// Auth Routes (hanya guest)
+Route::prefix('accounts')->middleware('guest')->group(function () {
     Route::get('auth', [LoginControllers::class, 'index'])->name('auth.index');
     Route::post('login', [LoginControllers::class, 'login'])->name('auth.login');
     Route::post('register', [RegisterControllers::class, 'register'])->name('auth.register');
@@ -29,7 +30,14 @@ Route::middleware('auth')->prefix('accounts')->group(function () {
     Route::post('profile', [ProfileControllers::class, 'update'])->name('profile.update');
 });
 
-Route::prefix('pembelajaran')->group(function () {
+// Artikel (public)
+Route::prefix('artikel')->group(function () {
+    Route::get('/', [ArtikelControllers::class, 'index'])->name('artikel.index');
+    Route::get('/{id}', [ArtikelControllers::class, 'show'])->name('artikel.show');
+});
+
+// ==================== PEMBELAJARAN (AUTH REQUIRED) ====================
+Route::prefix('pembelajaran')->middleware('auth')->group(function () {
     Route::controller(PembelajaranControllers::class)->group(function () {
         Route::get('/', 'index')->name('pembelajaran.index');
     });
@@ -45,10 +53,14 @@ Route::prefix('pembelajaran')->group(function () {
         Route::post('cat/{id}', 'store')->name('pembelajaran.cat.store');
     });
 
-    // Sub-domain Pengajar
-    Route::prefix('pengajar')->name('pembelajaran.pengajar.')->group(function () {
+    // Sub-domain Pengajar (hanya admin & pengajar)
+    Route::prefix('pengajar')->name('pembelajaran.pengajar.')->middleware('role:admin,pengajar')->group(function () {
         Route::controller(PembelajaranPengajarControllers::class)->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::get('kelola', 'kelola')->name('kelola');
+            Route::get('progress', 'progress')->name('progress');
+            Route::get('progress/{userId}/detail', 'progressDetail')->name('progress.detail');
+
             Route::get('create', 'create')->name('tes.create');
             Route::post('store', 'store')->name('tes.store');
 
@@ -57,9 +69,4 @@ Route::prefix('pembelajaran')->group(function () {
             Route::delete('{id}', 'destroy')->name('tes.destroy');
         });
     });
-});
-
-Route::prefix('artikel')->group(function () {
-    Route::get('/', [ArtikelControllers::class, 'index'])->name('artikel.index');
-    Route::get('/{id}', [ArtikelControllers::class, 'show'])->name('artikel.show');
 });

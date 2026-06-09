@@ -26,7 +26,7 @@ class PengajarPanelProvider extends PanelProvider
         return $panel
             ->id('pengajar')
             ->path('pengajar')
-            ->brandName('Panel Pengajar')
+            ->brandName('Pengajar Panel')
             ->login()
             ->colors([
                 'primary' => Color::Emerald,
@@ -59,6 +59,7 @@ class PengajarPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\EnsureIsPengajar::class,
             ]);
     }
 }

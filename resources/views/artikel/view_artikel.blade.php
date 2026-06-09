@@ -158,7 +158,7 @@ img { max-width: 100%; border-radius: 16px; }
 <!-- HERO IMAGE -->
 <div class="container">
   <div class="article-hero">
-    <img src="{{ $artikel->gambar ? asset('storage/' . $artikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80' }}" alt="{{ $artikel->title }}">
+    <img src="{{ $artikel->gambar ? asset( $artikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80' }}" alt="{{ $artikel->title }}">
   </div>
 </div>
 

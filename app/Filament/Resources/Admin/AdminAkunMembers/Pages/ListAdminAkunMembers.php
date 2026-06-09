@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Admin\AdminAkunMembers\Pages;
 
 use App\Filament\Resources\Admin\AdminAkunMembers\AdminAkunMemberResource;
-use App\Models\Profile;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Model;
@@ -17,37 +16,35 @@ class ListAdminAkunMembers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Tambahkan Pengajar')
-            ->modalHeading('Tambahkan Pengajar')
-            ->mutateFormDataUsing(function (array $data): array {
-                    $data['role'] = "pengajar";
+            CreateAction::make()
+                ->label('Tambahkan Member')
+                ->modalHeading('Tambahkan Member')
+                ->mutateFormDataUsing(function (array $data): array {
+                    $data['role'] = 'member';
                     return $data;
                 })
-            ->using(function (array $data, string $model): Model {
+                ->using(function (array $data, string $model): Model {
                     return DB::transaction(function () use ($data, $model) {
 
                         // 1. Ambil data profil dari form dan hapus dari array $data
-                        // agar tidak error "column not found" saat create User
-                        $firstName = $data['first_name'] ?? null;
-                        $lastName = $data['last_name'] ?? null;
-                        unset($data['first_name'], $data['last_name']);
+                        $profileData = $data['profile'] ?? [];
+                        unset($data['profile']);
 
-                        // 2. Buat record User-nya dulu.
-                        // Proses ini akan memicu method booted() -> static::created di model User
-                        // yang otomatis membuat Profile kosong beserta user_id-nya.
+                        // 2. Buat record User (akan otomatis membuat Profile kosong via booted())
                         $user = $model::create($data);
 
-                        // 3. Update data Profile yang otomatis terbuat tadi
-                        $user->profile->update([
-                            'first_name' => $firstName,
-                            'last_name'  => $lastName,
-                        ]);
+                        // 3. Update Profile yang sudah otomatis terbuat
+                        if ($user->profile && !empty($profileData)) {
+                            $user->profile->update([
+                                'first_name' => $profileData['first_name'] ?? null,
+                                'last_name' => $profileData['last_name'] ?? null,
+                                'kelas_id' => $profileData['kelas_id'] ?? null,
+                            ]);
+                        }
 
-                        // 4. Wajib return instance model utama (User)
                         return $user;
                     });
                 }),
-            
         ];
     }
 }

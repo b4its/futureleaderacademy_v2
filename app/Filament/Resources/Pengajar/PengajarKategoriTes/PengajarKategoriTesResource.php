@@ -7,7 +7,7 @@ use App\Filament\Resources\Pengajar\PengajarKategoriTes\Pages\EditPengajarKatego
 use App\Filament\Resources\Pengajar\PengajarKategoriTes\Pages\ListPengajarKategoriTes;
 use App\Filament\Resources\Pengajar\PengajarKategoriTes\Schemas\PengajarKategoriTesForm;
 use App\Filament\Resources\Pengajar\PengajarKategoriTes\Tables\PengajarKategoriTesTable;
-use App\Models\PengajarKategoriTes;
+use App\Models\KategoriTes;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +16,12 @@ use Filament\Tables\Table;
 
 class PengajarKategoriTesResource extends Resource
 {
-    protected static ?string $model = PengajarKategoriTes::class;
+    protected static ?string $model = KategoriTes::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'kategori_tes';
+    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $slug = 'pengajar-kategori-tes';
 
     public static function form(Schema $schema): Schema
     {
@@ -34,17 +35,30 @@ class PengajarKategoriTesResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
+    }
+
+    public static function getNavigationGroup(): string
+    {
+        return 'Pembelajaran';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Kategori Tes';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-folder';
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ListPengajarKategoriTes::route('/'),
-            'create' => CreatePengajarKategoriTes::route('/create'),
-            'edit' => EditPengajarKategoriTes::route('/{record}/edit'),
+            // 'create' => CreatePengajarKategoriTes::route('/create'),
+            // 'edit' => EditPengajarKategoriTes::route('/{record}/edit'),
         ];
     }
 }

@@ -57,7 +57,7 @@
 @endpush
 
 @section('navbar_pembelajaran')
-    @include('components.pembelajaran_navbar')
+    @include('components.pengajar_navbar')
 @endsection
 
 @section('content_pembelajaran')

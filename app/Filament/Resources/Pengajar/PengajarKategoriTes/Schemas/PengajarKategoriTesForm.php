@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pengajar\PengajarKategoriTes\Schemas;
 
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class PengajarKategoriTesForm
@@ -10,7 +11,11 @@ class PengajarKategoriTesForm
     {
         return $schema
             ->components([
-                //
+                TextInput::make('title')
+                    ->label('Nama Kategori')
+                    ->required()
+                    ->maxLength(255)
+                    ->placeholder('Cth: TWK, TIU, TKP, Matematika...'),
             ]);
     }
 }

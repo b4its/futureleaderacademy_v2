@@ -9,11 +9,12 @@ use Filament\Resources\Pages\ListRecords;
 class ListPengajarKategoriTes extends ListRecords
 {
     protected static string $resource = PengajarKategoriTesResource::class;
+    protected static ?string $title = 'Kategori Tes';
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->label('Buat Kategori')
         ];
     }
 }

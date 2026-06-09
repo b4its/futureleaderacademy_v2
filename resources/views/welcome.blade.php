@@ -995,6 +995,47 @@ footer {
 .stagger.visible > *:nth-child(7) { opacity:1; transform:none; transition-delay: 0.65s; }
 .stagger.visible > *:nth-child(8) { opacity:1; transform:none; transition-delay: 0.75s; }
 
+/* ===================== USER DROPDOWN (WELCOME PAGE) ===================== */
+.user-dropdown-wrapper { position: relative; }
+.user-dropdown-toggle {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  padding: 6px 14px 6px 6px; border-radius: 100px;
+  cursor: pointer; transition: all 0.2s;
+  font-family: inherit;
+}
+.user-dropdown-toggle:hover { border-color: var(--primary); box-shadow: 0 2px 12px var(--shadow); }
+.user-dropdown-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.user-dropdown-wrapper.open .user-dropdown-toggle i:last-child { transform: rotate(180deg); }
+
+.user-dropdown-menu {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: 0 16px 40px var(--shadow-lg);
+  width: 240px; padding: 8px;
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 200;
+}
+.user-dropdown-wrapper.open .user-dropdown-menu {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.user-dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-muted);
+  transition: all 0.15s; cursor: pointer; text-decoration: none;
+}
+.user-dropdown-item i { width: 18px; text-align: center; font-size: 14px; }
+.user-dropdown-item:hover { background: rgba(249,115,22,0.06); color: var(--primary); }
+
+@media (max-width: 1024px) {
+  .user-dropdown-name { display: none; }
+  .user-dropdown-toggle { padding: 6px; }
+  .user-dropdown-toggle i:last-child { display: none; }
+  .user-dropdown-menu { right: -16px; }
+}
+
 /* ===================== MOBILE NAV ===================== */
 .mobile-nav {
   position: fixed; 
@@ -1114,8 +1155,73 @@ footer {
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
           <i class="fas fa-moon" id="themeIcon"></i>
         </button>
-        <a href="#cta" class="btn btn-ghost nav-cta">Masuk</a>
+
+        @guest
+        <a href="{{ route('auth.index') }}" class="btn btn-ghost nav-cta">Masuk</a>
         <a href="{{ route('auth.index') }}" class="btn btn-primary nav-cta">Daftar Gratis</a>
+        @endguest
+
+        @auth
+        <div class="user-dropdown-wrapper" id="userDropdownWrapper">
+          <button class="user-dropdown-toggle" id="userDropdownToggle">
+            @if(auth()->user()->profile && auth()->user()->profile->gambar)
+              <img src="{{ asset('storage/' . auth()->user()->profile->gambar) }}" alt="Avatar" style="width:34px;height:34px;border-radius:50%;object-fit:cover;">
+            @else
+              <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;">
+                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
+              </div>
+            @endif
+            <span class="user-dropdown-name">{{ auth()->user()->name ?? 'User' }}</span>
+            <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted);transition:transform 0.3s;"></i>
+          </button>
+
+          <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+              <div style="font-size:14px;font-weight:700;">{{ auth()->user()->name }}</div>
+              <div style="font-size:12px;color:var(--text-muted);">{{ ucfirst(auth()->user()->role ?? 'user') }}</div>
+            </div>
+
+            <a href="{{ route('profile.edit') }}" class="user-dropdown-item">
+              <i class="fas fa-user-edit"></i> Edit Profil
+            </a>
+
+            <a href="{{ route('pembelajaran.index') }}" class="user-dropdown-item">
+              <i class="fas fa-book-open"></i> Panel Pembelajaran
+            </a>
+
+            @if(auth()->user()->role === 'admin')
+            <a href="/admin" class="user-dropdown-item">
+              <i class="fas fa-tachometer-alt"></i> Panel Admin
+            </a>
+            @endif
+
+            @if(in_array(auth()->user()->role, ['admin', 'pengajar']))
+            <a href="/pengajar" class="user-dropdown-item">
+              <i class="fas fa-chalkboard-teacher"></i> Panel Pengajar
+            </a>
+            <a href="{{ route('pembelajaran.pengajar.index') }}" class="user-dropdown-item">
+              <i class="fas fa-chart-pie"></i> Pembelajaran Pengajar
+            </a>
+            @endif
+
+            @if(in_array(auth()->user()->role, ['admin', 'member']))
+            <a href="/member" class="user-dropdown-item">
+              <i class="fas fa-user-graduate"></i> Panel Member
+            </a>
+            @endif
+
+            <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+
+            <form action="{{ route('auth.logout') }}" method="POST" style="margin:0;">
+              @csrf
+              <button type="submit" class="user-dropdown-item" style="width:100%;background:none;border:none;text-align:left;cursor:pointer;font-family:inherit;font-size:inherit;color:#EF4444;">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+              </button>
+            </form>
+          </div>
+        </div>
+        @endauth
+
         <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
       </div>
     </div>
@@ -1123,14 +1229,33 @@ footer {
 </nav>
 
 <div class="mobile-nav" id="mobileNav">
-  <a href="#login" onclick="closeMobileNav()">Masuk</a> 
+  @guest
+  <a href="{{ route('auth.index') }}" onclick="closeMobileNav()">Masuk</a>
+  @endguest
+  @auth
+  <a href="{{ route('profile.edit') }}" onclick="closeMobileNav()">Edit Profil</a>
+  <a href="{{ route('pembelajaran.index') }}" onclick="closeMobileNav()">Pembelajaran</a>
+  @if(in_array(auth()->user()->role, ['admin', 'pengajar']))
+  <a href="{{ route('pembelajaran.pengajar.index') }}" onclick="closeMobileNav()">Pembelajaran Pengajar</a>
+  @endif
+  @endauth
   <a href="#programs" onclick="closeMobileNav()">Program</a>
   <a href="#tryout" onclick="closeMobileNav()">Tryout</a>
   <a href="#articles" onclick="closeMobileNav()">Artikel</a>
   <a href="#why-us" onclick="closeMobileNav()">Tentang Kami</a>
   <a href="#testimonials" onclick="closeMobileNav()">Alumni</a>
   <a href="#faq" onclick="closeMobileNav()">FAQ</a>
+  @guest
   <a href="{{ route('auth.index') }}" onclick="closeMobileNav()">Daftar Gratis</a>
+  @endguest
+  @auth
+  <form action="{{ route('auth.logout') }}" method="POST" style="margin:0;">
+    @csrf
+    <button type="submit" style="width:100%;text-align:left;padding:16px;font-size:18px;font-weight:600;color:#EF4444;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:12px;">
+      <i class="fas fa-sign-out-alt"></i> Keluar
+    </button>
+  </form>
+  @endauth
 </div>
 
 <section id="hero">
@@ -1303,7 +1428,7 @@ footer {
       @forelse($artikels as $artikel)
       <div class="article-card">
         <div class="article-img-wrap">
-          <img src="{{ $artikel->gambar ? asset('storage/' . $artikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="{{ $artikel->title }}" class="article-img">
+          <img src="{{ $artikel->gambar ? asset($artikel->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="{{ $artikel->title }}" class="article-img">
           <div class="article-category">{{ $artikel->kategoriArtikel->title ?? 'Umum' }}</div>
         </div>
         <div class="article-content">
@@ -1682,7 +1807,7 @@ function openKelasModal(kelasId) {
   }
 
   const pesan = `Halo Admin Future Leader Academy! Saya tertarik dengan paket kelas "${kelas.name}" (Rp ${new Intl.NumberFormat('id-ID').format(kelas.harga)}). Mohon informasi lebih lanjut mengenai pendaftaran dan pembayarannya. Terima kasih!`;
-  const waUrl = `https://wa.me/6289694390889?text=${encodeURIComponent(pesan)}`;
+  const waUrl = `https://wa.me/628117430404?text=${encodeURIComponent(pesan)}`;
   document.getElementById('modalWhatsappBtn').href = waUrl;
 
   document.getElementById('kelasModal').style.display = 'flex';
@@ -1701,6 +1826,23 @@ document.getElementById('kelasModal').addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeKelasModal();
 });
+
+// ==================== USER DROPDOWN ====================
+const userDropdownToggle = document.getElementById('userDropdownToggle');
+const userDropdownWrapper = document.getElementById('userDropdownWrapper');
+
+if (userDropdownToggle && userDropdownWrapper) {
+  userDropdownToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    userDropdownWrapper.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!userDropdownWrapper.contains(e.target)) {
+      userDropdownWrapper.classList.remove('open');
+    }
+  });
+}
 
 // ==================== THEME TOGGLE ====================
 const html = document.documentElement;

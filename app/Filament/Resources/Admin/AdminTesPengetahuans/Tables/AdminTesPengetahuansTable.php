@@ -26,7 +26,9 @@ class AdminTesPengetahuansTable
                     ->label('No')
                     ->sortable(),
 
+                TextColumn::make('kode_tes')->label("Kode Tes"),
                 TextColumn::make('kategoriTes.title')->label("Jenis Tes"),
+
                 TextColumn::make('pelajaran')->label("Pelajaran"),
 
             ])
@@ -34,7 +36,7 @@ class AdminTesPengetahuansTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                // EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

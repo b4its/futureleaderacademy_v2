@@ -40,8 +40,8 @@ class AdminAkunPengajarsTable
                     ->sortable()
                     ->searchable(),
 
-                TextColumn::make('role')
-                    ->label('Role')
+                TextColumn::make('profile.bidang_ilmu')
+                    ->label('Bidang Ilmu')
                     ->sortable()
                     ->searchable(),
             ])

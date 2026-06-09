@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('FLA Admin')
+            ->brandName('Admin Panel')
             ->login()
             ->userMenuItems([
                 'profile' => MenuItem::make()
@@ -67,6 +67,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\EnsureIsAdmin::class,
             ]);
     }
 }

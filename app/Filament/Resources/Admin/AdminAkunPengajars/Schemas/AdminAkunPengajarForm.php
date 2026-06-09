@@ -16,7 +16,7 @@ class AdminAkunPengajarForm
             ->components([
                  TextInput::make('first_name')
                     ->label('Nama Depan')
-                    ->required()
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->live(debounce: 500)
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('name', trim($get('first_name') . ' ' . $get('last_name')));
@@ -24,7 +24,7 @@ class AdminAkunPengajarForm
 
                 TextInput::make('last_name')
                     ->label('Nama Belakang')
-                    ->required()
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->live(debounce: 500)
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('name', trim($get('first_name') . ' ' . $get('last_name')));
@@ -32,19 +32,19 @@ class AdminAkunPengajarForm
 
                 TextInput::make('name')
                     ->label('Nama Lengkap')
-                    ->required()
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->readOnly()
                     ->helperText('Diisi otomatis berdasarkan Nama Depan dan Nama Belakang.'),
 
                 TextInput::make('email')
                     ->label('Email')
                     ->email()
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create'),
                 
                 // Hapus 'profile.' agar konsisten dan mudah ditangkap di controller
                 TextInput::make('bidang_ilmu')
                     ->label('Bidang Ilmu')
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create'),
 
                 TextInput::make('password')
                     ->label('Password')

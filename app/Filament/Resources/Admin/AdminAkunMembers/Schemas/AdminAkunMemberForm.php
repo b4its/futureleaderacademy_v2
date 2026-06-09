@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Admin\AdminAkunMembers\Schemas;
 
+use App\Models\Kelas;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class AdminAkunMemberForm
@@ -14,41 +13,22 @@ class AdminAkunMemberForm
     {
         return $schema
             ->components([
-                TextInput::make('first_name')
-                    ->label('Nama Depan')
-                    ->required()
-                    ->live(debounce: 500) // Re-render setelah user berhenti ngetik 0.5 detik
-                    ->afterStateUpdated(function (Get $get, Set $set) {
-                        // Gabungkan first_name dan last_name
-                        $set('name', trim($get('first_name') . ' ' . $get('last_name')));
-                    }),
-
-                TextInput::make('last_name')
-                    ->label('Nama Belakang')
-                    ->required()
-                    ->live(debounce: 500)
-                    ->afterStateUpdated(function (Get $get, Set $set) {
-                        // Gabungkan first_name dan last_name
-                        $set('name', trim($get('first_name') . ' ' . $get('last_name')));
-                    }),
-
                 TextInput::make('name')
                     ->label('Nama Lengkap')
-                    ->required()
-                    ->readOnly() // Buat read-only agar user tidak mengedit manual (opsional)
-                    ->helperText('Diisi otomatis berdasarkan Nama Depan dan Nama Belakang.'),
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->helperText('Nama yang tampil di sistem.'),
 
                 TextInput::make('email')
                     ->label('Email')
                     ->email()
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create'),
 
                 Select::make('profile.kelas_id')
-                    ->label('Paket')
-                    ->relationship('profile.kelas', 'name') 
+                    ->label('Paket / Kelas')
+                    ->options(fn () => Kelas::pluck('name', 'id'))
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create'),
 
                 TextInput::make('password')
                     ->label('Password')

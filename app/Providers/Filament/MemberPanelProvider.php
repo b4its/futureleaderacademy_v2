@@ -27,7 +27,7 @@ class MemberPanelProvider extends PanelProvider
             ->id('member')
             ->path('member')
             ->viteTheme('resources/css/filament/member/theme.css')
-            ->brandName('Pembelajaran Interaktif')
+            ->brandName('Member Panel')
             ->login()
             ->colors([
                 'primary' => Color::Orange,
@@ -60,6 +60,7 @@ class MemberPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\EnsureIsMember::class,
             ]);
     }
 }

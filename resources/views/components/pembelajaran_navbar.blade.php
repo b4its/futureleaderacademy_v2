@@ -28,7 +28,7 @@
         @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'pengajar']))
         <li>
             <a href="{{ route('pembelajaran.pengajar.index') }}" class="nav-link {{ request()->routeIs('pembelajaran.pengajar.*') ? 'active' : '' }}">
-                <i class="fas fa-chalkboard-teacher"></i> Pengajar
+                <i class="fas fa-chalkboard-teacher"></i> Panel Pengajar
             </a>
         </li>
         @endif

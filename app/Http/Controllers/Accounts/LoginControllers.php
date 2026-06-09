@@ -29,7 +29,7 @@ class LoginControllers extends Controller
     {
         $request->validate([
             'email' => 'required|email|max:255',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string',
             'role_target' => 'required|in:panel,learning',
         ]);
 

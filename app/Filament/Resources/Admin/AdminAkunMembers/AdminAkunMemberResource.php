@@ -57,7 +57,6 @@ class AdminAkunMemberResource extends Resource
     {
         return [
             'index' => ListAdminAkunMembers::route('/'),
-            // 'create' => CreateAdminAkunMember::route('/create'),
             // 'edit' => EditAdminAkunMember::route('/{record}/edit'),
         ];
     }

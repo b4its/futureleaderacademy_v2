@@ -8,4 +8,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePengajarTipeSoal extends CreateRecord
 {
     protected static string $resource = PengajarTipeSoalResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['pengajar_id'] = auth()->id();
+        return $data;
+    }
 }
