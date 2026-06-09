@@ -45,6 +45,9 @@ return new class extends Migration
             $table->string('visual_jawaban_c')->nullable();
             $table->string('visual_jawaban_d')->nullable();
             $table->string('visual_jawaban_e')->nullable();
+            
+            // bobot nilai (skor per soal). Default 1 agar setiap soal minimal punya bobot.
+            $table->integer('bobot_nilai')->default(1);
 
             // Kunci & Nilai
             $table->char('jawaban_benar', 2)->nullable(); // Cukup panjang 2 (misal: 'A', 'B')

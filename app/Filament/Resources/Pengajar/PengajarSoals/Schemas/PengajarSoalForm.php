@@ -60,6 +60,14 @@ class PengajarSoalForm
                                 ])
                                 ->required(),
                         ]),
+
+                        TextInput::make('bobot_nilai')
+                            ->label('Bobot Nilai')
+                            ->helperText('Skor yang diperoleh jika soal ini dijawab benar. Total nilai tes = akumulasi seluruh bobot soal (disarankan total 100).')
+                            ->numeric()
+                            ->minValue(0)
+                            ->default(1)
+                            ->required(),
                     ]),
 
                 // SECTION 2: PERTANYAAN

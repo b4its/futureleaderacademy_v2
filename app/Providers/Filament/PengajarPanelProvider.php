@@ -44,7 +44,6 @@ class PengajarPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets/Pengajar'), for: 'App\Filament\Widgets\Pengajar')
             ->widgets([
-                AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

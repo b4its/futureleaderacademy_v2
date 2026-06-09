@@ -25,6 +25,7 @@ class PengajarSoalsTable
                     ->label('Pertanyaan')
                     ->searchable()
                     ->limit(50)
+                    ->default("Pertanyaan bergambar")
                     ->tooltip(fn ($record) => $record->pertanyaan),
 
                 TextColumn::make('tipeSoal.title')
@@ -41,10 +42,11 @@ class PengajarSoalsTable
                     ->badge()
                     ->color('success'),
 
-                ImageColumn::make('visual_pertanyaan')
-                    ->label('Gambar')
-                    ->circular()
-                    ->defaultImageUrl(null),
+                TextColumn::make('bobot_nilai')
+                    ->label('Bobot')
+                    ->badge()
+                    ->color('warning')
+                    ->sortable(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')

@@ -245,7 +245,7 @@ body::before {
 
 .hero-bg {
   position: absolute; inset: 0;
-  background-image: url('{{ asset("assets/banner1.jpg") }}');
+  background-image: url('{{ asset("assets/frontBanner.jpg") }}');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1555,80 +1555,39 @@ footer {
     <div class="testimonials-wrapper reveal">
       <div class="testimonials-track" id="testimonialsTrack">
 
+        @php
+          $avatarColors = [
+            'linear-gradient(135deg, var(--primary), var(--accent))',
+            'linear-gradient(135deg, #22C55E, #16A34A)',
+            'linear-gradient(135deg, #818CF8, #6366F1)',
+            'linear-gradient(135deg, #FBBF24, #F97316)',
+            'linear-gradient(135deg, #06B6D4, #0891B2)',
+            'linear-gradient(135deg, #A855F7, #7C3AED)',
+          ];
+        @endphp
+
+        @forelse($testimonis as $index => $testimoni)
         <div class="testimonial-card">
           <div class="testimonial-rating">
             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
           </div>
-          <p class="testimonial-text">Berkat bimbingan intensif di sini, saya berhasil lolos SKD dengan nilai 451 — jauh di atas ambang batas. Materinya sangat relevan dan tryout-nya persis seperti soal aslinya.</p>
+          <p class="testimonial-text">{{ $testimoni->pesan }}</p>
           <div class="testimonial-author">
-            <div class="author-avatar">D</div>
+            <div class="author-avatar" style="background:{{ $avatarColors[$index % count($avatarColors)] }}">{{ strtoupper(substr($testimoni->nama_pengguna, 0, 1)) }}</div>
             <div>
-              <div class="author-name">Dewi Anggraeni</div>
-              <div class="author-meta">Asal Yogyakarta</div>
-              <div class="author-passed"><i class="fas fa-check-circle"></i> Lulus CPNS Kemendikbud 2024</div>
+              <div class="author-name">{{ $testimoni->nama_pengguna }}</div>
+              <div class="author-meta">Asal {{ $testimoni->kota_asal }}</div>
+              @if($testimoni->pencapaian)
+              <div class="author-passed"><i class="fas fa-check-circle"></i> {{ $testimoni->pencapaian }}</div>
+              @endif
             </div>
           </div>
         </div>
-
+        @empty
         <div class="testimonial-card">
-          <div class="testimonial-rating">
-            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-          </div>
-          <p class="testimonial-text">Mentor Pak Budi sangat luar biasa. Beliau mengerti betul apa yang dinilai dalam seleksi TNI. Saya gagal 2x sebelumnya, tapi setelah belajar di sini akhirnya diterima Taruna AAL.</p>
-          <div class="testimonial-author">
-            <div class="author-avatar" style="background:linear-gradient(135deg,#22C55E,#16A34A)">F</div>
-            <div>
-              <div class="author-name">Fajar Maulana</div>
-              <div class="author-meta">Asal Surabaya</div>
-              <div class="author-passed"><i class="fas fa-check-circle"></i> Diterima Taruna TNI AL 2024</div>
-            </div>
-          </div>
+          <p class="testimonial-text">Belum ada testimoni yang tersedia saat ini.</p>
         </div>
-
-        <div class="testimonial-card">
-          <div class="testimonial-rating">
-            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-          </div>
-          <p class="testimonial-text">Saya persiapan SBMPTN cuma 3 bulan tapi berhasil masuk Teknik UI. Soal tryout-nya mirip banget dengan UTBK. Terima kasih Bu Siti yang sabar membimbing matematika saya.</p>
-          <div class="testimonial-author">
-            <div class="author-avatar" style="background:linear-gradient(135deg,#818CF8,#6366F1)">N</div>
-            <div>
-              <div class="author-name">Nadia Putri Cahaya</div>
-              <div class="author-meta">Asal Jakarta</div>
-              <div class="author-passed"><i class="fas fa-check-circle"></i> Diterima Teknik Informatika UI</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="testimonial-rating">
-            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-          </div>
-          <p class="testimonial-text">Fitur analisis kelemahan per sub-materi sangat membantu saya fokus belajar. Tidak perlu belajar semua hal — langsung tahu mana yang harus ditingkatkan. Sangat efisien.</p>
-          <div class="testimonial-author">
-            <div class="author-avatar" style="background:linear-gradient(135deg,#FBBF24,#F97316)">R</div>
-            <div>
-              <div class="author-name">Rizky Hermawan</div>
-              <div class="author-meta">Asal Bandung</div>
-              <div class="author-passed"><i class="fas fa-check-circle"></i> Lulus CPNS BPK 2023</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="testimonial-rating">
-            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-          </div>
-          <p class="testimonial-text">Komunitas belajarnya sangat aktif dan supportif. Ada sesi live Q&A dengan mentor tiap minggu yang benar-benar menjawab kebingungan saya dalam memahami materi TKP.</p>
-          <div class="testimonial-author">
-            <div class="author-avatar" style="background:linear-gradient(135deg,#06B6D4,#0891B2)">A</div>
-            <div>
-              <div class="author-name">Ayu Puspita Sari</div>
-              <div class="author-meta">Asal Semarang</div>
-              <div class="author-passed"><i class="fas fa-check-circle"></i> Lulus CPNS Kemenkumham</div>
-            </div>
-          </div>
-        </div>
+        @endforelse
 
       </div>
     </div>
@@ -1807,7 +1766,7 @@ function openKelasModal(kelasId) {
   }
 
   const pesan = `Halo Admin Future Leader Academy! Saya tertarik dengan paket kelas "${kelas.name}" (Rp ${new Intl.NumberFormat('id-ID').format(kelas.harga)}). Mohon informasi lebih lanjut mengenai pendaftaran dan pembayarannya. Terima kasih!`;
-  const waUrl = `https://wa.me/628117430404?text=${encodeURIComponent(pesan)}`;
+  const waUrl = `https://wa.me/6285142567919?text=${encodeURIComponent(pesan)}`;
   document.getElementById('modalWhatsappBtn').href = waUrl;
 
   document.getElementById('kelasModal').style.display = 'flex';

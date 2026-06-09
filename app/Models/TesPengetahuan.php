@@ -16,6 +16,7 @@ class TesPengetahuan extends Model
         'kode_tes',
         'pelajaran',
         'total_soal',
+        'total_bobot',
         'batas_waktu',
         'is_paid',
         'status',
@@ -38,13 +39,33 @@ class TesPengetahuan extends Model
         return $this->belongsTo(TipeSoal::class, 'tipe_soal_id');
     }
 
-    public function soal(): BelongsTo
+    /**
+     * Relasi ke soal. Sebuah tes diidentifikasi oleh kombinasi
+     * kategori_tes_id + tipe_soal_id, jadi soal dengan pasangan yang sama
+     * dianggap milik tes ini.
+     */
+    public function soal(): HasMany
     {
-        return $this->belongsTo(Soal::class);
+        return $this->hasMany(Soal::class, 'tipe_soal_id', 'tipe_soal_id')
+            ->where('kategori_tes_id', $this->kategori_tes_id);
     }
 
     public function hasilTes(): HasMany
     {
         return $this->hasMany(HasilTes::class);
+    }
+
+    /**
+     * Hitung ulang total_soal dan total_bobot dari seluruh soal yang
+     * cocok dengan kategori_tes_id & tipe_soal_id tes ini, lalu simpan.
+     */
+    public function rekalkulasiBobot(): void
+    {
+        $query = Soal::where('kategori_tes_id', $this->kategori_tes_id)
+            ->where('tipe_soal_id', $this->tipe_soal_id);
+
+        $this->total_soal = $query->count();
+        $this->total_bobot = (int) $query->sum('bobot_nilai');
+        $this->save();
     }
 }

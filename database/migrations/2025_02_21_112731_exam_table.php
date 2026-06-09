@@ -27,6 +27,9 @@ return new class extends Migration
                 $table->string('kode_tes')->nullable();
                 $table->string('pelajaran')->nullable();
                 $table->bigInteger('total_soal')->nullable();
+                // total_bobot = akumulasi seluruh bobot_nilai dari soal pada tes ini
+                // (difilter berdasarkan kategori_tes_id & tipe_soal_id). Ini adalah skor maksimal tes.
+                $table->integer('total_bobot')->default(0);
                 $table->string('batas_waktu')->nullable();
                 $table->tinyInteger('is_paid' ) -> default(1);
                 $table->tinyInteger('status' ) -> default(0);

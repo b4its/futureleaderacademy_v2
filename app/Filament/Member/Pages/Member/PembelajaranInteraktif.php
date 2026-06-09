@@ -17,11 +17,20 @@ class PembelajaranInteraktif extends Page
 
     public function mount(): void
     {
-        $this->tesList = TesPengetahuan::with(['kategoriTes', 'tipeSoal'])
+        $user = Auth::user();
+        $hasKelas = $user?->profile?->kelas_id !== null;
+
+        $query = TesPengetahuan::with(['kategoriTes', 'tipeSoal'])
             ->where('status', 1)
             ->withCount('hasilTes')
-            ->orderBy('created_at', 'desc')
-            ->get()
+            ->orderBy('created_at', 'desc');
+
+        // Jika user tidak punya kelas, hanya tampilkan tes gratis (is_paid = 0)
+        if (!$hasKelas) {
+            $query->where('is_paid', 0);
+        }
+
+        $this->tesList = $query->get()
             ->map(function ($tes) {
                 $userAttempt = $tes->hasilTes()->where('user_id', Auth::id())->exists();
                 

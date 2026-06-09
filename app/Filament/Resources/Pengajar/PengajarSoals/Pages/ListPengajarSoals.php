@@ -3,15 +3,21 @@
 namespace App\Filament\Resources\Pengajar\PengajarSoals\Pages;
 
 use App\Filament\Resources\Pengajar\PengajarSoals\PengajarSoalResource;
+use App\Models\KategoriTes;
+use App\Models\TesPengetahuan;
+use App\Models\TipeSoal;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ListPengajarSoals extends ListRecords
 {
     protected static string $resource = PengajarSoalResource::class;
     protected static ?string $title = 'Daftar Bank Soal';
 
-protected function getHeaderActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
@@ -19,14 +25,14 @@ protected function getHeaderActions(): array
                 ->modalHeading('Tambahkan Soal')
                 ->using(function (array $data, string $model): Model {
                     return DB::transaction(function () use ($data, $model) {
-                        
+
                         // 1. Buat record Soal (Model Utama) terlebih dahulu
                         $soal = $model::create($data);
 
                         // 2. Ambil title dari relasi untuk mengisi kolom 'pelajaran'
                         $kategoriTitle = KategoriTes::find($data['kategori_tes_id'])?->title ?? 'Tanpa Kategori';
                         $tipeTitle = TipeSoal::find($data['tipe_soal_id'])?->title ?? 'Tanpa Tipe';
-                        
+
                         // Gabungkan title, misalnya: "Matematika - Pilihan Ganda"
                         $namaPelajaran = $kategoriTitle . ' - ' . $tipeTitle;
 
@@ -44,9 +50,7 @@ protected function getHeaderActions(): array
 
                             // Looping untuk memastikan kode benar-benar unik di database
                             do {
-                                // Str::random menghasilkan kombinasi huruf (uppercase/lowercase) dan angka
-                                // Jika ingin huruf besar semua, bisa gunakan: strtoupper(Str::random(7))
-                                $kodeRandom = strtoupper(Str::random(7)); 
+                                $kodeRandom = strtoupper(Str::random(7));
                                 $isExists = TesPengetahuan::where('kode_tes', $kodeRandom)->exists();
                             } while ($isExists);
 
@@ -56,10 +60,13 @@ protected function getHeaderActions(): array
                         // 4. Update data pelengkap
                         $tesPengetahuan->pelajaran = $namaPelajaran;
 
-                        // Hitung langsung dari database secara real-time
-                        $tesPengetahuan->total_soal = $model::where('kategori_tes_id', $data['kategori_tes_id'])
-                            ->where('tipe_soal_id', $data['tipe_soal_id'])
-                            ->count();
+                        // 5. Hitung ulang total_soal & total_bobot secara real-time dari database.
+                        //    total_bobot = akumulasi seluruh bobot_nilai (skor maksimal tes).
+                        $soalQuery = $model::where('kategori_tes_id', $data['kategori_tes_id'])
+                            ->where('tipe_soal_id', $data['tipe_soal_id']);
+
+                        $tesPengetahuan->total_soal = $soalQuery->count();
+                        $tesPengetahuan->total_bobot = (int) $soalQuery->sum('bobot_nilai');
 
                         $tesPengetahuan->save();
 

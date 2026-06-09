@@ -27,8 +27,57 @@ class Soal extends Model
         'visual_jawaban_d',
         'visual_jawaban_e',
         'jawaban_benar',
-        'bobot_nilai',
+        'bobot_nilai',  
     ];
+
+    /**
+     * Saat soal disimpan/diubah/dihapus, hitung ulang total_soal & total_bobot
+     * pada TesPengetahuan terkait agar skor maksimal tes selalu sinkron.
+     */
+    protected static function booted(): void
+    {
+        $sync = function (Soal $soal) {
+            // Sinkron untuk kombinasi saat ini.
+            self::syncTesPengetahuan($soal->kategori_tes_id, $soal->tipe_soal_id);
+
+            // Jika kategori/tipe berubah, sinkron juga kombinasi lama.
+            if ($soal->isDirty(['kategori_tes_id', 'tipe_soal_id'])) {
+                self::syncTesPengetahuan(
+                    $soal->getOriginal('kategori_tes_id'),
+                    $soal->getOriginal('tipe_soal_id')
+                );
+            }
+        };
+
+        static::saved($sync);
+        static::deleted($sync);
+    }
+
+    /**
+     * Hitung ulang total_soal & total_bobot pada TesPengetahuan
+     * untuk pasangan kategori_tes_id + tipe_soal_id tertentu.
+     */
+    protected static function syncTesPengetahuan($kategoriTesId, $tipeSoalId): void
+    {
+        if (empty($kategoriTesId) || empty($tipeSoalId)) {
+            return;
+        }
+
+        $tes = TesPengetahuan::where('kategori_tes_id', $kategoriTesId)
+            ->where('tipe_soal_id', $tipeSoalId)
+            ->first();
+
+        if (!$tes) {
+            return;
+        }
+
+        $query = self::where('kategori_tes_id', $kategoriTesId)
+            ->where('tipe_soal_id', $tipeSoalId);
+
+        $tes->total_soal = $query->count();
+        $tes->total_bobot = (int) $query->sum('bobot_nilai');
+        $tes->save();
+    }
 
     public function user(): BelongsTo
     {

@@ -205,6 +205,7 @@ class PembelajaranPengajarControllers extends Controller
             'soal.*.opsi.*.teks' => 'nullable|string',
             'soal.*.opsi.*.visual' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'soal.*.jawaban_benar' => 'required|string',
+            'soal.*.bobot_nilai' => 'nullable|integer|min:0',
         ]);
 
         DB::beginTransaction();
@@ -244,6 +245,7 @@ class PembelajaranPengajarControllers extends Controller
                     'jawaban_c' => $itemSoal['opsi']['C']['teks'] ?? null,
                     'jawaban_d' => $itemSoal['opsi']['D']['teks'] ?? null,
                     'jawaban_benar' => strtoupper($itemSoal['jawaban_benar']),
+                    'bobot_nilai' => (int) ($itemSoal['bobot_nilai'] ?? 1),
                 ]);
 
                 $updates = [];
@@ -367,6 +369,7 @@ class PembelajaranPengajarControllers extends Controller
                     'jawaban_c' => $itemSoal['opsi']['C']['teks'] ?? null,
                     'jawaban_d' => $itemSoal['opsi']['D']['teks'] ?? null,
                     'jawaban_benar' => strtoupper($itemSoal['jawaban_benar']),
+                    'bobot_nilai' => (int) ($itemSoal['bobot_nilai'] ?? 1),
                 ];
 
                 if ($soalIdLama) {

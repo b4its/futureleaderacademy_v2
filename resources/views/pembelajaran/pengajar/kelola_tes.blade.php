@@ -122,6 +122,7 @@ $visuals = [
                                 <span class="tes-code"><i class="fas fa-key"></i> {{ $tes->kode_tes }}</span>
                                 <div class="tes-stats">
                                     <span class="stat-item"><i class="fas fa-list-ol"></i> {{ $tes->total_soal }} Soal</span>
+                                    <span class="stat-item"><i class="fas fa-star"></i> {{ $tes->total_bobot }} Bobot</span>
                                     <span class="stat-item"><i class="fas fa-stopwatch"></i> {{ $tes->batas_waktu }} Menit</span>
                                     <span class="stat-item"><i class="fas fa-circle" style="color:{{ $tes->status ? '#10b981' : '#94a3b8' }};font-size:8px;"></i> {{ $tes->status ? 'Aktif' : 'Draft' }}</span>
                                 </div>

@@ -51,12 +51,18 @@ class LoginControllers extends Controller
             RateLimiter::clear($throttleKey);
 
             $user = Auth::user();
-
+            
             // Redirect berdasarkan role_target
             if ($request->role_target === 'panel') {
-                // Hanya admin dan pengajar yang bisa akses panel
-                if (in_array($user->role, ['admin', 'pengajar'])) {
-                    return redirect()->intended('/admin');
+                $panelPath = match ($user->role) {
+                    'admin' => '/admin',
+                    'pengajar' => '/pengajar',
+                    'member' => '/member',
+                    default => null,
+                };
+
+                if ($panelPath) {
+                    return redirect()->intended($panelPath);
                 }
 
                 Auth::logout();

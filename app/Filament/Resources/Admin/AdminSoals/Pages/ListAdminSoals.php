@@ -62,10 +62,13 @@ class ListAdminSoals extends ListRecords
                         // 4. Update data pelengkap
                         $tesPengetahuan->pelajaran = $namaPelajaran;
 
-                        // Hitung langsung dari database secara real-time
-                        $tesPengetahuan->total_soal = $model::where('kategori_tes_id', $data['kategori_tes_id'])
-                            ->where('tipe_soal_id', $data['tipe_soal_id'])
-                            ->count();
+                        // 5. Hitung ulang total_soal & total_bobot secara real-time.
+                        //    total_bobot = akumulasi seluruh bobot_nilai (skor maksimal tes).
+                        $soalQuery = $model::where('kategori_tes_id', $data['kategori_tes_id'])
+                            ->where('tipe_soal_id', $data['tipe_soal_id']);
+
+                        $tesPengetahuan->total_soal = $soalQuery->count();
+                        $tesPengetahuan->total_bobot = (int) $soalQuery->sum('bobot_nilai');
 
                         $tesPengetahuan->save();
 

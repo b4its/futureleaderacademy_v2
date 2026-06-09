@@ -14,9 +14,18 @@ class TryoutPembelajaranControllers extends Controller
 {
     public function index()
     {
+        // Cek apakah user memiliki kelas (premium/berbayar)
+        $user = Auth::user();
+        $hasKelas = $user?->profile?->kelas_id !== null;
+
         // Ambil keseluruhan data tanpa limit untuk halaman "Tryout Ku"
-        $kategoriTes = KategoriTes::with(['tesPengetahuan' => function ($query) {
+        $kategoriTes = KategoriTes::with(['tesPengetahuan' => function ($query) use ($hasKelas) {
             $query->where('status', 1)->withCount('hasilTes');
+
+            // Jika user tidak punya kelas, hanya tampilkan tes gratis (is_paid = 0)
+            if (!$hasKelas) {
+                $query->where('is_paid', 0);
+            }
         }])->get();
 
         return view('pembelajaran.tryoutku_pembelajaran', compact('kategoriTes'));
@@ -92,8 +101,9 @@ class TryoutPembelajaranControllers extends Controller
         $jumlahBenar = 0;
         $jumlahSalah = 0;
         $jumlahKosong = 0;
+        $nilaiDiperoleh = 0; // Akumulasi bobot_nilai dari jawaban benar
 
-        // 4. Kalkulasi Nilai
+        // 4. Kalkulasi Nilai berdasarkan bobot_nilai per soal
         if (is_array($jawabanUser)) {
             foreach ($jawabanUser as $soalId => $data) {
                 $soal = $soalList->get($soalId);
@@ -105,6 +115,8 @@ class TryoutPembelajaranControllers extends Controller
                         $jumlahKosong++;
                     } elseif (strtoupper($jawabanPilihan) === strtoupper($soal->jawaban_benar)) {
                         $jumlahBenar++;
+                        // Tambahkan bobot soal ini ke nilai yang diperoleh
+                        $nilaiDiperoleh += (float) $soal->bobot_nilai;
                     } else {
                         $jumlahSalah++;
                     }
@@ -112,10 +124,14 @@ class TryoutPembelajaranControllers extends Controller
             }
         }
 
-        // 5. Hitung Skor (Skala 100)
-        // Jika total soal lebih dari yang dijawab, ambil total_soal dari tabel tes_pengetahuan
-        $totalSoalUjian = $tesPengetahuan->total_soal > 0 ? $tesPengetahuan->total_soal : count($soalList);
-        $totalNilai = $totalSoalUjian > 0 ? ($jumlahBenar / $totalSoalUjian) * 100 : 0;
+        // 5. Total nilai = akumulasi bobot_nilai dari soal yang dijawab benar.
+        //    Skor maksimal tes = total_bobot (akumulasi seluruh bobot_nilai).
+        //    Fallback: jika total_bobot belum tersedia, hitung langsung dari soal.
+        $totalBobot = (int) $tesPengetahuan->total_bobot > 0
+            ? (int) $tesPengetahuan->total_bobot
+            : (int) $soalList->sum('bobot_nilai');
+
+        $totalNilai = $nilaiDiperoleh;
 
         // 6. Simpan Hasil ke Database
         HasilTes::create([
@@ -124,7 +140,7 @@ class TryoutPembelajaranControllers extends Controller
             'tes_pengetahuan_id' => $tesPengetahuan->id,
             'jumlah_benar' => $jumlahBenar,
             'jumlah_salah' => $jumlahSalah + $jumlahKosong, // Soal tidak dijawab dihitung salah
-            'total_nilai' => number_format($totalNilai, 2), // Menyimpan nilai format desimal seperti "85.50"
+            'total_nilai' => number_format($totalNilai, 2, '.', ''), // Menyimpan nilai format desimal seperti "85.50"
             // Estimasi waktu dimulai dikurangi dari durasi, bisa diubah jika frontend mencatat realtime
             'waktu_dimulai' => now()->subMinutes($tesPengetahuan->batas_waktu), 
             'waktu_berakhir' => now(),
@@ -133,7 +149,7 @@ class TryoutPembelajaranControllers extends Controller
 
         // 7. Redirect ke halaman riwayat/statistik atau kembali ke index pembelajaran
         return redirect()->route('pembelajaran.index')
-            ->with('success', 'Ujian berhasil diselesaikan! Skor Anda: ' . number_format($totalNilai, 2));
+            ->with('success', 'Ujian berhasil diselesaikan! Skor Anda: ' . number_format($totalNilai, 2) . ' dari ' . $totalBobot);
     }
 
     /**

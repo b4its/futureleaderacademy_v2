@@ -87,6 +87,14 @@
                 <input type="number" class="form-control" name="batas_waktu" placeholder="Cth: 60" required min="1">
             </div>
 
+            <div class="form-group" style="background:#f9fafb; border:1px dashed #d1d5db; border-radius:8px; padding:12px 16px;">
+                <label style="margin-bottom:4px;">Total Bobot Nilai</label>
+                <div style="font-size:24px; font-weight:800; color:var(--primary);">
+                    <span id="totalBobotDisplay">0</span>
+                </div>
+                <small style="color:#94a3b8; font-weight:600;">Skor maksimal tes. Disarankan total = 100.</small>
+            </div>
+
             <button type="button" id="btnPublish" class="btn-publish">
                 <i class="fas fa-rocket"></i> Publikasi Tes
             </button>
@@ -128,7 +136,29 @@
         labels.forEach((label, index) => {
             label.textContent = `Soal #${index + 1}`;
         });
+        updateTotalBobot();
     }
+
+    // Menghitung akumulasi seluruh bobot_nilai yang diinput
+    function updateTotalBobot() {
+        const inputs = document.querySelectorAll('input[name^="soal["][name$="[bobot_nilai]"]');
+        let total = 0;
+        inputs.forEach((input) => {
+            total += parseInt(input.value) || 0;
+        });
+        const display = document.getElementById('totalBobotDisplay');
+        if (display) {
+            display.textContent = total;
+            display.style.color = total === 100 ? '#10B981' : 'var(--primary)';
+        }
+    }
+
+    // Update total bobot setiap kali nilai bobot diubah
+    soalCanvas.addEventListener('input', (e) => {
+        if (e.target.name && e.target.name.endsWith('[bobot_nilai]')) {
+            updateTotalBobot();
+        }
+    });
 
     function addSoalCard() {
         uniqueIdCounter++;
@@ -141,9 +171,16 @@
             <div class="soal-card" id="soal_${index}">
                 <div class="soal-header">
                     <span class="soal-number">Soal #${visualNumber}</span>
-                    <button type="button" class="btn-remove-soal" onclick="removeSoal(${index})" title="Hapus Soal">
-                        <i class="fas fa-trash-alt"></i> Hapus
-                    </button>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <label style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.3px;">Bobot</label>
+                            <input type="number" name="soal[${index}][bobot_nilai]" value="1" min="1" step="1" required
+                                style="width:80px; border:1px solid #d1d5db; background:#f9fafb; border-radius:6px; padding:6px 10px; font-size:14px; font-weight:700; color:#111827; text-align:center;">
+                        </div>
+                        <button type="button" class="btn-remove-soal" onclick="removeSoal(${index})" title="Hapus Soal">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -305,7 +342,7 @@
         // Jeda waktu menunggu transisi animasi selesai
         setTimeout(() => {
             card.remove();
-            // Kalkulasi dan tulis ulang semua angka yang tersisa di layar (berurutan)
+            // Kalkulasi dan tulis ulang semua angka yang tersisa di layar
             updateSoalNumbers();
         }, 300);
     }

@@ -12,8 +12,8 @@ class Testimoni extends Model
     protected $fillable = [
         'nama_pengguna',
         'pesan',
-        'kelas',
-        'gambar',
+        'kota_asal',
+        'pencapaian',
         'status',
     ];
 

@@ -43,9 +43,8 @@ class MemberPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Member/Widgets/Member'), for: 'App\Filament\Member\Widgets\Member')
+            ->discoverWidgets(in: app_path('Filament/Widgets/Member'), for: 'App\Filament\Widgets\Member')
             ->widgets([
-                AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
