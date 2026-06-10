@@ -232,5 +232,7 @@ function copyLink() {
   });
 }
 </script>
+
+@include('components.toastr')
 </body>
 </html>

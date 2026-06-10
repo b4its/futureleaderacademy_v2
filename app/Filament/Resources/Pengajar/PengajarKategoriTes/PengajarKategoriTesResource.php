@@ -6,6 +6,7 @@ use App\Filament\Resources\Pengajar\PengajarKategoriTes\Pages\CreatePengajarKate
 use App\Filament\Resources\Pengajar\PengajarKategoriTes\Pages\EditPengajarKategoriTes;
 use App\Filament\Resources\Pengajar\PengajarKategoriTes\Pages\ListPengajarKategoriTes;
 use App\Filament\Resources\Pengajar\PengajarKategoriTes\Schemas\PengajarKategoriTesForm;
+use App\Filament\Resources\Pengajar\PengajarKategoriTes\Schemas\PengajarKategoriTesInfolist;
 use App\Filament\Resources\Pengajar\PengajarKategoriTes\Tables\PengajarKategoriTesTable;
 use App\Models\KategoriTes;
 use BackedEnum;
@@ -26,6 +27,11 @@ class PengajarKategoriTesResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return PengajarKategoriTesForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return PengajarKategoriTesInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

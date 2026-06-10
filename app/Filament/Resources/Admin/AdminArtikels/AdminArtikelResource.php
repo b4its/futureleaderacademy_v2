@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminArtikels\Pages\CreateAdminArtikel;
 use App\Filament\Resources\Admin\AdminArtikels\Pages\EditAdminArtikel;
 use App\Filament\Resources\Admin\AdminArtikels\Pages\ListAdminArtikels;
 use App\Filament\Resources\Admin\AdminArtikels\Schemas\AdminArtikelForm;
+use App\Filament\Resources\Admin\AdminArtikels\Schemas\AdminArtikelInfolist;
 use App\Filament\Resources\Admin\AdminArtikels\Tables\AdminArtikelsTable;
 use App\Models\Artikel;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminArtikelResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminArtikelForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminArtikelInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

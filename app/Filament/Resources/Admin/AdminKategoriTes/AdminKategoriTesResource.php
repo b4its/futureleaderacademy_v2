@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminKategoriTes\Pages\CreateAdminKategoriTes;
 use App\Filament\Resources\Admin\AdminKategoriTes\Pages\EditAdminKategoriTes;
 use App\Filament\Resources\Admin\AdminKategoriTes\Pages\ListAdminKategoriTes;
 use App\Filament\Resources\Admin\AdminKategoriTes\Schemas\AdminKategoriTesForm;
+use App\Filament\Resources\Admin\AdminKategoriTes\Schemas\AdminKategoriTesInfolist;
 use App\Filament\Resources\Admin\AdminKategoriTes\Tables\AdminKategoriTesTable;
 use App\Models\KategoriTes;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminKategoriTesResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminKategoriTesForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminKategoriTesInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

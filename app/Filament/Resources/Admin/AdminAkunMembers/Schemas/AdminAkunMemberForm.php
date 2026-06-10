@@ -13,6 +13,7 @@ class AdminAkunMemberForm
     {
         return $schema
             ->components([
+
                 TextInput::make('name')
                     ->label('Nama Lengkap')
                     ->required(fn (string $operation): bool => $operation === 'create')
@@ -24,7 +25,7 @@ class AdminAkunMemberForm
                     ->required(fn (string $operation): bool => $operation === 'create'),
 
                 Select::make('profile.kelas_id')
-                    ->label('Paket / Kelas')
+                    ->label('Paket Kelas')
                     ->options(fn () => Kelas::pluck('name', 'id'))
                     ->searchable()
                     ->preload()

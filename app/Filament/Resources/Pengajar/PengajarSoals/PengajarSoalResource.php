@@ -6,6 +6,7 @@ use App\Filament\Resources\Pengajar\PengajarSoals\Pages\CreatePengajarSoal;
 use App\Filament\Resources\Pengajar\PengajarSoals\Pages\EditPengajarSoal;
 use App\Filament\Resources\Pengajar\PengajarSoals\Pages\ListPengajarSoals;
 use App\Filament\Resources\Pengajar\PengajarSoals\Schemas\PengajarSoalForm;
+use App\Filament\Resources\Pengajar\PengajarSoals\Schemas\PengajarSoalInfolist;
 use App\Filament\Resources\Pengajar\PengajarSoals\Tables\PengajarSoalsTable;
 use App\Models\Soal;
 use BackedEnum;
@@ -27,6 +28,11 @@ class PengajarSoalResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return PengajarSoalForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return PengajarSoalInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

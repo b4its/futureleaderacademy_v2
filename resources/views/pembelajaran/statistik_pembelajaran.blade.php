@@ -159,7 +159,7 @@
             <div class="css-bar-chart">
                 @forelse($grafikNilai as $grafik)
                     <div class="bar-wrap">
-                        <div class="bar-tooltip">Skor: {{ $grafik['nilai'] }}</div>
+                        <div class="bar-tooltip">Skor: {{ $grafik['nilai'] }} / {{ $grafik['nilai_maksimal'] }}</div>
                         <div class="bar" style="height: {{ $grafik['height'] }};"></div>
                         <span class="bar-label">{{ $grafik['label'] }}</span>
                     </div>
@@ -233,7 +233,7 @@
                         </td>
                         <td>{{ $group['total_percobaan'] }} Kali</td>
                         <td>
-                            {{ $group['skor_tertinggi'] }} <span style="font-size: 12px; color: var(--text-muted);">/ 100</span>
+                            {{ $group['skor_tertinggi'] }} <span style="font-size: 12px; color: var(--text-muted);">/ {{ $group['nilai_maksimal'] }}</span>
                         </td>
                         <td>
                             <button class="btn-view-detail" onclick="openDetailModal({{ $group['tes_id'] }})">
@@ -301,7 +301,7 @@ function openDetailModal(tesId) {
             <tr>
                 <td><span style="background: var(--bg-main); padding: 4px 10px; border-radius: 6px; color: var(--primary-dark);">#${attempt.percobaan_ke}</span></td>
                 <td style="color: var(--text-muted);">${attempt.tanggal}</td>
-                <td style="font-size: 16px;">${attempt.skor}</td>
+                <td style="font-size: 16px;">${attempt.skor} <span style="font-size:12px; color:#94a3b8;">/ ${group.nilai_maksimal}</span></td>
                 <td>${attempt.akurasi}%</td>
                 <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
             </tr>

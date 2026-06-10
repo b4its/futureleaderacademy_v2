@@ -6,6 +6,7 @@ use App\Filament\Resources\Pengajar\PengajarTipeSoals\Pages\CreatePengajarTipeSo
 use App\Filament\Resources\Pengajar\PengajarTipeSoals\Pages\EditPengajarTipeSoal;
 use App\Filament\Resources\Pengajar\PengajarTipeSoals\Pages\ListPengajarTipeSoals;
 use App\Filament\Resources\Pengajar\PengajarTipeSoals\Schemas\PengajarTipeSoalForm;
+use App\Filament\Resources\Pengajar\PengajarTipeSoals\Schemas\PengajarTipeSoalInfolist;
 use App\Filament\Resources\Pengajar\PengajarTipeSoals\Tables\PengajarTipeSoalsTable;
 use App\Models\TipeSoal;
 use BackedEnum;
@@ -27,6 +28,11 @@ class PengajarTipeSoalResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return PengajarTipeSoalForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return PengajarTipeSoalInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

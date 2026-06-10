@@ -270,11 +270,31 @@
 const examData = @json($exam_data);
 const questions = examData.questions;
 
+// Kunci penyimpanan jawaban di localStorage (tahan refresh), unik per attempt.
+const STORAGE_KEY = `cat_exam_answers_${examData.id}_${examData.attempt_id}`;
+
 let currentIndex = 0; 
 let userAnswers = {}; 
 let baseFontSize = 16;
-let timeLeft = examData.duration_minutes * 60; 
+// Selisih (detik) antara jam server (WIB) dan jam klien, untuk mengoreksi
+// jika jam perangkat pengguna tidak akurat / berbeda dengan server.
+const clientNowAtLoad = Math.floor(Date.now() / 1000);
+const serverClientOffset = (examData.server_now !== undefined && examData.server_now !== null)
+    ? (parseInt(examData.server_now) - clientNowAtLoad)
+    : 0;
+// Deadline absolut (epoch). Bila tidak tersedia, hitung dari sisa waktu.
+const deadlineTs = (examData.deadline_ts !== undefined && examData.deadline_ts !== null)
+    ? parseInt(examData.deadline_ts)
+    : (clientNowAtLoad + serverClientOffset + parseInt(examData.remaining_seconds ?? examData.duration_minutes * 60));
+
+// Waktu sekarang menurut acuan server (epoch), terlepas dari jam lokal pengguna.
+function serverNow() {
+    return Math.floor(Date.now() / 1000) + serverClientOffset;
+}
+
+let timeLeft = Math.max(0, deadlineTs - serverNow());
 let timerInterval;
+let isSubmitting = false;
 
 if (!questions || questions.length === 0) {
     uiModal('warning', 'Data Kosong', 'Tidak ada soal yang ditemukan untuk tes ini. Hubungi administrator.', false);
@@ -282,6 +302,32 @@ if (!questions || questions.length === 0) {
     questions.forEach(q => {
         userAnswers[q.id] = { answer: null, is_doubt: false };
     });
+    // Pulihkan jawaban yang tersimpan sebelumnya (jika halaman di-refresh).
+    restoreAnswers();
+}
+
+// Simpan jawaban ke localStorage agar tidak hilang saat refresh.
+function persistAnswers() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(userAnswers));
+    } catch (e) { /* abaikan bila storage penuh/diblokir */ }
+}
+
+function restoreAnswers() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        const parsed = JSON.parse(saved);
+        for (const qid in parsed) {
+            if (userAnswers[qid]) {
+                userAnswers[qid] = parsed[qid];
+            }
+        }
+    } catch (e) { /* abaikan data rusak */ }
+}
+
+function clearStoredAnswers() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
 }
 
 // ==========================================
@@ -308,7 +354,16 @@ document.addEventListener('DOMContentLoaded', () => {
         elExamTitle.textContent = examData.title;
         renderGrid();
         renderQuestion(currentIndex);
-        startTimer();
+
+        // Jika waktu sudah habis sejak halaman dimuat, langsung kumpulkan otomatis.
+        if (timeLeft <= 0) {
+            timerDisplay.innerHTML = "WAKTU HABIS";
+            uiModal('danger', 'Waktu Habis!', 'Waktu ujian telah berakhir. Jawaban Anda dikumpulkan secara otomatis.', false, () => {
+                executeSubmit();
+            });
+        } else {
+            startTimer();
+        }
     }
 });
 
@@ -445,12 +500,14 @@ function closeImageViewer() {
 // ==========================================
 function selectAnswer(questionId, answerKey) {
     userAnswers[questionId].answer = answerKey;
+    persistAnswers();
     renderQuestion(currentIndex);
 }
 
 function toggleDoubt() {
     const q = questions[currentIndex];
     userAnswers[q.id].is_doubt = !userAnswers[q.id].is_doubt;
+    persistAnswers();
     renderQuestion(currentIndex);
 }
 
@@ -474,6 +531,10 @@ function navigateQuestion(direction) {
 function startTimer() {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
+        // Selalu hitung ulang dari deadline absolut acuan server, sehingga
+        // akurat meski interval melambat (tab tidak aktif) atau di-refresh.
+        timeLeft = Math.max(0, deadlineTs - serverNow());
+
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             timerDisplay.innerHTML = "WAKTU HABIS";
@@ -484,15 +545,13 @@ function startTimer() {
             return;
         }
         
-        timeLeft--;
-        
         const h = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
         const m = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
         
         timerDisplay.innerHTML = `<i class="fas fa-stopwatch"></i> ${h}:${m}:${s}`;
         
-        if (timeLeft === 300) {
+        if (timeLeft <= 300) {
             timerDisplay.classList.add('warning');
         }
     }, 1000);
@@ -582,12 +641,17 @@ function confirmSubmit() {
 }
 
 function executeSubmit() {
+    if (isSubmitting) return;
+    isSubmitting = true;
     clearInterval(timerInterval);
-    
+
     document.getElementById('jawabanUserPayload').value = JSON.stringify(userAnswers);
-    
+
+    // Jawaban sudah dikirim ke server, bersihkan cadangan lokal.
+    clearStoredAnswers();
+
     uiModal('success', 'Ujian Selesai!', 'Sedang mengirim jawaban Anda ke server...', false, null);
-    
+
     document.getElementById('formSubmitUjian').submit();
 }
 </script>

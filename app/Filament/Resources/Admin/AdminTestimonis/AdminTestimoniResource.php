@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminTestimonis\Pages\CreateAdminTestimoni;
 use App\Filament\Resources\Admin\AdminTestimonis\Pages\EditAdminTestimoni;
 use App\Filament\Resources\Admin\AdminTestimonis\Pages\ListAdminTestimonis;
 use App\Filament\Resources\Admin\AdminTestimonis\Schemas\AdminTestimoniForm;
+use App\Filament\Resources\Admin\AdminTestimonis\Schemas\AdminTestimoniInfolist;
 use App\Filament\Resources\Admin\AdminTestimonis\Tables\AdminTestimonisTable;
 use App\Models\Testimoni;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminTestimoniResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminTestimoniForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminTestimoniInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

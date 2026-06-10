@@ -55,13 +55,17 @@ class AdminSoalForm
                                 ->required(),
                         ]),
 
-                        \Filament\Forms\Components\TextInput::make('bobot_nilai')
-                            ->label('Bobot Nilai')
-                            ->helperText('Skor jika soal dijawab benar. Total nilai tes = akumulasi seluruh bobot soal (disarankan total 100).')
-                            ->numeric()
-                            ->minValue(0)
-                            ->default(1)
-                            ->required(),
+                            Select::make('bobot_nilai')
+                                ->label('Kunci Jawaban Benar')
+                                ->options([
+                                    1 => 1,
+                                    2 => 2,
+                                    3 => 3,
+                                    4 => 4,
+                                    5 => 5,
+                                    ])
+                                ->default(1)
+                                ->required(),
                     ]),
 
                 // SECTION 2: PERTANYAAN

@@ -1958,5 +1958,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 </script>
+
+@include('components.toastr')
 </body>
 </html>

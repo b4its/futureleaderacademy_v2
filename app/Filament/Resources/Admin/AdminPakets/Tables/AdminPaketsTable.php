@@ -7,6 +7,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -42,7 +43,8 @@ class AdminPaketsTable
                 //
             ])
             ->recordActions([
-                EditAction::make()->modalHeading('Edit Pengajar'),
+                ViewAction::make(),
+                EditAction::make()->modalHeading('Edit Paket'),
                 DeleteAction::make()
                     ->button()
                     ->color('danger') // default abu-abu (tidak merah)

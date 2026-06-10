@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminAkunPengajars\Pages\CreateAdminAkunPengaja
 use App\Filament\Resources\Admin\AdminAkunPengajars\Pages\EditAdminAkunPengajar;
 use App\Filament\Resources\Admin\AdminAkunPengajars\Pages\ListAdminAkunPengajars;
 use App\Filament\Resources\Admin\AdminAkunPengajars\Schemas\AdminAkunPengajarForm;
+use App\Filament\Resources\Admin\AdminAkunPengajars\Schemas\AdminAkunPengajarInfolist;
 use App\Filament\Resources\Admin\AdminAkunPengajars\Tables\AdminAkunPengajarsTable;
 use App\Models\User;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminAkunPengajarResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminAkunPengajarForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminAkunPengajarInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

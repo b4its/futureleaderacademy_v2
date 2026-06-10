@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminKategoriArtikels\Pages\CreateAdminKategori
 use App\Filament\Resources\Admin\AdminKategoriArtikels\Pages\EditAdminKategoriArtikel;
 use App\Filament\Resources\Admin\AdminKategoriArtikels\Pages\ListAdminKategoriArtikels;
 use App\Filament\Resources\Admin\AdminKategoriArtikels\Schemas\AdminKategoriArtikelForm;
+use App\Filament\Resources\Admin\AdminKategoriArtikels\Schemas\AdminKategoriArtikelInfolist;
 use App\Filament\Resources\Admin\AdminKategoriArtikels\Tables\AdminKategoriArtikelsTable;
 use App\Models\KategoriArtikel;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminKategoriArtikelResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminKategoriArtikelForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminKategoriArtikelInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

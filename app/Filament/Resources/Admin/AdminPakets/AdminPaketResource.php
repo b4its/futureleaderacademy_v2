@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminPakets\Pages\CreateAdminPaket;
 use App\Filament\Resources\Admin\AdminPakets\Pages\EditAdminPaket;
 use App\Filament\Resources\Admin\AdminPakets\Pages\ListAdminPakets;
 use App\Filament\Resources\Admin\AdminPakets\Schemas\AdminPaketForm;
+use App\Filament\Resources\Admin\AdminPakets\Schemas\AdminPaketInfolist;
 use App\Filament\Resources\Admin\AdminPakets\Tables\AdminPaketsTable;
 use App\Models\Kelas;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminPaketResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminPaketForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminPaketInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

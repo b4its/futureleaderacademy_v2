@@ -126,7 +126,7 @@
                 <button type="button" class="mode-btn" onclick="${onToggleChange}('${idPrefix}', 'gambar', this)">Gambar Saja</button>
                 <button type="button" class="mode-btn" onclick="${onToggleChange}('${idPrefix}', 'keduanya', this)">Teks & Gambar</button>
             </div>
-            <input type="hidden" name="${type}_mode" id="mode_val_${idPrefix}" value="text">
+            <input type="hidden" name="${type}" id="mode_val_${idPrefix}" value="text">
         `;
     }
 
@@ -141,7 +141,7 @@
 
     // Menghitung akumulasi seluruh bobot_nilai yang diinput
     function updateTotalBobot() {
-        const inputs = document.querySelectorAll('input[name^="soal["][name$="[bobot_nilai]"]');
+        const inputs = document.querySelectorAll('select[name$="[bobot_nilai]"]');
         let total = 0;
         inputs.forEach((input) => {
             total += parseInt(input.value) || 0;
@@ -154,7 +154,7 @@
     }
 
     // Update total bobot setiap kali nilai bobot diubah
-    soalCanvas.addEventListener('input', (e) => {
+    soalCanvas.addEventListener('change', (e) => {
         if (e.target.name && e.target.name.endsWith('[bobot_nilai]')) {
             updateTotalBobot();
         }
@@ -163,43 +163,86 @@
     function addSoalCard() {
         uniqueIdCounter++;
         const index = uniqueIdCounter;
-        
-        // Membaca jumlah soal di layar ditambah 1 untuk label visual yang baru
         const visualNumber = document.querySelectorAll('.soal-card').length + 1;
         
+        const bobotOptions = [1,2,3,4,5].map(v => `<option value="${v}"${v===1?' selected':''}>Bobot ${v}</option>`).join('');
+
+        const opsiItems = ['a','b','c','d','e'].map((ab) => {
+            const AB = ab.toUpperCase();
+            return `
+                <div class="opsi-item">
+                    <div class="opsi-header">
+                        <div class="opsi-radio-wrap">
+                            <input type="radio" name="soal[${index}][jawaban_benar]" value="${AB}" class="opsi-radio" ${ab === 'a' ? 'checked required' : ''}>
+                            <span style="font-weight:800; color:#475569;">Pilihan ${AB}</span>
+                        </div>
+                    </div>
+                    <input type="hidden" name="soal[${index}][mode_jawaban_${ab}]" id="mode_val_opt_${index}_${ab}" value="text">
+                    <div class="mode-toggle-group">
+                        <button type="button" class="mode-btn active" onclick="toggleMode('opt_${index}_${ab}', 'text', this)">Teks Saja</button>
+                        <button type="button" class="mode-btn" onclick="toggleMode('opt_${index}_${ab}', 'gambar', this)">Gambar Saja</button>
+                        <button type="button" class="mode-btn" onclick="toggleMode('opt_${index}_${ab}', 'keduanya', this)">Teks &amp; Gambar</button>
+                    </div>
+                    <div class="opsi-input-container">
+                        <div id="text_container_opt_${index}_${ab}">
+                            <input type="text" name="soal[${index}][jawaban_${ab}]" id="input_text_opt_${index}_${ab}" class="opsi-input" placeholder="Teks opsi ${AB}...">
+                        </div>
+                        <div id="img_container_opt_${index}_${ab}" class="upload-container">
+                            <div class="upload-area" id="drop_opt_${index}_${ab}" style="padding: 12px;">
+                                <i class="fas fa-upload upload-icon" style="font-size: 16px; margin-bottom: 4px;"></i>
+                                <div class="upload-text" style="font-size: 11px;">Upload Gambar Opsi</div>
+                                <input type="file" name="soal[${index}][visual_jawaban_${ab}]" id="input_img_opt_${index}_${ab}" accept="image/*"
+                                    onchange="previewImage(this, 'preview_opt_${index}_${ab}', 'drop_opt_${index}_${ab}')" disabled>
+                            </div>
+                            <div class="preview-area" id="preview_opt_${index}_${ab}">
+                                <img src="" alt="Preview" style="height: 100px;">
+                                <button type="button" class="btn-remove-image"
+                                    onclick="removePreview('input_img_opt_${index}_${ab}', 'preview_opt_${index}_${ab}', 'drop_opt_${index}_${ab}')"
+                                    style="width: 24px; height: 24px; top: 4px; right: 4px;">
+                                    <i class="fas fa-times" style="font-size: 12px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
+
         const cardHTML = `
             <div class="soal-card" id="soal_${index}">
                 <div class="soal-header">
                     <span class="soal-number">Soal #${visualNumber}</span>
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <label style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.3px;">Bobot</label>
-                            <input type="number" name="soal[${index}][bobot_nilai]" value="1" min="1" step="1" required
-                                style="width:80px; border:1px solid #d1d5db; background:#f9fafb; border-radius:6px; padding:6px 10px; font-size:14px; font-weight:700; color:#111827; text-align:center;">
-                        </div>
+                        <label style="font-size:12px; font-weight:700; color:#64748b;">Bobot</label>
+                        <select name="soal[${index}][bobot_nilai]" class="form-control"
+                            style="width:110px; padding:6px 10px; font-size:13px;">
+                            ${bobotOptions}
+                        </select>
                         <button type="button" class="btn-remove-soal" onclick="removeSoal(${index})" title="Hapus Soal">
                             <i class="fas fa-trash-alt"></i> Hapus
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Format Pertanyaan</label>
-                    ${generateToggleButtons(`soal[${index}][mode]`, `q_${index}`, 'toggleMode')}
-                    
-                    <div id="text_container_q_${index}">
-                        <textarea class="form-control" name="soal[${index}][pertanyaan]" id="input_text_q_${index}" rows="3" placeholder="Ketik pertanyaan Anda di sini..." required></textarea>
-                    </div>
+                    <input type="hidden" name="soal[${index}][mode_pertanyaan]" id="mode_val_q_${index}" value="text">
+                    ${generateToggleButtons(`soal[${index}][mode_pertanyaan]`, `q_${index}`, 'toggleMode')}
 
+                    <div id="text_container_q_${index}">
+                        <textarea class="form-control" name="soal[${index}][pertanyaan]" id="input_text_q_${index}"
+                            rows="3" placeholder="Ketik pertanyaan Anda di sini..."></textarea>
+                    </div>
                     <div id="img_container_q_${index}" class="upload-container">
                         <div class="upload-area" id="drop_q_${index}">
                             <i class="fas fa-image upload-icon"></i>
                             <div class="upload-text">Upload Gambar Pertanyaan</div>
-                            <input type="file" name="soal[${index}][visual_pertanyaan]" id="input_img_q_${index}" accept="image/*" onchange="previewImage(this, 'preview_q_${index}', 'drop_q_${index}')" disabled>
+                            <input type="file" name="soal[${index}][visual_pertanyaan]" id="input_img_q_${index}"
+                                accept="image/*" onchange="previewImage(this, 'preview_q_${index}', 'drop_q_${index}')" disabled>
                         </div>
                         <div class="preview-area" id="preview_q_${index}">
                             <img src="" alt="Preview">
-                            <button type="button" class="btn-remove-image" onclick="removePreview('input_img_q_${index}', 'preview_q_${index}', 'drop_q_${index}')">
+                            <button type="button" class="btn-remove-image"
+                                onclick="removePreview('input_img_q_${index}', 'preview_q_${index}', 'drop_q_${index}')">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -207,46 +250,13 @@
                 </div>
 
                 <div class="opsi-grid">
-                    ${['A', 'B', 'C', 'D'].map((abjad) => `
-                        <div class="opsi-item">
-                            <div class="opsi-header">
-                                <div class="opsi-radio-wrap">
-                                    <input type="radio" name="soal[${index}][jawaban_benar]" value="${abjad}" class="opsi-radio" ${abjad === 'A' ? 'checked' : ''} required>
-                                    <span style="font-weight:800; color:#475569;">Pilihan ${abjad}</span>
-                                </div>
-                            </div>
-                            
-                            ${generateToggleButtons(`soal[${index}][opsi][${abjad}][mode]`, `opt_${index}_${abjad}`, 'toggleMode')}
-                            
-                            <div class="opsi-input-container">
-                                <div id="text_container_opt_${index}_${abjad}">
-                                    <input type="text" name="soal[${index}][opsi][${abjad}][teks]" id="input_text_opt_${index}_${abjad}" class="opsi-input" placeholder="Teks opsi ${abjad}..." required>
-                                </div>
-                                
-                                <div id="img_container_opt_${index}_${abjad}" class="upload-container">
-                                    <div class="upload-area" id="drop_opt_${index}_${abjad}" style="padding: 12px;">
-                                        <i class="fas fa-upload upload-icon" style="font-size: 16px; margin-bottom: 4px;"></i>
-                                        <div class="upload-text" style="font-size: 11px;">Upload Gambar Opsi</div>
-                                        <input type="file" name="soal[${index}][opsi][${abjad}][visual]" id="input_img_opt_${index}_${abjad}" accept="image/*" onchange="previewImage(this, 'preview_opt_${index}_${abjad}', 'drop_opt_${index}_${abjad}')" disabled>
-                                    </div>
-                                    <div class="preview-area" id="preview_opt_${index}_${abjad}">
-                                        <img src="" alt="Preview" style="height: 100px;">
-                                        <button type="button" class="btn-remove-image" onclick="removePreview('input_img_opt_${index}_${abjad}', 'preview_opt_${index}_${abjad}', 'drop_opt_${index}_${abjad}')" style="width: 24px; height: 24px; top: 4px; right: 4px;">
-                                            <i class="fas fa-times" style="font-size: 12px;"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
+                    ${opsiItems}
                 </div>
             </div>
         `;
 
         const btnAdd = document.querySelector('.btn-add-soal');
         btnAdd.insertAdjacentHTML('beforebegin', cardHTML);
-        
-        // Memastikan nomor sinkron sesaat setelah HTML dimasukkan ke DOM
         updateSoalNumbers();
     }
 
@@ -256,44 +266,31 @@
         btnGroup.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
         btnElement.classList.add('active');
 
+        // Sinkron ke hidden input mode (pakai id mode_val_{idPrefix})
         const valHidden = document.getElementById(`mode_val_${idPrefix}`);
         const containerText = document.getElementById(`text_container_${idPrefix}`);
         const containerImg = document.getElementById(`img_container_${idPrefix}`);
         const inputText = document.getElementById(`input_text_${idPrefix}`);
         const inputImg = document.getElementById(`input_img_${idPrefix}`);
-        
-        valHidden.value = mode;
+
+        if (valHidden) valHidden.value = mode;
 
         if (mode === 'text') {
-            containerText.style.display = 'block';
-            containerImg.style.display = 'none';
-            
-            inputText.disabled = false;
-            inputText.required = true;
-            inputImg.disabled = true; 
-            inputImg.required = false;
-            
-            removePreview(inputImg.id, `preview_${idPrefix}`, `drop_${idPrefix}`);
-            
+            if (containerText) containerText.style.display = 'block';
+            if (containerImg)  containerImg.style.display  = 'none';
+            if (inputText) { inputText.disabled = false; }
+            if (inputImg)  { inputImg.disabled  = true;  }
+            if (inputImg) removePreview(inputImg.id, `preview_${idPrefix}`, `drop_${idPrefix}`);
         } else if (mode === 'gambar') {
-            containerText.style.display = 'none';
-            containerImg.style.display = 'block';
-            
-            inputText.disabled = true;
-            inputText.required = false;
-            inputText.value = ''; 
-            
-            inputImg.disabled = false;
-            inputImg.required = !inputImg.value; 
-            
+            if (containerText) containerText.style.display = 'none';
+            if (containerImg)  containerImg.style.display  = 'block';
+            if (inputText) { inputText.disabled = true;  inputText.value = ''; }
+            if (inputImg)  { inputImg.disabled  = false; }
         } else if (mode === 'keduanya') {
-            containerText.style.display = 'block';
-            containerImg.style.display = 'block';
-            
-            inputText.disabled = false;
-            inputText.required = true;
-            inputImg.disabled = false;
-            inputImg.required = !inputImg.value;
+            if (containerText) containerText.style.display = 'block';
+            if (containerImg)  containerImg.style.display  = 'block';
+            if (inputText) { inputText.disabled = false; }
+            if (inputImg)  { inputImg.disabled  = false; }
         }
     }
 
@@ -378,20 +375,24 @@
             if(response.ok && result.success) {
                 btnPublish.innerHTML = '<i class="fas fa-check"></i> Tes Diterbitkan!';
                 btnPublish.style.background = '#10B981';
+                if (typeof notify === 'function') notify('success', result.message || 'Tes berhasil diterbitkan!');
                 setTimeout(() => window.location.href = result.redirect, 1000);
             } else {
                 if (response.status === 422 && result.errors) {
-                    let errorMessages = [];
-                    for (const [field, errors] of Object.entries(result.errors)) {
-                        errorMessages.push(`- ${errors[0]}`);
-                    }
-                    throw new Error("Terdapat form yang belum lengkap:\n\n" + errorMessages.join('\n'));
+                    Object.values(result.errors).forEach((errors) => {
+                        if (typeof notify === 'function') notify('error', errors[0]);
+                    });
+                    throw new Error('Terdapat form yang belum lengkap.');
                 }
                 throw new Error(result.message || 'Gagal memvalidasi.');
             }
         } catch (error) {
             console.error(error);
-            alert(error.message); 
+            if (typeof notify === 'function') {
+                notify('error', error.message);
+            } else {
+                alert(error.message);
+            }
             btnPublish.innerHTML = originalText;
             btnPublish.disabled = false;
         }

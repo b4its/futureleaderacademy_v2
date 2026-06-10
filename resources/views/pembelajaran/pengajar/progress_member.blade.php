@@ -333,12 +333,15 @@
                     @forelse($hasilTesList as $hasil)
                         @php
                             $nilai = floatval($hasil->total_nilai);
-                            $badgeClass = $nilai >= 75 ? 'badge-tinggi' : ($nilai >= 50 ? 'badge-sedang' : 'badge-rendah');
-                            $fillClass = $nilai >= 75 ? 'fill-high' : ($nilai >= 50 ? 'fill-mid' : 'fill-low');
+                            $nilaiMaksimal = (int) ($hasil->tesPengetahuan->total_bobot ?? 0);
+                            if ($nilaiMaksimal <= 0) { $nilaiMaksimal = 100; }
+                            $persentaseNilai = $nilaiMaksimal > 0 ? ($nilai / $nilaiMaksimal) * 100 : 0;
+                            $badgeClass = $persentaseNilai >= 75 ? 'badge-tinggi' : ($persentaseNilai >= 50 ? 'badge-sedang' : 'badge-rendah');
+                            $fillClass = $persentaseNilai >= 75 ? 'fill-high' : ($persentaseNilai >= 50 ? 'fill-mid' : 'fill-low');
                         @endphp
                         <tr data-name="{{ strtolower($hasil->user->name ?? '') }}" 
                             data-tes="{{ $hasil->tes_pengetahuan_id }}"
-                            data-nilai="{{ $nilai }}">
+                            data-nilai="{{ $persentaseNilai }}">
                             <td>
                                 <div class="member-cell">
                                     <div class="member-avatar">
@@ -356,11 +359,11 @@
                                 <span style="color:#ef4444;font-weight:700;">{{ $hasil->jumlah_salah }}</span>
                             </td>
                             <td>
-                                <span class="badge-nilai {{ $badgeClass }}">{{ number_format($nilai, 1) }}</span>
+                                <span class="badge-nilai {{ $badgeClass }}">{{ number_format($nilai, 1) }} / {{ $nilaiMaksimal }}</span>
                             </td>
                             <td>
                                 <div class="progress-bar-mini">
-                                    <div class="fill {{ $fillClass }}" style="width: {{ min($nilai, 100) }}%"></div>
+                                    <div class="fill {{ $fillClass }}" style="width: {{ min($persentaseNilai, 100) }}%"></div>
                                 </div>
                             </td>
                             <td style="font-size:13px;color:#64748b;">{{ $hasil->created_at->format('d M Y, H:i') }}</td>
@@ -490,14 +493,16 @@
 
                 historyContainer.innerHTML = data.riwayat.map(item => {
                     const nilai = parseFloat(item.total_nilai);
-                    const color = nilai >= 75 ? '#10b981' : (nilai >= 50 ? '#f59e0b' : '#ef4444');
+                    const maks = parseFloat(item.nilai_maksimal) || 100;
+                    const persen = maks > 0 ? (nilai / maks) * 100 : 0;
+                    const color = persen >= 75 ? '#10b981' : (persen >= 50 ? '#f59e0b' : '#ef4444');
                     return `
                         <div class="history-item">
                             <div>
                                 <div class="history-tes">${item.tes_nama}</div>
                                 <div class="history-meta">Benar: ${item.jumlah_benar} | Salah: ${item.jumlah_salah} | ${item.tanggal}</div>
                             </div>
-                            <span class="history-score" style="color:${color}">${parseFloat(item.total_nilai).toFixed(1)}</span>
+                            <span class="history-score" style="color:${color}">${parseFloat(item.total_nilai).toFixed(1)} <span style="font-size:11px;color:#94a3b8;">/ ${item.nilai_maksimal}</span></span>
                         </div>
                     `;
                 }).join('');

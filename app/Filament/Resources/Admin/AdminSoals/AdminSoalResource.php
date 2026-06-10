@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminSoals\Pages\CreateAdminSoal;
 use App\Filament\Resources\Admin\AdminSoals\Pages\EditAdminSoal;
 use App\Filament\Resources\Admin\AdminSoals\Pages\ListAdminSoals;
 use App\Filament\Resources\Admin\AdminSoals\Schemas\AdminSoalForm;
+use App\Filament\Resources\Admin\AdminSoals\Schemas\AdminSoalInfolist;
 use App\Filament\Resources\Admin\AdminSoals\Tables\AdminSoalsTable;
 use App\Models\Soal;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminSoalResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminSoalForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminSoalInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

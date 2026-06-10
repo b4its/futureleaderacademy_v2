@@ -20,7 +20,16 @@ class RiwayatTes extends Page
             ->get()
             ->map(function ($hasil) {
                 $tes = $hasil->tesPengetahuan;
-                
+
+                // Skor maksimal = total_bobot tes (fallback 100 bila belum diisi)
+                $nilaiMaksimal = (int) ($tes->total_bobot ?? 0);
+                if ($nilaiMaksimal <= 0) {
+                    $nilaiMaksimal = 100;
+                }
+                $persentase = $nilaiMaksimal > 0
+                    ? round((floatval($hasil->total_nilai) / $nilaiMaksimal) * 100)
+                    : 0;
+
                 return [
                     'id' => $hasil->id,
                     'pelajaran' => $tes->pelajaran ?? 'Tes',
@@ -29,6 +38,8 @@ class RiwayatTes extends Page
                     'jumlah_benar' => $hasil->jumlah_benar,
                     'jumlah_salah' => $hasil->jumlah_salah,
                     'total_nilai' => $hasil->total_nilai,
+                    'nilai_maksimal' => $nilaiMaksimal,
+                    'persentase' => $persentase,
                     'waktu_dikerjakan' => $hasil->created_at->format('d M Y H:i'),
                     'durasi' => $hasil->waktu_dimulai && $hasil->waktu_berakhir 
                         ? $hasil->waktu_dimulai->diffInMinutes($hasil->waktu_berakhir) 

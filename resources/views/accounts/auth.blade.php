@@ -384,5 +384,6 @@ function togglePassword(icon) {
 }
 </script>
 
+@include('components.toastr')
 </body>
 </html>

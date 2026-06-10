@@ -66,6 +66,11 @@ Route::prefix('pembelajaran')->middleware('auth')->group(function () {
 
             Route::get('{id}/edit', 'edit')->name('tes.edit');
             Route::post('{id}/update', 'update')->name('tes.update');
+
+            // Edit Soal (relasi tes_pengetahuan <-> soal)
+            Route::get('{id}/soal', 'getSoal')->name('tes.soal');
+            Route::post('{id}/soal', 'updateSoal')->name('tes.soal.update');
+
             Route::delete('{id}', 'destroy')->name('tes.destroy');
         });
     });

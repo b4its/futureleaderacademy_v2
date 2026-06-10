@@ -150,7 +150,10 @@
             }
         });
     </script>
-    
+
+    {{-- Notifikasi global (Toastr) --}}
+    @include('components.toastr')
+
     @stack('scripts')
 
 </body>

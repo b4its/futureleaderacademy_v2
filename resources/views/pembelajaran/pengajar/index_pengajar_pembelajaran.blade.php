@@ -296,7 +296,7 @@
     <section class="charts-row-2">
         <div class="chart-card">
             <div class="chart-header">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Rata-rata Nilai Per Tes</h3>
+                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Rata-rata Nilai Per Tes (%)</h3>
             </div>
             <div class="chart-canvas-wrap">
                 <canvas id="chartNilaiPerTes" height="280"></canvas>
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: nilaiPerTesLabels,
             datasets: [{
-                label: 'Rata-rata Nilai',
+                label: 'Rata-rata Nilai (%)',
                 data: nilaiPerTesData,
                 backgroundColor: 'rgba(249,115,22,0.7)',
                 borderColor: '#f97316',

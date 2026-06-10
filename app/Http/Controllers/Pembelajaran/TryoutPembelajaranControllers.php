@@ -36,6 +36,35 @@ class TryoutPembelajaranControllers extends Controller
         // 1. Ambil data tes pengetahuan
         $tesPengetahuan = TesPengetahuan::with(['kategoriTes', 'tipeSoal'])->findOrFail($id);
 
+        // 1b. Anchor waktu di server: cari attempt yang masih berjalan (status = 0),
+        //     atau buat baru. Deadline dihitung dari waktu_dimulai + batas_waktu,
+        //     sehingga timer tetap konsisten walau halaman di-refresh.
+        $batasWaktuMenit = (int) $tesPengetahuan->batas_waktu;
+
+        $attempt = HasilTes::where('user_id', Auth::id())
+            ->where('tes_pengetahuan_id', $tesPengetahuan->id)
+            ->where('status', 0)
+            ->latest()
+            ->first();
+
+        if (!$attempt) {
+            $attempt = HasilTes::create([
+                'user_id' => Auth::id(),
+                'kategori_tes_id' => $tesPengetahuan->kategori_tes_id,
+                'tes_pengetahuan_id' => $tesPengetahuan->id,
+                'jumlah_benar' => 0,
+                'jumlah_salah' => 0,
+                'total_nilai' => 0,
+                'waktu_dimulai' => now(),
+                'waktu_berakhir' => $batasWaktuMenit > 0 ? now()->addMinutes($batasWaktuMenit) : null,
+                'status' => 0, // 0 = sedang dikerjakan
+            ]);
+        }
+
+        // Hitung sisa waktu (detik) berdasarkan deadline di server.
+        $deadline = $attempt->waktu_dimulai->copy()->addMinutes($batasWaktuMenit);
+        $sisaWaktu = max(0, $deadline->timestamp - now()->timestamp);
+
         // 2. Tarik soal berdasarkan kategori dan tipe
         $soal = Soal::with('kategoriTes')
             ->where('kategori_tes_id', $tesPengetahuan->kategori_tes_id)
@@ -48,7 +77,11 @@ class TryoutPembelajaranControllers extends Controller
         $exam_data = [
             'id' => $tesPengetahuan->id,
             'title' => $tesPengetahuan->pelajaran ?? 'Tryout CAT',
-            'duration_minutes' => (int) $tesPengetahuan->batas_waktu,
+            'duration_minutes' => $batasWaktuMenit,
+            'remaining_seconds' => $sisaWaktu, // sisa waktu dari server (anti-refresh)
+            'server_now' => now()->timestamp, // epoch absolut server (acuan koreksi jam klien)
+            'deadline_ts' => $deadline->timestamp, // epoch absolut deadline
+            'attempt_id' => $attempt->id,
             'questions' => $soal->map(function ($q) {
                 
                 $options = [];
@@ -133,19 +166,32 @@ class TryoutPembelajaranControllers extends Controller
 
         $totalNilai = $nilaiDiperoleh;
 
-        // 6. Simpan Hasil ke Database
-        HasilTes::create([
-            'user_id' => Auth::id(), // Pastikan user sudah login
+        // 6. Finalisasi attempt yang sedang berjalan (status = 0).
+        //    Jika tidak ditemukan (mis. submit ganda), buat record baru sebagai fallback.
+        $attempt = HasilTes::where('user_id', Auth::id())
+            ->where('tes_pengetahuan_id', $tesPengetahuan->id)
+            ->where('status', 0)
+            ->latest()
+            ->first();
+
+        $dataHasil = [
+            'user_id' => Auth::id(),
             'kategori_tes_id' => $tesPengetahuan->kategori_tes_id,
             'tes_pengetahuan_id' => $tesPengetahuan->id,
             'jumlah_benar' => $jumlahBenar,
             'jumlah_salah' => $jumlahSalah + $jumlahKosong, // Soal tidak dijawab dihitung salah
-            'total_nilai' => number_format($totalNilai, 2, '.', ''), // Menyimpan nilai format desimal seperti "85.50"
-            // Estimasi waktu dimulai dikurangi dari durasi, bisa diubah jika frontend mencatat realtime
-            'waktu_dimulai' => now()->subMinutes($tesPengetahuan->batas_waktu), 
+            'total_nilai' => number_format($totalNilai, 2, '.', ''),
             'waktu_berakhir' => now(),
             'status' => 1, // Selesai
-        ]);
+        ];
+
+        if ($attempt) {
+            // Pertahankan waktu_dimulai asli, tandai selesai.
+            $attempt->update($dataHasil);
+        } else {
+            $dataHasil['waktu_dimulai'] = now()->subMinutes($tesPengetahuan->batas_waktu);
+            HasilTes::create($dataHasil);
+        }
 
         // 7. Redirect ke halaman riwayat/statistik atau kembali ke index pembelajaran
         return redirect()->route('pembelajaran.index')

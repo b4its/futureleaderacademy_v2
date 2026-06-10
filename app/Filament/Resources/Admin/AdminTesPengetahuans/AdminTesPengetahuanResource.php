@@ -6,8 +6,9 @@ use App\Filament\Resources\Admin\AdminTesPengetahuans\Pages\CreateAdminTesPenget
 use App\Filament\Resources\Admin\AdminTesPengetahuans\Pages\EditAdminTesPengetahuan;
 use App\Filament\Resources\Admin\AdminTesPengetahuans\Pages\ListAdminTesPengetahuans;
 use App\Filament\Resources\Admin\AdminTesPengetahuans\Schemas\AdminTesPengetahuanForm;
+use App\Filament\Resources\Admin\AdminTesPengetahuans\Schemas\AdminTesPengetahuanInfolist;
 use App\Filament\Resources\Admin\AdminTesPengetahuans\Tables\AdminTesPengetahuansTable;
-use App\Models\AdminTesPengetahuan;
+use App\Models\TesPengetahuan;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,16 +17,21 @@ use Filament\Tables\Table;
 
 class AdminTesPengetahuanResource extends Resource
 {
-    protected static ?string $model = AdminTesPengetahuan::class;
+    protected static ?string $model = TesPengetahuan::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'tes_pengetahuan';
+    protected static ?string $recordTitleAttribute = 'pelajaran';
     protected static ?string $slug = 'tes-pengetahuan';
 
     public static function form(Schema $schema): Schema
     {
         return AdminTesPengetahuanForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminTesPengetahuanInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

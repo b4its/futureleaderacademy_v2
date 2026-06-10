@@ -19,17 +19,18 @@
                 @foreach($this->riwayatList as $riwayat)
                     @php
                         $nilai = floatval($riwayat['total_nilai']);
-                        
-                        // Konfigurasi warna berbasis Tailwind CSS
-                        if($nilai >= 80) {
+                        $persentase = $riwayat['persentase'];
+
+                        // Konfigurasi warna berbasis persentase terhadap total bobot
+                        if($persentase >= 80) {
                             $borderColor = 'border-emerald-500';
                             $gradientCircle = 'from-emerald-400 to-emerald-600';
                             $categoryText = 'Sangat Baik';
-                        } elseif($nilai >= 70) {
+                        } elseif($persentase >= 70) {
                             $borderColor = 'border-blue-500';
                             $gradientCircle = 'from-blue-400 to-blue-600';
                             $categoryText = 'Baik';
-                        } elseif($nilai >= 60) {
+                        } elseif($persentase >= 60) {
                             $borderColor = 'border-amber-500';
                             $gradientCircle = 'from-amber-400 to-amber-600';
                             $categoryText = 'Cukup';
@@ -44,8 +45,9 @@
                         <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
                             
                             <div class="flex-shrink-0 flex flex-col items-center">
-                                <div class="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-gradient-to-br {{ $gradientCircle }} shadow-inner">
-                                    {{ number_format($nilai, 0) }}
+                                <div class="w-20 h-20 rounded-full flex flex-col items-center justify-center text-white bg-gradient-to-br {{ $gradientCircle }} shadow-inner">
+                                    <span class="text-2xl font-bold leading-none">{{ number_format($nilai, 0) }}</span>
+                                    <span class="text-[10px] font-semibold opacity-90 mt-0.5">/ {{ $riwayat['nilai_maksimal'] }}</span>
                                 </div>
                                 <p class="text-sm text-gray-700 dark:text-gray-300 mt-3 font-semibold">{{ $categoryText }}</p>
                             </div>

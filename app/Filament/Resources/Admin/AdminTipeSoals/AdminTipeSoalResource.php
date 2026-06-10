@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminTipeSoals\Pages\CreateAdminTipeSoal;
 use App\Filament\Resources\Admin\AdminTipeSoals\Pages\EditAdminTipeSoal;
 use App\Filament\Resources\Admin\AdminTipeSoals\Pages\ListAdminTipeSoals;
 use App\Filament\Resources\Admin\AdminTipeSoals\Schemas\AdminTipeSoalForm;
+use App\Filament\Resources\Admin\AdminTipeSoals\Schemas\AdminTipeSoalInfolist;
 use App\Filament\Resources\Admin\AdminTipeSoals\Tables\AdminTipeSoalsTable;
 use App\Models\TipeSoal;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminTipeSoalResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminTipeSoalForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminTipeSoalInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

@@ -7,6 +7,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -49,7 +50,8 @@ class AdminSoalsTable
                 //
             ])
             ->recordActions([
-                EditAction::make()->modalHeading('Edit Kategori Tes'),
+                ViewAction::make(),
+                EditAction::make()->modalHeading('Edit Soal'),
                 DeleteAction::make()
                     ->button()
                     ->color('danger') // default abu-abu (tidak merah)

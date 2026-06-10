@@ -6,6 +6,7 @@ use App\Filament\Resources\Admin\AdminAkunMembers\Pages\CreateAdminAkunMember;
 use App\Filament\Resources\Admin\AdminAkunMembers\Pages\EditAdminAkunMember;
 use App\Filament\Resources\Admin\AdminAkunMembers\Pages\ListAdminAkunMembers;
 use App\Filament\Resources\Admin\AdminAkunMembers\Schemas\AdminAkunMemberForm;
+use App\Filament\Resources\Admin\AdminAkunMembers\Schemas\AdminAkunMemberInfolist;
 use App\Filament\Resources\Admin\AdminAkunMembers\Tables\AdminAkunMembersTable;
 use App\Models\User;
 use BackedEnum;
@@ -26,6 +27,11 @@ class AdminAkunMemberResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminAkunMemberForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminAkunMemberInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

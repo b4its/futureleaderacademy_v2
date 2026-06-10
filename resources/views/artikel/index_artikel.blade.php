@@ -321,5 +321,7 @@ window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20); 
 });
 </script>
+
+@include('components.toastr')
 </body>
 </html>

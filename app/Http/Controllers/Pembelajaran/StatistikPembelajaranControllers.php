@@ -48,10 +48,18 @@ class StatistikPembelajaranControllers extends Controller
         $menitBelajar = $totalWaktuMenit % 60;
 
         $grafikNilai = $riwayatTes->take(7)->reverse()->map(function ($tes, $index) {
+            // Skor maksimal diambil dari total_bobot tes terkait (fallback 100 bila kosong)
+            $nilaiMaksimal = (int) ($tes->tesPengetahuan->total_bobot ?? 0);
+            if ($nilaiMaksimal <= 0) {
+                $nilaiMaksimal = 100;
+            }
+            $persentase = $nilaiMaksimal > 0 ? ($tes->total_nilai / $nilaiMaksimal) * 100 : 0;
+
             return [
                 'label' => 'TO ' . ($index + 1),
                 'nilai' => $tes->total_nilai,
-                'height' => min(max($tes->total_nilai, 5), 100) . '%' 
+                'nilai_maksimal' => $nilaiMaksimal,
+                'height' => min(max($persentase, 5), 100) . '%'
             ];
         })->values();
 
@@ -62,11 +70,20 @@ class StatistikPembelajaranControllers extends Controller
             $highestScore = $attempts->max('total_nilai');
             $latestAttempt = $attempts->first(); 
 
+            // Skor maksimal tes = total_bobot (fallback 100 bila belum diisi)
+            $nilaiMaksimal = (int) ($testInfo->total_bobot ?? 0);
+            if ($nilaiMaksimal <= 0) {
+                $nilaiMaksimal = 100;
+            }
+
+            // Ambang lulus = 65% dari nilai maksimal
+            $batasLulus = $nilaiMaksimal * 0.65;
+
             // Urutkan attempt dari awal (terlama) sampai akhir (terbaru) untuk ditampilkan di modal
-            $history = $attempts->sortBy('created_at')->values()->map(function ($attempt, $index) {
+            $history = $attempts->sortBy('created_at')->values()->map(function ($attempt, $index) use ($batasLulus) {
                 $totalSoal = $attempt->jumlah_benar + $attempt->jumlah_salah;
                 $akurasi = $totalSoal > 0 ? round(($attempt->jumlah_benar / $totalSoal) * 100) : 0;
-                $isLulus = $attempt->total_nilai >= 65; 
+                $isLulus = $attempt->total_nilai >= $batasLulus; 
 
                 return [
                     'percobaan_ke' => $index + 1,
@@ -84,8 +101,9 @@ class StatistikPembelajaranControllers extends Controller
                 'kategori' => $testInfo->kategoriTes->title ?? '-',
                 'total_percobaan' => $attempts->count(),
                 'skor_tertinggi' => $highestScore,
+                'nilai_maksimal' => $nilaiMaksimal,
                 'terakhir_dikerjakan' => $latestAttempt->created_at->format('d M Y'),
-                'is_lulus_terakhir' => $latestAttempt->total_nilai >= 65,
+                'is_lulus_terakhir' => $latestAttempt->total_nilai >= $batasLulus,
                 'history' => $history->toArray()
             ];
         })->values();

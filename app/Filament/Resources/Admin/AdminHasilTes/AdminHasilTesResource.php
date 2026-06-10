@@ -6,8 +6,9 @@ use App\Filament\Resources\Admin\AdminHasilTes\Pages\CreateAdminHasilTes;
 use App\Filament\Resources\Admin\AdminHasilTes\Pages\EditAdminHasilTes;
 use App\Filament\Resources\Admin\AdminHasilTes\Pages\ListAdminHasilTes;
 use App\Filament\Resources\Admin\AdminHasilTes\Schemas\AdminHasilTesForm;
+use App\Filament\Resources\Admin\AdminHasilTes\Schemas\AdminHasilTesInfolist;
 use App\Filament\Resources\Admin\AdminHasilTes\Tables\AdminHasilTesTable;
-use App\Models\AdminHasilTes;
+use App\Models\HasilTes;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,7 +17,7 @@ use Filament\Tables\Table;
 
 class AdminHasilTesResource extends Resource
 {
-    protected static ?string $model = AdminHasilTes::class;
+    protected static ?string $model = HasilTes::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -26,6 +27,11 @@ class AdminHasilTesResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AdminHasilTesForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return AdminHasilTesInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

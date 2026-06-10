@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class PembelajaranPengajarControllers extends Controller
 {
@@ -53,22 +54,26 @@ class PembelajaranPengajarControllers extends Controller
             $trenData[] = $trenRaw->get($date)->jumlah ?? 0;
         }
 
-        // --- Pie Chart: Distribusi Nilai ---
-        $hasilAll = HasilTes::whereIn('tes_pengetahuan_id', $tesIds)->pluck('total_nilai');
+        // --- Pie Chart: Distribusi Nilai (berbasis persentase terhadap total_bobot) ---
+        $hasilAll = HasilTes::whereIn('hasil_tes.tes_pengetahuan_id', $tesIds)
+            ->join('tes_pengetahuan', 'hasil_tes.tes_pengetahuan_id', '=', 'tes_pengetahuan.id')
+            ->selectRaw('hasil_tes.total_nilai, tes_pengetahuan.total_bobot')
+            ->get();
         $distribusiData = [0, 0, 0, 0]; // Sangat Baik, Baik, Cukup, Kurang
-        foreach ($hasilAll as $nilai) {
-            $n = floatval($nilai);
-            if ($n >= 85) $distribusiData[0]++;
-            elseif ($n >= 70) $distribusiData[1]++;
-            elseif ($n >= 50) $distribusiData[2]++;
+        foreach ($hasilAll as $hasil) {
+            $maks = (int) $hasil->total_bobot > 0 ? (int) $hasil->total_bobot : 100;
+            $persentase = ($maks > 0) ? (floatval($hasil->total_nilai) / $maks) * 100 : 0;
+            if ($persentase >= 85) $distribusiData[0]++;
+            elseif ($persentase >= 70) $distribusiData[1]++;
+            elseif ($persentase >= 50) $distribusiData[2]++;
             else $distribusiData[3]++;
         }
-        $distribusiLabels = ['Sangat Baik (≥85)', 'Baik (70-84)', 'Cukup (50-69)', 'Kurang (<50)'];
+        $distribusiLabels = ['Sangat Baik (≥85%)', 'Baik (70-84%)', 'Cukup (50-69%)', 'Kurang (<50%)'];
 
-        // --- Bar Chart: Rata-rata Nilai Per Tes ---
+        // --- Bar Chart: Rata-rata Nilai Per Tes (dalam persentase terhadap total_bobot) ---
         $nilaiPerTes = HasilTes::whereIn('hasil_tes.tes_pengetahuan_id', $tesIds)
             ->join('tes_pengetahuan', 'hasil_tes.tes_pengetahuan_id', '=', 'tes_pengetahuan.id')
-            ->selectRaw('tes_pengetahuan.pelajaran, AVG(CAST(hasil_tes.total_nilai AS DECIMAL(10,2))) as rata_rata')
+            ->selectRaw('tes_pengetahuan.pelajaran, AVG(CAST(hasil_tes.total_nilai AS DECIMAL(10,2)) / NULLIF(tes_pengetahuan.total_bobot, 0) * 100) as rata_rata')
             ->groupBy('tes_pengetahuan.id', 'tes_pengetahuan.pelajaran')
             ->orderByDesc('rata_rata')
             ->limit(10)
@@ -163,11 +168,15 @@ class PembelajaranPengajarControllers extends Controller
         $nilaiTertinggi = $totalTes > 0 ? number_format($hasilUser->max('total_nilai'), 1) : '0';
 
         $riwayat = $hasilUser->map(function ($h) {
+            $nilaiMaksimal = (int) ($h->tesPengetahuan->total_bobot ?? 0);
+            if ($nilaiMaksimal <= 0) { $nilaiMaksimal = 100; }
+
             return [
                 'tes_nama' => $h->tesPengetahuan->pelajaran ?? '-',
                 'jumlah_benar' => $h->jumlah_benar,
                 'jumlah_salah' => $h->jumlah_salah,
                 'total_nilai' => $h->total_nilai,
+                'nilai_maksimal' => $nilaiMaksimal,
                 'tanggal' => $h->created_at->format('d M Y, H:i'),
             ];
         });
@@ -190,95 +199,126 @@ class PembelajaranPengajarControllers extends Controller
     }
 
     /**
-     * Store - Simpan tes baru
+     * Helper: simpan file gambar soal ke disk public_folder.
+     * Mengikuti konvensi media/soal/{id}/{kolom}/{prefix}_{datetime}_{id}.ext
+     */
+    private function saveSoalImage($file, Soal $soal, string $columnName, string $prefixName): string
+    {
+        $ext      = $file->getClientOriginalExtension();
+        $datetime = now()->format('Ymd_His');
+        $fileName = "{$prefixName}_{$datetime}_{$soal->id}.{$ext}";
+        $dir      = "media/soal/{$soal->id}/{$columnName}";
+
+        // Simpan via disk public_folder (root = public_path())
+        Storage::disk('public_folder')->putFileAs($dir, $file, $fileName);
+
+        return "{$dir}/{$fileName}";
+    }
+
+    /**
+     * Helper: hapus file gambar soal dari disk public_folder.
+     */
+    private function deleteSoalImage(?string $path): void
+    {
+        if ($path && Storage::disk('public_folder')->exists($path)) {
+            Storage::disk('public_folder')->delete($path);
+        }
+    }
+
+    /**
+     * Store - Simpan tes baru.
+     * Input soal menggunakan struktur:
+     *   soal[{i}][pertanyaan]
+     *   soal[{i}][visual_pertanyaan]       (file, opsional)
+     *   soal[{i}][mode_pertanyaan]          text | gambar | keduanya
+     *   soal[{i}][jawaban_a..e]
+     *   soal[{i}][visual_jawaban_a..e]     (file, opsional)
+     *   soal[{i}][mode_jawaban_a..e]        text | gambar | keduanya
+     *   soal[{i}][jawaban_benar]
+     *   soal[{i}][bobot_nilai]              1–5
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'kategori_id' => 'required|exists:kategori_tes,id',
-            'judul_tes' => 'required|string|max:255',
-            'batas_waktu' => 'required|integer|min:1',
-            'soal' => 'required|array|min:1',
-            'soal.*.pertanyaan' => 'nullable|string',
-            'soal.*.visual_pertanyaan' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'soal.*.opsi' => 'nullable|array',
-            'soal.*.opsi.*.teks' => 'nullable|string',
-            'soal.*.opsi.*.visual' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'soal.*.jawaban_benar' => 'required|string',
-            'soal.*.bobot_nilai' => 'nullable|integer|min:0',
+        $request->validate([
+            'kategori_id'  => 'required|exists:kategori_tes,id',
+            'judul_tes'    => 'required|string|max:255',
+            'batas_waktu'  => 'required|integer|min:1',
+            'soal'         => 'required|array|min:1',
+            'soal.*.jawaban_benar' => 'required|string|max:2',
+            'soal.*.bobot_nilai'   => 'nullable|integer|min:1|max:5',
+        ], [
+            'kategori_id.required' => 'Kategori tes wajib dipilih.',
+            'judul_tes.required'   => 'Judul tes wajib diisi.',
+            'batas_waktu.required' => 'Batas waktu wajib diisi.',
+            'soal.required'        => 'Minimal harus ada satu soal.',
         ]);
 
         DB::beginTransaction();
         try {
             $pengajarId = auth()->id();
+            $kategoriId = (int) $request->input('kategori_id');
 
-            // 1. Buat Grup Soal
+            // 1. Grup soal (tipe_soal)
             $tipeSoal = TipeSoal::create([
                 'pengajar_id' => $pengajarId,
-                'title' => $validated['judul_tes'],
+                'title'       => $request->input('judul_tes'),
             ]);
 
-            // 2. Buat Header Tes Pengetahuan
+            // 2. Header tes
             $tes = TesPengetahuan::create([
-                'kategori_tes_id' => $validated['kategori_id'],
-                'tipe_soal_id' => $tipeSoal->id,
-                'kode_tes' => strtoupper(Str::random(6)),
-                'pelajaran' => $validated['judul_tes'],
-                'total_soal' => count($validated['soal']),
-                'batas_waktu' => $validated['batas_waktu'],
-                'is_paid' => 1,
-                'status' => 1,
+                'kategori_tes_id' => $kategoriId,
+                'tipe_soal_id'    => $tipeSoal->id,
+                'kode_tes'        => strtoupper(Str::random(6)),
+                'pelajaran'       => $request->input('judul_tes'),
+                'total_soal'      => count($request->input('soal', [])),
+                'batas_waktu'     => $request->input('batas_waktu'),
+                'is_paid'         => 1,
+                'status'          => 1,
             ]);
 
-            // 3. Simpan Detail Soal dan Gambar
-            $soalArray = $request->all()['soal'] ?? [];
+            // 3. Soal – ambil langsung dari request (tidak lewat validated)
+            //    agar jawaban_a..e, id, dan mode_* tidak terbuang.
+            foreach ($request->input('soal', []) as $index => $item) {
+                $modePertanyaan = $item['mode_pertanyaan'] ?? 'text';
 
-            foreach ($soalArray as $index => $itemSoal) {
                 $soal = Soal::create([
-                    'user_id' => $pengajarId,
-                    'pengajar_id' => $pengajarId,
-                    'tipe_soal_id' => $tipeSoal->id,
-                    'kategori_tes_id' => $validated['kategori_id'],
-                    'pertanyaan' => $itemSoal['pertanyaan'] ?? null,
-                    'jawaban_a' => $itemSoal['opsi']['A']['teks'] ?? null,
-                    'jawaban_b' => $itemSoal['opsi']['B']['teks'] ?? null,
-                    'jawaban_c' => $itemSoal['opsi']['C']['teks'] ?? null,
-                    'jawaban_d' => $itemSoal['opsi']['D']['teks'] ?? null,
-                    'jawaban_benar' => strtoupper($itemSoal['jawaban_benar']),
-                    'bobot_nilai' => (int) ($itemSoal['bobot_nilai'] ?? 1),
+                    'user_id'         => $pengajarId,
+                    'pengajar_id'     => $pengajarId,
+                    'tipe_soal_id'    => $tipeSoal->id,
+                    'kategori_tes_id' => $kategoriId,
+                    'pertanyaan'      => in_array($modePertanyaan, ['text', 'keduanya']) ? ($item['pertanyaan'] ?? null) : null,
+                    'jawaban_a'       => $this->resolveJawabanTeks($item, 'a'),
+                    'jawaban_b'       => $this->resolveJawabanTeks($item, 'b'),
+                    'jawaban_c'       => $this->resolveJawabanTeks($item, 'c'),
+                    'jawaban_d'       => $this->resolveJawabanTeks($item, 'd'),
+                    'jawaban_e'       => $this->resolveJawabanTeks($item, 'e'),
+                    'jawaban_benar'   => strtoupper($item['jawaban_benar'] ?? 'A'),
+                    'bobot_nilai'     => max(1, min(5, (int) ($item['bobot_nilai'] ?? 1))),
                 ]);
 
                 $updates = [];
 
-                $saveFile = function ($file, $columnName, $prefixName) use ($soal) {
-                    if (!$file) return null;
-                    $ext = $file->getClientOriginalExtension();
-                    $datetime = now()->format('Ymd_His');
-                    $fileName = "{$prefixName}_{$datetime}_{$soal->id}.{$ext}";
-                    $destinationPath = public_path("media/soal/{$soal->id}/{$columnName}");
-                    if (!File::exists($destinationPath)) {
-                        File::makeDirectory($destinationPath, 0755, true);
+                // Gambar pertanyaan
+                if (in_array($modePertanyaan, ['gambar', 'keduanya'])) {
+                    if ($request->hasFile("soal.{$index}.visual_pertanyaan")) {
+                        $updates['visual_pertanyaan'] = $this->saveSoalImage(
+                            $request->file("soal.{$index}.visual_pertanyaan"),
+                            $soal, 'visual_pertanyaan', 'pertanyaan'
+                        );
                     }
-                    $file->move($destinationPath, $fileName);
-                    return "media/soal/{$soal->id}/{$columnName}/{$fileName}";
-                };
-
-                if ($request->hasFile("soal.{$index}.visual_pertanyaan")) {
-                    $updates['visual_pertanyaan'] = $saveFile(
-                        $request->file("soal.{$index}.visual_pertanyaan"),
-                        'visual_pertanyaan',
-                        'pertanyaan'
-                    );
                 }
 
-                foreach (['A', 'B', 'C', 'D'] as $abjad) {
-                    $lowerAbjad = strtolower($abjad);
-                    if ($request->hasFile("soal.{$index}.opsi.{$abjad}.visual")) {
-                        $updates["visual_jawaban_{$lowerAbjad}"] = $saveFile(
-                            $request->file("soal.{$index}.opsi.{$abjad}.visual"),
-                            "visual_jawaban_{$lowerAbjad}",
-                            "jawab_{$lowerAbjad}"
-                        );
+                // Gambar jawaban A–E
+                foreach (['a', 'b', 'c', 'd', 'e'] as $ab) {
+                    $modeJawaban = $item["mode_jawaban_{$ab}"] ?? 'text';
+                    if (in_array($modeJawaban, ['gambar', 'keduanya'])) {
+                        $fileKey = "soal.{$index}.visual_jawaban_{$ab}";
+                        if ($request->hasFile($fileKey)) {
+                            $updates["visual_jawaban_{$ab}"] = $this->saveSoalImage(
+                                $request->file($fileKey),
+                                $soal, "visual_jawaban_{$ab}", "jawab_{$ab}"
+                            );
+                        }
                     }
                 }
 
@@ -289,18 +329,30 @@ class PembelajaranPengajarControllers extends Controller
 
             DB::commit();
             return response()->json([
-                'success' => true,
-                'message' => 'Tes berhasil diterbitkan dengan kode: ' . $tes->kode_tes,
-                'redirect' => route('pembelajaran.pengajar.kelola')
+                'success'  => true,
+                'message'  => 'Tes berhasil diterbitkan dengan kode: ' . $tes->kode_tes,
+                'redirect' => route('pembelajaran.pengajar.kelola'),
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Ambil teks jawaban berdasarkan mode.
+     * Jika mode = 'gambar', teks dikosongkan (null).
+     */
+    private function resolveJawabanTeks(array $item, string $ab): ?string
+    {
+        $mode = $item["mode_jawaban_{$ab}"] ?? 'text';
+        if (in_array($mode, ['text', 'keduanya'])) {
+            return $item["jawaban_{$ab}"] ?? null;
+        }
+        return null;
     }
 
     /**
@@ -316,65 +368,184 @@ class PembelajaranPengajarControllers extends Controller
     }
 
     /**
-     * Update Data
+     * Update Header Tes (Opsi: "Edit Tes")
+     *
+     * Hanya memperbarui data pada tabel tes_pengetahuan (+ judul pada tipe_soal).
+     * Tidak menyentuh data soal. Jika kategori berubah, seluruh soal yang
+     * terhubung lewat tipe_soal_id ikut dipindahkan agar relasi tetap konsisten.
      */
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'kategori_id' => 'required|exists:kategori_tes,id',
-            'judul_tes' => 'required|string|max:255',
-            'batas_waktu' => 'required|integer|min:1',
-            'soal' => 'required|array|min:1',
+            'kategori_tes_id' => 'required|exists:kategori_tes,id',
+            'pelajaran'       => 'required|string|max:255',
+            'batas_waktu'     => 'required|integer|min:1',
+            'is_paid'         => 'required|in:0,1',
+            'status'          => 'required|in:0,1',
+        ], [
+            'kategori_tes_id.required' => 'Kategori tes wajib dipilih.',
+            'pelajaran.required'       => 'Judul / nama tes wajib diisi.',
+            'batas_waktu.required'     => 'Batas waktu wajib diisi.',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $tes = TesPengetahuan::findOrFail($id);
+            $tipeSoalId = $tes->tipe_soal_id;
+            $kategoriLama = $tes->kategori_tes_id;
+            $kategoriBaru = (int) $validated['kategori_tes_id'];
+
+            // Judul tes disimpan juga sebagai title pada grup tipe_soal.
+            if ($tipeSoalId) {
+                TipeSoal::where('id', $tipeSoalId)->update(['title' => $validated['pelajaran']]);
+            }
+
+            $tes->update([
+                'kategori_tes_id' => $kategoriBaru,
+                'pelajaran'       => $validated['pelajaran'],
+                'batas_waktu'     => $validated['batas_waktu'],
+                'is_paid'         => (int) $validated['is_paid'],
+                'status'          => (int) $validated['status'],
+            ]);
+
+            // Jika kategori berubah, pindahkan semua soal terkait agar relasi
+            // (tipe_soal_id + kategori_tes_id) tetap menemukan soal yang benar.
+            if ($tipeSoalId && $kategoriLama != $kategoriBaru) {
+                Soal::where('tipe_soal_id', $tipeSoalId)
+                    ->where('kategori_tes_id', $kategoriLama)
+                    ->update(['kategori_tes_id' => $kategoriBaru]);
+            }
+
+            // Sinkron ulang total_soal & total_bobot.
+            $tes->rekalkulasiBobot();
+
+            DB::commit();
+            return response()->json([
+                'success'  => true,
+                'message'  => 'Data tes berhasil diperbarui!',
+                'redirect' => route('pembelajaran.pengajar.kelola'),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Ambil daftar soal milik sebuah tes (JSON) untuk modal "Edit Soal".
+     * Kembalikan visual_* agar front-end dapat menampilkan pratinjau.
+     */
+    public function getSoal($id)
+    {
+        $tes = TesPengetahuan::findOrFail($id);
+
+        $soal = Soal::where('tipe_soal_id', $tes->tipe_soal_id)
+            ->where('kategori_tes_id', $tes->kategori_tes_id)
+            ->orderBy('id')
+            ->get([
+                'id', 'pertanyaan', 'visual_pertanyaan',
+                'jawaban_a', 'jawaban_b', 'jawaban_c', 'jawaban_d', 'jawaban_e',
+                'visual_jawaban_a', 'visual_jawaban_b', 'visual_jawaban_c',
+                'visual_jawaban_d', 'visual_jawaban_e',
+                'jawaban_benar', 'bobot_nilai',
+            ]);
+
+        // Tambahkan URL lengkap untuk gambar yang ada
+        $soal = $soal->map(function ($s) {
+            $base = rtrim(config('app.url'), '/') . '/';
+            foreach (['visual_pertanyaan', 'visual_jawaban_a', 'visual_jawaban_b', 'visual_jawaban_c', 'visual_jawaban_d', 'visual_jawaban_e'] as $col) {
+                if ($s->$col) {
+                    $s->setAttribute($col . '_url', $base . $s->$col);
+                } else {
+                    $s->setAttribute($col . '_url', null);
+                }
+            }
+            return $s;
+        });
+
+        return response()->json([
+            'success' => true,
+            'tes'     => [
+                'id'        => $tes->id,
+                'pelajaran' => $tes->pelajaran,
+                'kode_tes'  => $tes->kode_tes,
+            ],
+            'soal'    => $soal,
+        ]);
+    }
+
+    /**
+     * Update Soal (Edit Soal).
+     *
+     * Bug sebelumnya: iterasi lewat $validated['soal'] yang hanya berisi field
+     * yang ada di rules → jawaban_a..e & id terbuang, soal selalu dibuat baru.
+     *
+     * Fix: ambil data soal langsung dari $request->input('soal') agar semua
+     * field (termasuk jawaban_a..e dan id) tersimpan.
+     * Gambar disimpan ke disk public_folder mengikuti konvensi Filament.
+     */
+    public function updateSoal(Request $request, $id)
+    {
+        $request->validate([
+            'soal'                 => 'required|array|min:1',
+            'soal.*.jawaban_benar' => 'required|string|max:2',
+            'soal.*.bobot_nilai'   => 'nullable|integer|min:1|max:5',
+        ], [
+            'soal.required'              => 'Minimal harus ada satu soal.',
+            'soal.*.jawaban_benar.required' => 'Kunci jawaban pada setiap soal wajib dipilih.',
         ]);
 
         DB::beginTransaction();
         try {
             $pengajarId = auth()->id();
-            $tes = TesPengetahuan::findOrFail($id);
+            $tes        = TesPengetahuan::findOrFail($id);
             $tipeSoalId = $tes->tipe_soal_id;
-
-            // 1. Update Header
-            TipeSoal::where('id', $tipeSoalId)->update(['title' => $validated['judul_tes']]);
-            $tes->update([
-                'kategori_tes_id' => $validated['kategori_id'],
-                'pelajaran' => $validated['judul_tes'],
-                'total_soal' => count($validated['soal']),
-                'batas_waktu' => $validated['batas_waktu'],
-            ]);
+            $kategoriId = $tes->kategori_tes_id;
 
             $soalIdsDariForm = [];
-            $soalArray = $request->all()['soal'] ?? [];
 
-            $saveFile = function ($file, $soalId, $columnName, $prefixName) {
-                if (!$file) return null;
-                $ext = $file->getClientOriginalExtension();
-                $fileName = "{$prefixName}_" . now()->format('Ymd_His') . "_{$soalId}.{$ext}";
-                $destinationPath = public_path("media/soal/{$soalId}/{$columnName}");
-                if (!File::exists($destinationPath)) File::makeDirectory($destinationPath, 0755, true);
-                $file->move($destinationPath, $fileName);
-                return "media/soal/{$soalId}/{$columnName}/{$fileName}";
-            };
-
-            foreach ($soalArray as $index => $itemSoal) {
-                $soalIdLama = $itemSoal['id'] ?? null;
+            // *** Ambil dari $request->input() agar jawaban_a..e tidak terbuang ***
+            foreach ($request->input('soal', []) as $index => $item) {
+                $soalIdLama     = $item['id'] ?? null;
+                $modePertanyaan = $item['mode_pertanyaan'] ?? 'text';
 
                 $dataSoal = [
-                    'user_id' => $pengajarId,
-                    'pengajar_id' => $pengajarId,
-                    'tipe_soal_id' => $tipeSoalId,
-                    'kategori_tes_id' => $validated['kategori_id'],
-                    'pertanyaan' => $itemSoal['pertanyaan'] ?? null,
-                    'jawaban_a' => $itemSoal['opsi']['A']['teks'] ?? null,
-                    'jawaban_b' => $itemSoal['opsi']['B']['teks'] ?? null,
-                    'jawaban_c' => $itemSoal['opsi']['C']['teks'] ?? null,
-                    'jawaban_d' => $itemSoal['opsi']['D']['teks'] ?? null,
-                    'jawaban_benar' => strtoupper($itemSoal['jawaban_benar']),
-                    'bobot_nilai' => (int) ($itemSoal['bobot_nilai'] ?? 1),
+                    'user_id'         => $pengajarId,
+                    'pengajar_id'     => $pengajarId,
+                    'tipe_soal_id'    => $tipeSoalId,
+                    'kategori_tes_id' => $kategoriId,
+                    'pertanyaan'      => in_array($modePertanyaan, ['text', 'keduanya']) ? ($item['pertanyaan'] ?? null) : null,
+                    'jawaban_a'       => $this->resolveJawabanTeks($item, 'a'),
+                    'jawaban_b'       => $this->resolveJawabanTeks($item, 'b'),
+                    'jawaban_c'       => $this->resolveJawabanTeks($item, 'c'),
+                    'jawaban_d'       => $this->resolveJawabanTeks($item, 'd'),
+                    'jawaban_e'       => $this->resolveJawabanTeks($item, 'e'),
+                    'jawaban_benar'   => strtoupper($item['jawaban_benar'] ?? 'A'),
+                    'bobot_nilai'     => max(1, min(5, (int) ($item['bobot_nilai'] ?? 1))),
                 ];
 
                 if ($soalIdLama) {
                     $soal = Soal::find($soalIdLama);
                     if ($soal) {
+                        // Hapus gambar visual_pertanyaan jika mode berubah ke 'text'
+                        if ($modePertanyaan === 'text' && $soal->visual_pertanyaan) {
+                            $this->deleteSoalImage($soal->visual_pertanyaan);
+                            $dataSoal['visual_pertanyaan'] = null;
+                        }
+                        // Hapus gambar jawaban jika mode berubah ke 'text'
+                        foreach (['a', 'b', 'c', 'd', 'e'] as $ab) {
+                            $modeJ = $item["mode_jawaban_{$ab}"] ?? 'text';
+                            if ($modeJ === 'text') {
+                                $col = "visual_jawaban_{$ab}";
+                                if ($soal->$col) {
+                                    $this->deleteSoalImage($soal->$col);
+                                    $dataSoal[$col] = null;
+                                }
+                            }
+                        }
                         $soal->update($dataSoal);
                         $soalIdsDariForm[] = $soal->id;
                     }
@@ -383,50 +554,72 @@ class PembelajaranPengajarControllers extends Controller
                     $soalIdsDariForm[] = $soal->id;
                 }
 
-                $updatesGambar = [];
-                if ($request->hasFile("soal.{$index}.visual_pertanyaan")) {
-                    if ($soal->visual_pertanyaan && File::exists(public_path($soal->visual_pertanyaan))) {
-                        File::delete(public_path($soal->visual_pertanyaan));
-                    }
-                    $updatesGambar['visual_pertanyaan'] = $saveFile($request->file("soal.{$index}.visual_pertanyaan"), $soal->id, 'visual_pertanyaan', 'pertanyaan');
-                }
+                // Proses upload gambar
+                $updates = [];
 
-                foreach (['A', 'B', 'C', 'D'] as $abjad) {
-                    $low = strtolower($abjad);
-                    if ($request->hasFile("soal.{$index}.opsi.{$abjad}.visual")) {
-                        $kolomGambar = "visual_jawaban_{$low}";
-                        if ($soal->$kolomGambar && File::exists(public_path($soal->$kolomGambar))) {
-                            File::delete(public_path($soal->$kolomGambar));
+                // Gambar pertanyaan
+                if (in_array($modePertanyaan, ['gambar', 'keduanya'])) {
+                    if ($request->hasFile("soal.{$index}.visual_pertanyaan")) {
+                        // Hapus lama jika ada
+                        if ($soal->visual_pertanyaan) {
+                            $this->deleteSoalImage($soal->visual_pertanyaan);
                         }
-                        $updatesGambar[$kolomGambar] = $saveFile($request->file("soal.{$index}.opsi.{$abjad}.visual"), $soal->id, $kolomGambar, "jawab_{$low}");
+                        $updates['visual_pertanyaan'] = $this->saveSoalImage(
+                            $request->file("soal.{$index}.visual_pertanyaan"),
+                            $soal, 'visual_pertanyaan', 'pertanyaan'
+                        );
                     }
                 }
 
-                if (!empty($updatesGambar)) {
-                    $soal->update($updatesGambar);
+                // Gambar jawaban A–E
+                foreach (['a', 'b', 'c', 'd', 'e'] as $ab) {
+                    $modeJ = $item["mode_jawaban_{$ab}"] ?? 'text';
+                    if (in_array($modeJ, ['gambar', 'keduanya'])) {
+                        $fileKey = "soal.{$index}.visual_jawaban_{$ab}";
+                        if ($request->hasFile($fileKey)) {
+                            $col = "visual_jawaban_{$ab}";
+                            if ($soal->$col) {
+                                $this->deleteSoalImage($soal->$col);
+                            }
+                            $updates[$col] = $this->saveSoalImage(
+                                $request->file($fileKey),
+                                $soal, $col, "jawab_{$ab}"
+                            );
+                        }
+                    }
+                }
+
+                if (!empty($updates)) {
+                    $soal->update($updates);
                 }
             }
 
-            // Hapus soal yang tidak ada di payload
-            $soalDihapus = Soal::where('tipe_soal_id', $tipeSoalId)->whereNotIn('id', $soalIdsDariForm)->get();
+            // Hapus soal yang tidak lagi ada di payload (beserta media-nya).
+            $soalDihapus = Soal::where('tipe_soal_id', $tipeSoalId)
+                ->where('kategori_tes_id', $kategoriId)
+                ->whereNotIn('id', $soalIdsDariForm)
+                ->get();
             foreach ($soalDihapus as $sDel) {
-                $path = public_path("media/soal/{$sDel->id}");
-                if (File::exists($path)) File::deleteDirectory($path);
+                // Hapus semua gambar terkait
+                foreach (['visual_pertanyaan', 'visual_jawaban_a', 'visual_jawaban_b', 'visual_jawaban_c', 'visual_jawaban_d', 'visual_jawaban_e'] as $col) {
+                    $this->deleteSoalImage($sDel->$col);
+                }
                 $sDel->delete();
             }
 
+            $tes->rekalkulasiBobot();
+
             DB::commit();
             return response()->json([
-                'success' => true,
-                'message' => 'Tes berhasil diperbarui!',
-                'redirect' => route('pembelajaran.pengajar.kelola')
+                'success'  => true,
+                'message'  => 'Soal berhasil diperbarui!',
+                'redirect' => route('pembelajaran.pengajar.kelola'),
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
             ], 500);
         }
     }
