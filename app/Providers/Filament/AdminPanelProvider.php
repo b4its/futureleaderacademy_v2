@@ -31,12 +31,17 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->brandName('Admin Panel')
             ->login()
+            ->globalSearch(false)
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label('Edit Profile')
                     ->icon('heroicon-o-user-circle')    
                     ->url('#edit-profile'),
             ])
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn () => view('filament.hooks.halaman-utama-button'),
+            )
             ->renderHook(
                 'panels::body.end',
                 fn (): string => Blade::render('@livewire(\App\Livewire\EditProfileModal::class)')

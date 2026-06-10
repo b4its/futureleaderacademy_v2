@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements HasAvatar
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -34,6 +35,17 @@ class User extends Authenticatable
     public function profile(): HasOne
     {
         return $this->hasOne(Profile::class);
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        // Cek apakah user memiliki relasi profile dan gambarnya tidak null
+        if ($this->profile && $this->profile->gambar) {
+            return asset('storage/' . $this->profile->gambar);
+        }
+
+        // Return null agar Filament otomatis membuat avatar inisial nama (fallback)
+        return null; 
     }
 
     protected static function booted(): void

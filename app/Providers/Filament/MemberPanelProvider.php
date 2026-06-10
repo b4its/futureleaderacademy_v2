@@ -29,9 +29,14 @@ class MemberPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/member/theme.css')
             ->brandName('Member Panel')
             ->login()
+            ->globalSearch(false)
             ->colors([
                 'primary' => Color::Orange,
             ])
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn () => view('filament.hooks.halaman-utama-button'),
+            )
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Kembali ke Pembelajaran')

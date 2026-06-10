@@ -406,7 +406,7 @@ $visuals = [
                         </div>
                         <div class="upload-sm" id="drop_${index}_${prefix}" style="display:none;">
                             <i class="fas fa-upload" style="margin-right:6px;"></i> Upload Gambar
-                            <input type="file" name="soal[${index}][${prefix}]" id="inp_img_${index}_${prefix}"
+                            <input type="file" name="soal[${index}][visual_${prefix}]" id="inp_img_${index}_${prefix}"
                                 accept="image/*" onchange="uploadPreview(this,'prev_${index}_${prefix}','drop_${index}_${prefix}')">
                         </div>`
                         :
@@ -416,7 +416,7 @@ $visuals = [
                         </div>
                         <div class="upload-sm" id="drop_${index}_${prefix}">
                             <i class="fas fa-upload" style="margin-right:6px;"></i> Upload Gambar
-                            <input type="file" name="soal[${index}][${prefix}]" id="inp_img_${index}_${prefix}"
+                            <input type="file" name="soal[${index}][visual_${prefix}]" id="inp_img_${index}_${prefix}"
                                 accept="image/*" onchange="uploadPreview(this,'prev_${index}_${prefix}','drop_${index}_${prefix}')" ${!isGambar ? 'disabled' : ''}>
                         </div>`
                     }

@@ -209,19 +209,19 @@ class PembelajaranPengajarControllers extends Controller
         $fileName = "{$prefixName}_{$datetime}_{$soal->id}.{$ext}";
         $dir      = "media/soal/{$soal->id}/{$columnName}";
 
-        // Simpan via disk public_folder (root = public_path())
-        Storage::disk('public_folder')->putFileAs($dir, $file, $fileName);
+        // Pindahkan native ke public_path() agar langsung masuk folder public
+        $file->move(public_path($dir), $fileName);
 
         return "{$dir}/{$fileName}";
     }
 
     /**
-     * Helper: hapus file gambar soal dari disk public_folder.
+     * Helper: hapus file gambar soal dari folder public.
      */
     private function deleteSoalImage(?string $path): void
     {
-        if ($path && Storage::disk('public_folder')->exists($path)) {
-            Storage::disk('public_folder')->delete($path);
+        if ($path && file_exists(public_path($path))) {
+            unlink(public_path($path));
         }
     }
 

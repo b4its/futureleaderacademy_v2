@@ -138,7 +138,12 @@ $visuals = [
         
         <div class="profile-card">
             <div class="css-avatar">
-                <div class="css-avatar-inner"></div>
+                {{-- Cek apakah user login DAN memiliki gambar di profile --}}
+                @if(auth()->check() && auth()->user()->profile?->gambar)
+                    <img src="{{ asset('storage/' . auth()->user()->profile->gambar) }}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                @else
+                    <div class="css-avatar-inner"></div>
+                @endif
                 <div class="css-avatar-status"></div>
             </div>
             <div class="profile-info">
@@ -146,6 +151,7 @@ $visuals = [
                 <div class="profile-name">{{ auth()->check() ? auth()->user()->name : 'Guest' }}</div>
             </div>
         </div>
+        
     </section>
 
     @foreach($kategoriTes as $kategori)

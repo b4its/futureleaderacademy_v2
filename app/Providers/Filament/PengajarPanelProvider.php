@@ -28,9 +28,14 @@ class PengajarPanelProvider extends PanelProvider
             ->path('pengajar')
             ->brandName('Pengajar Panel')
             ->login()
+            ->globalSearch(false)
             ->colors([
                 'primary' => Color::Emerald,
             ])
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn () => view('filament.hooks.halaman-utama-button'),
+            )
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Pembelajaran Pengajar')

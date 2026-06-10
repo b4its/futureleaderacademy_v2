@@ -25,13 +25,13 @@ class ProfileControllers extends Controller
     /**
      * Update profile.
      */
-    public function update(Request $request)
+public function update(Request $request)
     {
         $user = Auth::user();
 
         $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'first_name' => 'nullable|string|max:100',
             'last_name' => 'nullable|string|max:100',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
@@ -45,7 +45,7 @@ class ProfileControllers extends Controller
 
         $request->validate($rules);
 
-        // Update user fields
+        // Update user fields (Name & Email adalah required, pasti akan selalu terisi)
         $user->name = $request->name;
         $user->email = $request->email;
 
@@ -77,10 +77,22 @@ class ProfileControllers extends Controller
             $profile->gambar = $path;
         }
 
-        $profile->first_name = $request->first_name;
-        $profile->last_name = $request->last_name;
+        // Gunakan $request->filled() agar data lama tidak tertimpa null jika form dikosongkan
+        if ($request->filled('name')) {
+            $user->name = $request->name;
+        }
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
+        if ($request->filled('first_name')) {
+            $profile->first_name = $request->first_name;
+        }
 
-        if ($user->role === 'pengajar') {
+        if ($request->filled('last_name')) {
+            $profile->last_name = $request->last_name;
+        }
+
+        if ($user->role === 'pengajar' && $request->filled('bidang_ilmu')) {
             $profile->bidang_ilmu = $request->bidang_ilmu;
         }
 
