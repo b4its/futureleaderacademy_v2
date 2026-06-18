@@ -42,6 +42,9 @@ class User extends Authenticatable implements HasAvatar
         // Cek apakah user memiliki relasi profile dan gambarnya tidak null
         if ($this->profile && $this->profile->gambar) {
             return asset('storage/' . $this->profile->gambar);
+        }else {
+            return asset('assets/default_user.webp');
+
         }
 
         // Return null agar Filament otomatis membuat avatar inisial nama (fallback)

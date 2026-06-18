@@ -245,7 +245,13 @@ class PembelajaranPengajarControllers extends Controller
             'batas_waktu'  => 'required|integer|min:1',
             'soal'         => 'required|array|min:1',
             'soal.*.jawaban_benar' => 'required|string|max:2',
-            'soal.*.bobot_nilai'   => 'nullable|integer|min:1|max:5',
+            'soal.*.bobot_nilai'   => 'nullable|integer|min:0|max:5',
+            'soal.*.mekanisme_jawaban' => 'nullable|in:bobot_soal,bobot_jawaban',
+            'soal.*.bobot_jawaban_a'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_b'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_c'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_d'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_e'   => 'nullable|integer|min:0|max:5',
         ], [
             'kategori_id.required' => 'Kategori tes wajib dipilih.',
             'judul_tes.required'   => 'Judul tes wajib diisi.',
@@ -293,7 +299,7 @@ class PembelajaranPengajarControllers extends Controller
                     'jawaban_d'       => $this->resolveJawabanTeks($item, 'd'),
                     'jawaban_e'       => $this->resolveJawabanTeks($item, 'e'),
                     'jawaban_benar'   => strtoupper($item['jawaban_benar'] ?? 'A'),
-                    'bobot_nilai'     => max(1, min(5, (int) ($item['bobot_nilai'] ?? 1))),
+                    ...$this->resolveMekanismeData($item),
                 ]);
 
                 $updates = [];
@@ -353,6 +359,38 @@ class PembelajaranPengajarControllers extends Controller
             return $item["jawaban_{$ab}"] ?? null;
         }
         return null;
+    }
+
+    /**
+     * Susun data penilaian (mekanisme + bobot) dari payload satu soal.
+     *
+     * Mendukung dua mekanisme:
+     * - bobot_soal    : memakai kolom bobot_nilai (1–5, default 1).
+     * - bobot_jawaban : memakai kolom bobot_jawaban_a..e (0–5 per pilihan).
+     */
+    private function resolveMekanismeData(array $item): array
+    {
+        $mekanisme = ($item['mekanisme_jawaban'] ?? Soal::MEKANISME_BOBOT_SOAL) === Soal::MEKANISME_BOBOT_JAWABAN
+            ? Soal::MEKANISME_BOBOT_JAWABAN
+            : Soal::MEKANISME_BOBOT_SOAL;
+
+        $data = ['mekanisme_jawaban' => $mekanisme];
+
+        if ($mekanisme === Soal::MEKANISME_BOBOT_JAWABAN) {
+            // Setiap pilihan punya bobot sendiri (0–5). bobot_nilai tidak dipakai.
+            $data['bobot_nilai'] = 0;
+            foreach (['a', 'b', 'c', 'd', 'e'] as $ab) {
+                $data["bobot_jawaban_{$ab}"] = max(0, min(5, (int) ($item["bobot_jawaban_{$ab}"] ?? 0)));
+            }
+        } else {
+            // Mekanisme lama: satu bobot untuk seluruh soal (1–5).
+            $data['bobot_nilai'] = max(1, min(5, (int) ($item['bobot_nilai'] ?? 1)));
+            foreach (['a', 'b', 'c', 'd', 'e'] as $ab) {
+                $data["bobot_jawaban_{$ab}"] = 0;
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -451,6 +489,9 @@ class PembelajaranPengajarControllers extends Controller
                 'visual_jawaban_a', 'visual_jawaban_b', 'visual_jawaban_c',
                 'visual_jawaban_d', 'visual_jawaban_e',
                 'jawaban_benar', 'bobot_nilai',
+                'mekanisme_jawaban',
+                'bobot_jawaban_a', 'bobot_jawaban_b', 'bobot_jawaban_c',
+                'bobot_jawaban_d', 'bobot_jawaban_e',
             ]);
 
         // Tambahkan URL lengkap untuk gambar yang ada
@@ -492,7 +533,13 @@ class PembelajaranPengajarControllers extends Controller
         $request->validate([
             'soal'                 => 'required|array|min:1',
             'soal.*.jawaban_benar' => 'required|string|max:2',
-            'soal.*.bobot_nilai'   => 'nullable|integer|min:1|max:5',
+            'soal.*.bobot_nilai'   => 'nullable|integer|min:0|max:5',
+            'soal.*.mekanisme_jawaban' => 'nullable|in:bobot_soal,bobot_jawaban',
+            'soal.*.bobot_jawaban_a'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_b'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_c'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_d'   => 'nullable|integer|min:0|max:5',
+            'soal.*.bobot_jawaban_e'   => 'nullable|integer|min:0|max:5',
         ], [
             'soal.required'              => 'Minimal harus ada satu soal.',
             'soal.*.jawaban_benar.required' => 'Kunci jawaban pada setiap soal wajib dipilih.',
@@ -524,7 +571,7 @@ class PembelajaranPengajarControllers extends Controller
                     'jawaban_d'       => $this->resolveJawabanTeks($item, 'd'),
                     'jawaban_e'       => $this->resolveJawabanTeks($item, 'e'),
                     'jawaban_benar'   => strtoupper($item['jawaban_benar'] ?? 'A'),
-                    'bobot_nilai'     => max(1, min(5, (int) ($item['bobot_nilai'] ?? 1))),
+                    ...$this->resolveMekanismeData($item),
                 ];
 
                 if ($soalIdLama) {

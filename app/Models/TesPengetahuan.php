@@ -64,7 +64,7 @@ class TesPengetahuan extends Model
             ->where('tipe_soal_id', $this->tipe_soal_id);
 
         $this->total_soal = $query->count();
-        $this->total_bobot = (int) $query->sum('bobot_nilai');
+        $this->total_bobot = Soal::hitungTotalBobot($this->kategori_tes_id, $this->tipe_soal_id);
         $this->save();
     }
 }

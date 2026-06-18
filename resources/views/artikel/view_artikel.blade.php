@@ -187,7 +187,7 @@ img { max-width: 100%; border-radius: 16px; }
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
         @foreach($relatedArtikels as $related)
         <a href="{{ route('artikel.show', $related->id) }}" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; display: block;">
-          <img src="{{ $related->gambar ? asset('storage/' . $related->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="{{ $related->title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 0;">
+          <img src="{{ $related->gambar ? asset($related->gambar) : 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="{{ $related->title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 0;">
           <div style="padding: 20px;">
             <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.4;">{{ $related->title }}</h4>
             <p style="font-size: 14px; color: var(--text-muted); margin: 0;">{{ Str::limit(strip_tags($related->description), 80) }}</p>

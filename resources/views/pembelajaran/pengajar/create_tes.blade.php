@@ -139,13 +139,26 @@
         updateTotalBobot();
     }
 
-    // Menghitung akumulasi seluruh bobot_nilai yang diinput
+    // Menghitung akumulasi skor maksimal seluruh soal (sesuai mekanisme tiap soal)
     function updateTotalBobot() {
-        const inputs = document.querySelectorAll('select[name$="[bobot_nilai]"]');
         let total = 0;
-        inputs.forEach((input) => {
-            total += parseInt(input.value) || 0;
+        document.querySelectorAll('.soal-card').forEach((card) => {
+            const mekanismeSelect = card.querySelector('.mekanisme-select');
+            const mekanisme = mekanismeSelect ? mekanismeSelect.value : 'bobot_soal';
+
+            if (mekanisme === 'bobot_jawaban') {
+                // Skor maksimal soal = bobot pilihan tertinggi.
+                let maxBobot = 0;
+                card.querySelectorAll('.bobot-jawaban-select').forEach((sel) => {
+                    maxBobot = Math.max(maxBobot, parseInt(sel.value) || 0);
+                });
+                total += maxBobot;
+            } else {
+                const bobotSelect = card.querySelector('.bobot-nilai-select');
+                total += bobotSelect ? (parseInt(bobotSelect.value) || 0) : 0;
+            }
         });
+
         const display = document.getElementById('totalBobotDisplay');
         if (display) {
             display.textContent = total;
@@ -153,9 +166,29 @@
         }
     }
 
-    // Update total bobot setiap kali nilai bobot diubah
+    // Tampilkan/sembunyikan kontrol bobot sesuai mekanisme yang dipilih.
+    function toggleMekanisme(index, value) {
+        const card = document.getElementById(`soal_${index}`);
+        if (!card) return;
+
+        const isPerJawaban = value === 'bobot_jawaban';
+
+        const bobotSoalWrap = card.querySelector(`.bobot-soal-wrap[data-soal="${index}"]`);
+        if (bobotSoalWrap) bobotSoalWrap.style.display = isPerJawaban ? 'none' : 'inline-flex';
+
+        card.querySelectorAll(`.bobot-jawaban-wrap[data-soal="${index}"]`).forEach((wrap) => {
+            wrap.style.display = isPerJawaban ? 'inline-flex' : 'none';
+        });
+
+        updateTotalBobot();
+    }
+
+    // Update total bobot setiap kali nilai bobot / mekanisme diubah
     soalCanvas.addEventListener('change', (e) => {
-        if (e.target.name && e.target.name.endsWith('[bobot_nilai]')) {
+        if (!e.target.name) return;
+        if (e.target.name.endsWith('[bobot_nilai]')
+            || e.target.name.endsWith('[mekanisme_jawaban]')
+            || /\[bobot_jawaban_[a-e]\]$/.test(e.target.name)) {
             updateTotalBobot();
         }
     });
@@ -165,7 +198,9 @@
         const index = uniqueIdCounter;
         const visualNumber = document.querySelectorAll('.soal-card').length + 1;
         
-        const bobotOptions = [1,2,3,4,5].map(v => `<option value="${v}"${v===1?' selected':''}>Bobot ${v}</option>`).join('');
+        const bobotOptions = [0,1,2,3,4,5].map(v => `<option value="${v}"${v===1?' selected':''}>Bobot ${v}</option>`).join('');
+        const bobotJawabanOptions = [0,1,2,3,4,5].map(v => `<option value="${v}"${v===0?' selected':''}>${v}</option>`).join('');
+        const currentMekanisme = 'bobot_soal';
 
         const opsiItems = ['a','b','c','d','e'].map((ab) => {
             const AB = ab.toUpperCase();
@@ -175,6 +210,13 @@
                         <div class="opsi-radio-wrap">
                             <input type="radio" name="soal[${index}][jawaban_benar]" value="${AB}" class="opsi-radio" ${ab === 'a' ? 'checked required' : ''}>
                             <span style="font-weight:800; color:#475569;">Pilihan ${AB}</span>
+                        </div>
+                        <div class="bobot-jawaban-wrap" data-soal="${index}" style="display:none; align-items:center; gap:6px;">
+                            <label style="font-size:11px; font-weight:700; color:#64748b; margin:0;">Bobot</label>
+                            <select name="soal[${index}][bobot_jawaban_${ab}]" class="form-control bobot-jawaban-select" data-soal="${index}"
+                                style="width:64px; padding:4px 6px; font-size:12px;">
+                                ${bobotJawabanOptions}
+                            </select>
                         </div>
                     </div>
                     <input type="hidden" name="soal[${index}][mode_jawaban_${ab}]" id="mode_val_opt_${index}_${ab}" value="text">
@@ -211,12 +253,21 @@
             <div class="soal-card" id="soal_${index}">
                 <div class="soal-header">
                     <span class="soal-number">Soal #${visualNumber}</span>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <label style="font-size:12px; font-weight:700; color:#64748b;">Bobot</label>
-                        <select name="soal[${index}][bobot_nilai]" class="form-control"
-                            style="width:110px; padding:6px 10px; font-size:13px;">
-                            ${bobotOptions}
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <label style="font-size:12px; font-weight:700; color:#64748b;">Mekanisme</label>
+                        <select name="soal[${index}][mekanisme_jawaban]" class="form-control mekanisme-select" data-soal="${index}"
+                            style="width:170px; padding:6px 10px; font-size:13px;"
+                            onchange="toggleMekanisme(${index}, this.value)">
+                            <option value="bobot_soal"${currentMekanisme==='bobot_soal'?' selected':''}>Bobot Soal</option>
+                            <option value="bobot_jawaban"${currentMekanisme==='bobot_jawaban'?' selected':''}>Bobot per Jawaban</option>
                         </select>
+                        <span class="bobot-soal-wrap" data-soal="${index}" style="display:inline-flex; align-items:center; gap:8px;">
+                            <label style="font-size:12px; font-weight:700; color:#64748b;">Bobot</label>
+                            <select name="soal[${index}][bobot_nilai]" class="form-control bobot-nilai-select"
+                                style="width:110px; padding:6px 10px; font-size:13px;">
+                                ${bobotOptions}
+                            </select>
+                        </span>
                         <button type="button" class="btn-remove-soal" onclick="removeSoal(${index})" title="Hapus Soal">
                             <i class="fas fa-trash-alt"></i> Hapus
                         </button>

@@ -428,6 +428,8 @@ $visuals = [
     function soalRowTemplate(index, soal = {}) {
         const benar = (soal.jawaban_benar || 'A').toUpperCase();
         const bobot = soal.bobot_nilai || 1;
+        const mekanisme = soal.mekanisme_jawaban === 'bobot_jawaban' ? 'bobot_jawaban' : 'bobot_soal';
+        const isPerJawaban = mekanisme === 'bobot_jawaban';
 
         // Deteksi mode per kolom
         const modePertanyaan = soal.visual_pertanyaan_url
@@ -439,6 +441,10 @@ $visuals = [
             const txtVal = soal[`jawaban_${ab}`] || '';
             const imgUrl = soal[`visual_jawaban_${ab}_url`] || null;
             const modeJ  = imgUrl ? (txtVal ? 'keduanya' : 'gambar') : 'text';
+            const bobotJwb = parseInt(soal[`bobot_jawaban_${ab}`]) || 0;
+            const bobotJwbOptions = [0,1,2,3,4,5].map(v =>
+                `<option value="${v}" ${bobotJwb == v ? 'selected' : ''}>${v}</option>`
+            ).join('');
             return `
                 <div class="opsi-row">
                     <input type="radio" name="soal[${index}][jawaban_benar]" value="${AB}" ${benar === AB ? 'checked' : ''}>
@@ -446,10 +452,16 @@ $visuals = [
                     <div class="opsi-input-wrap">
                         ${fieldBlock(index, `jawaban_${ab}`, `Pilihan ${AB}`, txtVal, imgUrl, modeJ)}
                     </div>
+                    <div class="bobot-jawaban-wrap" data-soal="${index}" style="display:${isPerJawaban ? 'inline-flex' : 'none'};align-items:center;gap:4px;">
+                        <label style="font-size:11px;font-weight:700;color:#64748b;margin:0;">Bobot</label>
+                        <select class="form-control bobot-jawaban-select" name="soal[${index}][bobot_jawaban_${ab}]" style="width:60px;padding:4px 6px;font-size:12px;">
+                            ${bobotJwbOptions}
+                        </select>
+                    </div>
                 </div>`;
         }).join('');
 
-        const bobotOptions = [1,2,3,4,5].map(v =>
+        const bobotOptions = [0,1,2,3,4,5].map(v =>
             `<option value="${v}" ${bobot == v ? 'selected' : ''}>${v}</option>`
         ).join('');
 
@@ -457,11 +469,20 @@ $visuals = [
             <div class="soal-edit-card" id="soalRow_${index}">
                 <div class="soal-edit-head">
                     <span class="badge">Soal</span>
-                    <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <label style="font-size:12px;font-weight:700;color:#64748b;">Mekanisme</label>
+                        <select class="form-control mekanisme-select" name="soal[${index}][mekanisme_jawaban]" data-soal="${index}"
+                            style="width:160px;padding:6px 8px;font-size:13px;" onchange="toggleMekanismeRow(${index}, this.value)">
+                            <option value="bobot_soal" ${!isPerJawaban ? 'selected' : ''}>Bobot Soal</option>
+                            <option value="bobot_jawaban" ${isPerJawaban ? 'selected' : ''}>Bobot per Jawaban</option>
+                        </select>
+                        <span class="bobot-soal-wrap" data-soal="${index}" style="display:${isPerJawaban ? 'none' : 'inline-flex'};align-items:center;gap:8px;">
                         <label style="font-size:12px;font-weight:700;color:#64748b;">Bobot</label>
-                        <select class="form-control" name="soal[${index}][bobot_nilai]" style="width:70px;padding:6px 8px;font-size:13px;">
+                        <select class="form-control bobot-nilai-select" name="soal[${index}][bobot_nilai]" style="width:70px;padding:6px 8px;font-size:13px;">
+
                             ${bobotOptions}
                         </select>
+                        </span>
                         <button type="button" class="btn-remove-soal" onclick="removeSoalRow(${index})"><i class="fas fa-trash"></i> Hapus</button>
                     </div>
                 </div>
@@ -472,6 +493,21 @@ $visuals = [
                     ${opsiHtml}
                 </div>
             </div>`;
+    }
+
+    // Tampilkan/sembunyikan kontrol bobot pada modal edit soal sesuai mekanisme.
+    function toggleMekanismeRow(index, value) {
+        const card = document.getElementById(`soalRow_${index}`);
+        if (!card) return;
+
+        const isPerJawaban = value === 'bobot_jawaban';
+
+        const bobotSoalWrap = card.querySelector(`.bobot-soal-wrap[data-soal="${index}"]`);
+        if (bobotSoalWrap) bobotSoalWrap.style.display = isPerJawaban ? 'none' : 'inline-flex';
+
+        card.querySelectorAll(`.bobot-jawaban-wrap[data-soal="${index}"]`).forEach((wrap) => {
+            wrap.style.display = isPerJawaban ? 'inline-flex' : 'none';
+        });
     }
 
     function escapeHtml(str) {

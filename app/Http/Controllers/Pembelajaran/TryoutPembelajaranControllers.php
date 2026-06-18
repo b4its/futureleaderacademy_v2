@@ -134,9 +134,12 @@ class TryoutPembelajaranControllers extends Controller
         $jumlahBenar = 0;
         $jumlahSalah = 0;
         $jumlahKosong = 0;
-        $nilaiDiperoleh = 0; // Akumulasi bobot_nilai dari jawaban benar
+        $nilaiDiperoleh = 0; // Akumulasi skor dari jawaban member
 
-        // 4. Kalkulasi Nilai berdasarkan bobot_nilai per soal
+        // 4. Kalkulasi Nilai sesuai mekanisme penilaian masing-masing soal.
+        //    - bobot_soal    : benar = full bobot_nilai, salah = 0.
+        //    - bobot_jawaban : skor = bobot pilihan yang dipilih; "benar" dihitung
+        //                      bila member memilih pilihan dengan bobot tertinggi.
         if (is_array($jawabanUser)) {
             foreach ($jawabanUser as $soalId => $data) {
                 $soal = $soalList->get($soalId);
@@ -146,6 +149,20 @@ class TryoutPembelajaranControllers extends Controller
 
                     if (empty($jawabanPilihan)) {
                         $jumlahKosong++;
+                        continue;
+                    }
+
+                    if ($soal->mekanisme_jawaban === Soal::MEKANISME_BOBOT_JAWABAN) {
+                        $skor = $soal->skorUntukPilihan($jawabanPilihan);
+                        $nilaiDiperoleh += (float) $skor;
+
+                        // Dianggap benar bila memilih pilihan dengan bobot tertinggi.
+                        $skorMaks = (int) $soal->skor_maksimal;
+                        if ($skorMaks > 0 && $skor >= $skorMaks) {
+                            $jumlahBenar++;
+                        } else {
+                            $jumlahSalah++;
+                        }
                     } elseif (strtoupper($jawabanPilihan) === strtoupper($soal->jawaban_benar)) {
                         $jumlahBenar++;
                         // Tambahkan bobot soal ini ke nilai yang diperoleh
@@ -157,12 +174,12 @@ class TryoutPembelajaranControllers extends Controller
             }
         }
 
-        // 5. Total nilai = akumulasi bobot_nilai dari soal yang dijawab benar.
-        //    Skor maksimal tes = total_bobot (akumulasi seluruh bobot_nilai).
+        // 5. Total nilai = akumulasi skor dari jawaban member.
+        //    Skor maksimal tes = total_bobot (akumulasi skor maksimal tiap soal).
         //    Fallback: jika total_bobot belum tersedia, hitung langsung dari soal.
         $totalBobot = (int) $tesPengetahuan->total_bobot > 0
             ? (int) $tesPengetahuan->total_bobot
-            : (int) $soalList->sum('bobot_nilai');
+            : (int) $soalList->sum(fn ($s) => $s->skor_maksimal);
 
         $totalNilai = $nilaiDiperoleh;
 

@@ -28,8 +28,64 @@ class Soal extends Model
         'visual_jawaban_e',
         'jawaban_benar',
         'bobot_nilai',
+        'mekanisme_jawaban',
+        'bobot_jawaban_a',
+        'bobot_jawaban_b',
+        'bobot_jawaban_c',
+        'bobot_jawaban_d',
+        'bobot_jawaban_e',
         'total_bobot'  
     ];
+
+    /**
+     * Mekanisme penilaian yang didukung.
+     * - bobot_soal    : 1 bobot untuk seluruh soal (kolom bobot_nilai).
+     * - bobot_jawaban : tiap pilihan A–E punya bobot sendiri.
+     */
+    public const MEKANISME_BOBOT_SOAL = 'bobot_soal';
+    public const MEKANISME_BOBOT_JAWABAN = 'bobot_jawaban';
+
+    /**
+     * Skor maksimal yang dapat diperoleh dari soal ini.
+     * - bobot_soal    : sama dengan bobot_nilai.
+     * - bobot_jawaban : bobot tertinggi di antara pilihan A–E.
+     */
+    public function getSkorMaksimalAttribute(): int
+    {
+        if ($this->mekanisme_jawaban === self::MEKANISME_BOBOT_JAWABAN) {
+            return (int) max(
+                (int) $this->bobot_jawaban_a,
+                (int) $this->bobot_jawaban_b,
+                (int) $this->bobot_jawaban_c,
+                (int) $this->bobot_jawaban_d,
+                (int) $this->bobot_jawaban_e,
+            );
+        }
+
+        return (int) $this->bobot_nilai;
+    }
+
+    /**
+     * Skor yang diperoleh bila member memilih pilihan $huruf (A–E).
+     * - bobot_soal    : full bobot_nilai bila $huruf == jawaban_benar, selain itu 0.
+     * - bobot_jawaban : bobot dari pilihan yang dipilih.
+     */
+    public function skorUntukPilihan(?string $huruf): int
+    {
+        $huruf = strtoupper((string) $huruf);
+
+        if ($this->mekanisme_jawaban === self::MEKANISME_BOBOT_JAWABAN) {
+            $lower = strtolower($huruf);
+            if (in_array($lower, ['a', 'b', 'c', 'd', 'e'], true)) {
+                return (int) $this->{"bobot_jawaban_{$lower}"};
+            }
+            return 0;
+        }
+
+        return $huruf === strtoupper((string) $this->jawaban_benar)
+            ? (int) $this->bobot_nilai
+            : 0;
+    }
 
     /**
      * Saat soal disimpan/diubah/dihapus, hitung ulang total_soal & total_bobot
@@ -76,8 +132,25 @@ class Soal extends Model
             ->where('tipe_soal_id', $tipeSoalId);
 
         $tes->total_soal = $query->count();
-        $tes->total_bobot = (int) $query->sum('bobot_nilai');
+        $tes->total_bobot = self::hitungTotalBobot($kategoriTesId, $tipeSoalId);
         $tes->save();
+    }
+
+    /**
+     * Akumulasi skor maksimal seluruh soal pada pasangan kategori + tipe,
+     * dengan mempertimbangkan mekanisme penilaian masing-masing soal.
+     */
+    public static function hitungTotalBobot($kategoriTesId, $tipeSoalId): int
+    {
+        $soalList = self::where('kategori_tes_id', $kategoriTesId)
+            ->where('tipe_soal_id', $tipeSoalId)
+            ->get([
+                'mekanisme_jawaban', 'bobot_nilai',
+                'bobot_jawaban_a', 'bobot_jawaban_b', 'bobot_jawaban_c',
+                'bobot_jawaban_d', 'bobot_jawaban_e',
+            ]);
+
+        return (int) $soalList->sum(fn (Soal $soal) => $soal->skor_maksimal);
     }
 
     public function user(): BelongsTo

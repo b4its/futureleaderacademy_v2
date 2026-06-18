@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pengajar\PengajarSoals\Schemas;
 
 use App\Models\KategoriTes;
+use App\Models\Soal;
 use App\Models\TipeSoal;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -61,9 +62,22 @@ class PengajarSoalForm
                                 ->required(),
                         ]),
 
-                            Select::make('bobot_nilai')
-                                ->label('Kunci Jawaban Benar')
+                            ToggleButtons::make('mekanisme_jawaban')
+                                ->label('Mekanisme Penilaian Jawaban')
+                                ->helperText('Bobot Soal: 1 bobot untuk seluruh soal (benar = full). Bobot per Jawaban: tiap pilihan A–E punya bobot sendiri.')
                                 ->options([
+                                    Soal::MEKANISME_BOBOT_SOAL => 'Bobot Soal',
+                                    Soal::MEKANISME_BOBOT_JAWABAN => 'Bobot per Jawaban',
+                                ])
+                                ->default(Soal::MEKANISME_BOBOT_SOAL)
+                                ->inline()
+                                ->live()
+                                ->required(),
+
+                            Select::make('bobot_nilai')
+                                ->label('Bobot Nilai')
+                                ->options([
+                                    0 => 0,
                                     1 => 1,
                                     2 => 2,
                                     3 => 3,
@@ -71,7 +85,8 @@ class PengajarSoalForm
                                     5 => 5,
                                     ])
                                 ->default(1)
-                                ->required(),
+                                ->visible(fn (Get $get) => $get('mekanisme_jawaban') !== Soal::MEKANISME_BOBOT_JAWABAN)
+                                ->required(fn (Get $get) => $get('mekanisme_jawaban') !== Soal::MEKANISME_BOBOT_JAWABAN),
                     ]),
 
                 // SECTION 2: PERTANYAAN
@@ -153,8 +168,23 @@ class PengajarSoalForm
         $modeField = "mode_jawaban_{$lower}";
         $textField = "jawaban_{$lower}";
         $imageField = "visual_jawaban_{$lower}";
+        $bobotField = "bobot_jawaban_{$lower}";
 
         return Section::make("Pilihan {$letter}")->schema([
+            Select::make($bobotField)
+                ->label("Bobot Pilihan {$letter}")
+                ->options([
+                    0 => 0,
+                    1 => 1,
+                    2 => 2,
+                    3 => 3,
+                    4 => 4,
+                    5 => 5,
+                ])
+                ->default(0)
+                ->visible(fn (Get $get) => $get('mekanisme_jawaban') === Soal::MEKANISME_BOBOT_JAWABAN)
+                ->dehydrated(true),
+
             ToggleButtons::make($modeField)
                 ->label("Format Pilihan {$letter}")
                 ->options([

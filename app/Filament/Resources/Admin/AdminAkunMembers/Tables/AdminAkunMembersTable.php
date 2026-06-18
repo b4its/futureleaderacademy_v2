@@ -10,6 +10,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class AdminAkunMembersTable
 {
@@ -48,7 +49,28 @@ class AdminAkunMembersTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make()->modalHeading('Edit Member'),
+                EditAction::make()
+                ->modalHeading('Edit Member')
+                // Hapus tulisan "Model" di bawah ini, sisakan $record saja
+                ->using(function ($record, array $data): \Illuminate\Database\Eloquent\Model {
+                    return DB::transaction(function () use ($record, $data) {
+                        
+                        $profileData = $data['profile'] ?? [];
+                        unset($data['profile']);
+            
+                        $record->update($data);
+            
+                        if ($record->profile && !empty($profileData)) {
+                            $record->profile->update([
+                                'first_name' => $profileData['first_name'] ?? null,
+                                'last_name' => $profileData['last_name'] ?? null,
+                                'kelas_id' => $profileData['kelas_id'] ?? null,
+                            ]);
+                        }
+            
+                        return $record;
+                    });
+                }),
                 DeleteAction::make()
                     ->button()
                     ->color('danger')
