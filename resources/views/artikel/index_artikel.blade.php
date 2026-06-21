@@ -298,6 +298,9 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
   }
+
+  // Render rumus LaTeX pada excerpt setelah kartu dibuat.
+  if (window.renderMath) window.renderMath();
 });
 
 // ===================== UI INTERACTIONS =====================
@@ -323,5 +326,29 @@ window.addEventListener('scroll', () => {
 </script>
 
 @include('components.toastr')
+
+{{-- ===================== RENDER LaTeX / RUMUS (MathJax) ===================== --}}
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+  // Dipanggil setelah kartu artikel dirender (lihat blok DOMContentLoaded di atas).
+  window.renderMath = function () {
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      window.MathJax.typesetPromise().catch(function () {});
+    } else {
+      setTimeout(window.renderMath, 300);
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>

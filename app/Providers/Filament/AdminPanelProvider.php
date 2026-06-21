@@ -46,6 +46,10 @@ class AdminPanelProvider extends PanelProvider
                 'panels::body.end',
                 fn (): string => Blade::render('@livewire(\App\Livewire\EditProfileModal::class)')
             )
+            ->renderHook(
+                'panels::body.end',
+                fn () => view('filament.mathjax'),
+            )
             ->colors([
                 'primary' => Color::Amber,
             ])

@@ -233,6 +233,26 @@ function copyLink() {
 }
 </script>
 
+{{-- ===================== RENDER LaTeX / RUMUS MATEMATIKA (MathJax) ===================== --}}
+{{-- Mendukung notasi inline $...$ dan \( \), serta blok $$...$$ dan \[ \]. --}}
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,      // \$ tetap dianggap simbol dolar biasa
+      processEnvironments: true
+    },
+    options: {
+      // Jangan proses isi tag berikut (mis. blok kode tetap apa adanya)
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+      ignoreHtmlClass: 'tex2jax_ignore',
+      processHtmlClass: 'tex2jax_process'
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 @include('components.toastr')
 </body>
 </html>

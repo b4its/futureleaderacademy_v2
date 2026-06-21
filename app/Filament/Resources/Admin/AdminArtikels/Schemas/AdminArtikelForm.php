@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\Admin\AdminArtikels\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class AdminArtikelForm
@@ -60,6 +63,7 @@ class AdminArtikelForm
 
                 RichEditor::make('description')
                     ->label('Isi Artikel')
+                    ->helperText('Tulis rumus dengan LaTeX, contoh: $\frac{3}{8}$ atau $X > Y$. Lihat hasilnya di pratinjau bawah.')
                     ->toolbarButtons([
                         'bold',
                         'italic',
@@ -75,8 +79,18 @@ class AdminArtikelForm
                         'redo',
                         'undo',
                     ])
+                    ->live(onBlur: true)
                     ->columnSpanFull()
                     ->required(),
+
+                Placeholder::make('preview_latex')
+                    ->label('Pratinjau Rumus (LaTeX)')
+                    ->columnSpanFull()
+                    ->content(fn (Get $get): HtmlString => new HtmlString(
+                        '<div class="mathjax-preview" style="line-height:1.8; padding:12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff;">'
+                        . ($get('description') ?: '<span style="color:#9ca3af;">Mulai menulis untuk melihat pratinjau rumus…</span>')
+                        . '</div>'
+                    )),
             ]);
     }
 }

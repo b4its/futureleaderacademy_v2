@@ -36,6 +36,10 @@ class PengajarPanelProvider extends PanelProvider
                 'panels::auth.login.form.after',
                 fn () => view('filament.hooks.halaman-utama-button'),
             )
+            ->renderHook(
+                'panels::body.end',
+                fn () => view('filament.mathjax'),
+            )
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Pembelajaran Pengajar')
