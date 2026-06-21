@@ -65,11 +65,12 @@ class TryoutPembelajaranControllers extends Controller
         $deadline = $attempt->waktu_dimulai->copy()->addMinutes($batasWaktuMenit);
         $sisaWaktu = max(0, $deadline->timestamp - now()->timestamp);
 
-        // 2. Tarik soal berdasarkan kategori dan tipe
+        // 2. Tarik soal berdasarkan kategori dan tipe.
+        //    Urutan mengikuti urutan pembuatan soal (id ASC), tidak diacak.
         $soal = Soal::with('kategoriTes')
             ->where('kategori_tes_id', $tesPengetahuan->kategori_tes_id)
             ->where('tipe_soal_id', $tesPengetahuan->tipe_soal_id)
-            ->inRandomOrder()
+            ->orderBy('id')
             ->limit($tesPengetahuan->total_soal)
             ->get();
 

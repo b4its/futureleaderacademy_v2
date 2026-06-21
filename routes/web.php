@@ -16,6 +16,28 @@ use Illuminate\Support\Facades\Route;
 // ==================== PUBLIC ROUTES ====================
 Route::get('/', [DashboardControllers::class, 'index'])->name('welcome');
 
+/*
+ | Penyaji file media (fallback).
+ |
+ | Di sebagian hosting, document root situs (mis. public_html) BERBEDA dengan
+ | folder "public" milik Laravel (mis. public_html/public). Akibatnya file yang
+ | tersimpan di public_path('media/...') tidak dapat diakses langsung lewat URL
+ | dan menghasilkan 404. Route ini melayani file media langsung dari
+ | public_path('media') sehingga gambar tetap tampil tanpa bergantung pada
+ | konfigurasi document root. Di lokal, web server menyajikan file fisik lebih
+ | dulu sehingga route ini tidak terpakai (tanpa regresi).
+ */
+Route::get('media/{path}', function (string $path) {
+    $base = realpath(public_path('media'));
+    $full = realpath(public_path('media/' . $path));
+
+    abort_if($base === false || $full === false, 404);
+    abort_unless(str_starts_with($full, $base . DIRECTORY_SEPARATOR), 404); // cegah path traversal
+    abort_unless(is_file($full), 404);
+
+    return response()->file($full);
+})->where('path', '.*')->name('media.serve');
+
 // Auth Routes (hanya guest)
 Route::prefix('accounts')->middleware('guest')->group(function () {
     Route::get('auth', [LoginControllers::class, 'index'])->name('auth.index');

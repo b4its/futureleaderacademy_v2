@@ -81,11 +81,12 @@ class PaketTryoutPembelajaranControllers extends Controller
         $sisaWaktu = max(0, $deadline->timestamp - now()->timestamp);
 
         // Susun soal seluruh sub-tes secara berurutan, tetap menandai asal tes.
+        // Urutan soal mengikuti urutan pembuatan (id ASC), tidak diacak.
         $questions = [];
         foreach ($paket->tesList as $tes) {
             $soal = Soal::where('kategori_tes_id', $tes->kategori_tes_id)
                 ->where('tipe_soal_id', $tes->tipe_soal_id)
-                ->inRandomOrder()
+                ->orderBy('id')
                 ->limit($tes->total_soal ?: 1000)
                 ->get();
 
