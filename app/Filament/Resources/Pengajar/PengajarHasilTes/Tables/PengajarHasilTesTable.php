@@ -23,6 +23,12 @@ class PengajarHasilTesTable
                     ->sortable()
                     ->limit(30),
 
+                TextColumn::make('paketTes.nama')
+                    ->label('Paket')
+                    ->placeholder('—')
+                    ->badge()
+                    ->color('info'),
+
                 TextColumn::make('jumlah_benar')
                     ->label('Benar')
                     ->sortable()

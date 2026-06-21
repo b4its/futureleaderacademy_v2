@@ -1,5 +1,5 @@
 @extends('components.base_pembelajaran')
-@section('title', 'Ujian CAT - ' . ($tesPengetahuan->pelajaran ?? ''))
+@section('title', 'Ujian CAT - ' . ($examTitle ?? ($tesPengetahuan->pelajaran ?? '')))
 
 @push('styles')
 <style>
@@ -167,7 +167,7 @@
 @endpush
 
 @section('content_pembelajaran')
-<form id="formSubmitUjian" method="POST" action="{{ route('pembelajaran.cat.store', $tesPengetahuan->id) }}" style="display: none;">
+<form id="formSubmitUjian" method="POST" action="{{ $submitUrl ?? route('pembelajaran.cat.store', $tesPengetahuan->id) }}" style="display: none;">
     @csrf
     <input type="hidden" name="tes_pengetahuan_id" value="{{ $tesPengetahuan->id ?? 0 }}">
     <input type="hidden" name="jawaban_user" id="jawabanUserPayload">

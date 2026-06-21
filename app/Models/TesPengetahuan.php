@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TesPengetahuan extends Model
@@ -52,6 +53,16 @@ class TesPengetahuan extends Model
     public function hasilTes(): HasMany
     {
         return $this->hasMany(HasilTes::class);
+    }
+
+    /**
+     * Paket yang memuat tes ini (relasi many-to-many).
+     */
+    public function paketTes(): BelongsToMany
+    {
+        return $this->belongsToMany(PaketTes::class, 'paket_tes_tes', 'tes_pengetahuan_id', 'paket_tes_id')
+            ->withPivot('urutan')
+            ->withTimestamps();
     }
 
     /**

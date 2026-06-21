@@ -28,6 +28,7 @@ class AdminHasilTesTable
                     ->sortable(),
 
                 TextColumn::make('tesPengetahuan.pelajaran')->label("Pelajaran"),
+                TextColumn::make('paketTes.nama')->label("Paket")->placeholder('—')->badge()->color('info'),
                 TextColumn::make('total_nilai')->label("Total Nilai"),
 
             ])

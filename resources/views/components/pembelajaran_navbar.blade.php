@@ -26,6 +26,11 @@
                 <i class="fas fa-layer-group"></i> Tryout Ku
             </a>
         </li>
+        <li>
+            <a href="{{ route('pembelajaran.paket.index') }}" class="nav-link {{ request()->routeIs('pembelajaran.paket.*') ? 'active' : '' }}">
+                <i class="fas fa-box"></i> Paket Tryout
+            </a>
+        </li>
         @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'pengajar']))
         <li>
             <a href="{{ route('pembelajaran.pengajar.index') }}" class="nav-link {{ request()->routeIs('pembelajaran.pengajar.*') ? 'active' : '' }}">

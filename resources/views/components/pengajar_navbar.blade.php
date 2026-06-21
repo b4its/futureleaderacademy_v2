@@ -26,6 +26,12 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('pembelajaran.pengajar.paket.index') }}" 
+                   class="subnav-link {{ request()->routeIs('pembelajaran.pengajar.paket.*') ? 'active' : '' }}">
+                    <i class="fas fa-box"></i> Kelola Paket
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('pembelajaran.pengajar.progress') }}" 
                    class="subnav-link {{ request()->routeIs('pembelajaran.pengajar.progress') ? 'active' : '' }}">
                     <i class="fas fa-users"></i> Progress Member

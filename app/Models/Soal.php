@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Soal extends Model
 {
@@ -106,8 +107,73 @@ class Soal extends Model
             }
         };
 
-        static::saved($sync);
+        static::saved(function (Soal $soal) use ($sync) {
+            // Pastikan gambar berada di folder media/soal/{id}/ yang benar.
+            self::pindahkanGambarKeFolderId($soal);
+            $sync($soal);
+        });
         static::deleted($sync);
+    }
+
+    /**
+     * Pastikan seluruh gambar soal berada di folder media/soal/{id}/{kolom}/.
+     *
+     * Diperlukan karena upload via Filament pada saat "create" belum memiliki
+     * id record, sehingga file sempat tersimpan di folder sementara (mis.
+     * media/soal/temp/...). Setelah soal memiliki id, file dipindahkan ke
+     * folder yang benar dan path pada database ikut disesuaikan agar gambar
+     * dapat ditampilkan. Flow lama yang sudah benar otomatis dilewati.
+     */
+    protected static function pindahkanGambarKeFolderId(Soal $soal): void
+    {
+        if (empty($soal->id)) {
+            return;
+        }
+
+        $kolomGambar = [
+            'visual_pertanyaan',
+            'visual_jawaban_a', 'visual_jawaban_b', 'visual_jawaban_c',
+            'visual_jawaban_d', 'visual_jawaban_e',
+        ];
+
+        $perubahan = [];
+
+        foreach ($kolomGambar as $kolom) {
+            $path = $soal->{$kolom};
+            if (!$path) {
+                continue;
+            }
+
+            $folderTujuan = "media/soal/{$soal->id}/{$kolom}";
+
+            // Sudah berada di folder yang benar → lewati.
+            if (str_starts_with($path, $folderTujuan . '/')) {
+                continue;
+            }
+
+            $sumber = public_path($path);
+            if (!is_file($sumber)) {
+                continue; // file fisik tidak ada, jangan ubah path
+            }
+
+            $namaFile = basename($path);
+            $pathBaru = "{$folderTujuan}/{$namaFile}";
+            $tujuan = public_path($pathBaru);
+
+            if (!is_dir(dirname($tujuan))) {
+                @mkdir(dirname($tujuan), 0775, true);
+            }
+
+            if (@rename($sumber, $tujuan)) {
+                $perubahan[$kolom] = $pathBaru;
+            }
+        }
+
+        if (!empty($perubahan)) {
+            // Update langsung agar tidak memicu event model (hindari rekursi).
+            DB::table('soal')->where('id', $soal->id)->update($perubahan);
+            $soal->setRawAttributes(array_merge($soal->getAttributes(), $perubahan), true);
+        }
     }
 
     /**

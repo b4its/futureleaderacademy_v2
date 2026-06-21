@@ -245,8 +245,10 @@ class PengajarSoalForm
             ->getUploadedFileNameForStorageUsing(function ($file, ?Model $record) use ($prefixName) {
                 $ext = $file->getClientOriginalExtension();
                 $datetime = now()->format('Ymd_His');
-                $id = $record?->id ?? 'new';
-                return "{$prefixName}_{$datetime}_{$id}.{$ext}";
+                // Nama unik agar tidak bentrok di folder staging saat create
+                // (id record belum tersedia). File akan dipindahkan ke
+                // media/soal/{id}/ oleh model Soal setelah tersimpan.
+                return "{$prefixName}_{$datetime}_" . uniqid() . ".{$ext}";
             })
             ->previewable(false) 
             ->extraAttributes(['data-on-error' => 'this.style.display="none"']) 

@@ -6,6 +6,8 @@ use App\Http\Controllers\Accounts\RegisterControllers;
 use App\Http\Controllers\Artikel\ArtikelControllers;
 use App\Http\Controllers\DashboardControllers;
 use App\Http\Controllers\Pembelajaran\PembelajaranControllers;
+use App\Http\Controllers\Pembelajaran\PaketTryoutPembelajaranControllers;
+use App\Http\Controllers\Pembelajaran\Pengajar\PaketPengajarControllers;
 use App\Http\Controllers\Pembelajaran\Pengajar\PembelajaranPengajarControllers;
 use App\Http\Controllers\Pembelajaran\StatistikPembelajaranControllers;
 use App\Http\Controllers\Pembelajaran\TryoutPembelajaranControllers;
@@ -53,6 +55,14 @@ Route::prefix('pembelajaran')->middleware('auth')->group(function () {
         Route::post('cat/{id}', 'store')->name('pembelajaran.cat.store');
     });
 
+    // Paket Tes (gabungan beberapa tes_pengetahuan)
+    Route::controller(PaketTryoutPembelajaranControllers::class)->group(function () {
+        Route::get('paket', 'index')->name('pembelajaran.paket.index');
+        Route::get('paket/{id}', 'show')->name('pembelajaran.paket.show');
+        Route::post('paket/{id}', 'store')->name('pembelajaran.paket.store');
+        Route::get('paket/{id}/hasil/{attemptId}', 'hasil')->name('pembelajaran.paket.hasil');
+    });
+
     // Sub-domain Pengajar (hanya admin & pengajar)
     Route::prefix('pengajar')->name('pembelajaran.pengajar.')->middleware('role:admin,pengajar')->group(function () {
         Route::controller(PembelajaranPengajarControllers::class)->group(function () {
@@ -72,6 +82,16 @@ Route::prefix('pembelajaran')->middleware('auth')->group(function () {
             Route::post('{id}/soal', 'updateSoal')->name('tes.soal.update');
 
             Route::delete('{id}', 'destroy')->name('tes.destroy');
+        });
+
+        // Kelola Paket Tes (gabungan beberapa tes) - admin & pengajar
+        Route::controller(PaketPengajarControllers::class)->group(function () {
+            Route::get('paket', 'index')->name('paket.index');
+            Route::get('paket/create', 'create')->name('paket.create');
+            Route::post('paket', 'store')->name('paket.store');
+            Route::get('paket/{id}/edit', 'edit')->name('paket.edit');
+            Route::post('paket/{id}/update', 'update')->name('paket.update');
+            Route::delete('paket/{id}', 'destroy')->name('paket.destroy');
         });
     });
 });

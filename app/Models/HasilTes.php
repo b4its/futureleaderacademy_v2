@@ -13,6 +13,8 @@ class HasilTes extends Model
         'user_id',
         'kategori_tes_id',
         'tes_pengetahuan_id',
+        'paket_tes_id',
+        'paket_tes_hasil_id',
         'jumlah_benar',
         'jumlah_salah',
         'total_nilai',
@@ -38,5 +40,15 @@ class HasilTes extends Model
     public function tesPengetahuan(): BelongsTo
     {
         return $this->belongsTo(TesPengetahuan::class);
+    }
+
+    public function paketTes(): BelongsTo
+    {
+        return $this->belongsTo(PaketTes::class);
+    }
+
+    public function paketTesHasil(): BelongsTo
+    {
+        return $this->belongsTo(PaketTesHasil::class);
     }
 }
